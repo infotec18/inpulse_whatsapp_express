@@ -19,6 +19,7 @@ import { recoverUserService } from "./users/recover.service";
 import { softDeleteUserService } from "./users/softDelete.service";
 import { updateUserService } from "./users/update.service";
 import { findNumberService } from "./wnumbers/find.service";
+import { findAttendancesByUserService } from "./attendances/findByOperator.service";
 
 const services = {
     users: {
@@ -41,7 +42,8 @@ const services = {
     },
     attendances: {
         find: findAttendanceService,
-        create: createAttendanceService
+        create: createAttendanceService,
+        findByUser: findAttendancesByUserService
     },
     costumers: {
         create: createCostumerService,

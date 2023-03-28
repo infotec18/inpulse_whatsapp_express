@@ -1,3 +1,5 @@
-const chats: Array<string> = [];
+const chats: Array<string> = [
+    
+];
 
 export default chats;

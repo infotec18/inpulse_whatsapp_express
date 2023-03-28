@@ -14,7 +14,6 @@ AppDataSource.initialize()
             origin: "*",
             methods: ["GET", "POST"]
         } });
-        console.log(WebSocket)
 
         app.listen(PORT, () => {
             console.log(`App is running on http://localhost:${PORT}`);

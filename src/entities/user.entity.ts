@@ -4,8 +4,10 @@ import {
     BeforeUpdate,
     Column, 
     Entity, 
+    OneToMany, 
     PrimaryColumn, 
 } from "typeorm";
+import { Attendance } from "./attendance.entity";
 
 @Entity('operadores')
 export class User {
@@ -45,4 +47,7 @@ export class User {
         const isEncrypted = getRounds(this.SENHA);
         if(!isEncrypted) this.SENHA = hashSync(this.SENHA, 10);
     };
+
+    @OneToMany(() => Attendance, attendance => attendance.OPERADOR)
+    ATENDIMENTOS: Attendance[];
 };

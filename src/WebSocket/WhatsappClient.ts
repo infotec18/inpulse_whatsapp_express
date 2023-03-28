@@ -2,7 +2,9 @@ import { Client } from "whatsapp-web.js";
 import WebSocket from ".";
 import { Wnumber } from "../entities/wnumber.entity";
 import services from "../services";
-import qrcode from 'qrcode-terminal'
+import { Sessions } from ".";
+import { User } from "../entities/user.entity";
+import { Attendance } from "../entities/attendance.entity";
 
 const WhatsappWeb = new Client({
     puppeteer: {
@@ -19,9 +21,9 @@ const WhatsappWeb = new Client({
     }
 });
 
+let UsersAttendances: Array<{ OPERADOR: User, ATENDIMENTOS: Attendance[] }> = [];
+
 WhatsappWeb.on("qr", (qr: string) => {
-    console.log("QR RECEIVED", qr);
-    qrcode.generate(qr, {small: true})
     WebSocket.emit("qr", qr);
 });
 
@@ -42,8 +44,14 @@ WhatsappWeb.on("message", async (message) => {
             if(findAttendance) {
                 WebSocket.to(findAttendance.CODIGO as unknown as string).emit("message", message.body)
             } else {
-                await services.attendances.create(message)
-                WebSocket.emit("message", message.body)
+                Sessions.forEach(async(s) => { 
+                    let attendances = await services.attendances.findByUser(s.userId);
+                    UsersAttendances.push(attendances);
+                    console.log(attendances)
+                })
+                
+                //await services.attendances.create(message);
+                //WebSocket.emit("message", message.body)
             };
 
         } else {

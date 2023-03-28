@@ -1,8 +1,13 @@
 import { 
     Column,
     Entity, 
+    JoinColumn, 
+    ManyToOne, 
+    OneToOne, 
     PrimaryGeneratedColumn, 
 } from "typeorm";
+import { Chat } from "./chat.entity";
+import { User } from "./user.entity";
 
 @Entity('atendimentos')
 export class Attendance {
@@ -26,4 +31,12 @@ export class Attendance {
 
     @Column({ type: 'datetime', nullable: true })
     DATA_FIM: Date;
+
+    @ManyToOne(() => User, user => user.ATENDIMENTOS)
+    @JoinColumn()
+    OPERADOR: User;
+
+    @OneToOne(() => Chat)
+    @JoinColumn({ name: 'CODIGO' })
+    chat: Chat;
 };
