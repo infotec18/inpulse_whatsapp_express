@@ -24,7 +24,7 @@ const dataSourceConfig = (): DataSourceOptions => {
         type: 'mysql',
         url: databaseURL,
         synchronize: false,
-        logging: true,
+        logging: false,
         entities: [entitiesPath],
         migrations: [migrationsPath]
     };
