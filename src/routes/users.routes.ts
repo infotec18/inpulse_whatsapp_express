@@ -24,9 +24,14 @@ userRoutes.get("/api/users/status",
 userRoutes.delete("/api/users/:userId",
     middlewares.users.ensureParamUserIdExists,
     controllers.users.softDelete
-)
+);
 
 userRoutes.put("/api/users/:userId/recover",
     middlewares.users.ensureParamUserIdExists,
     controllers.users.recover
-)
+);
+
+userRoutes.patch("/api/users/:userId/", 
+    middlewares.users.ensureParamUserIdExists,
+    controllers.users.update
+);
