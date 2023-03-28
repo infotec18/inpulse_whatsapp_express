@@ -42,7 +42,15 @@ WhatsappWeb.on("message", async (message) => {
             const findAttendance = await services.attendances.find(findNumber.CODIGO);
 
             if(findAttendance) {
-                WebSocket.to(findAttendance.CODIGO as unknown as string).emit("message", message.body)
+                const aSession = Sessions.find(s => s.userId === findAttendance.CODIGO_OPERADOR);
+                if(aSession) WebSocket.to(aSession.socketId).emit("message", message.body)
+                const findChat = "procura o chat desse atendimento"
+
+                if(findChat) {
+                    /*Inserir mensagem no chat */
+                } else {
+                    /*Criar um chat para esse atendimento e inserir a mensagem */
+                };
             } else {
                 Sessions.forEach(async(s) => { 
                     let attendances = await services.attendances.findByUser(s.userId);
@@ -51,7 +59,7 @@ WhatsappWeb.on("message", async (message) => {
                 })
                 
                 //await services.attendances.create(message);
-                //WebSocket.emit("message", message.body)
+                //WebSocket.emit("message", message.body);
             };
 
         } else {
