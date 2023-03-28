@@ -1,10 +1,11 @@
-import { Client } from "whatsapp-web.js";
+import { Client, LocalAuth } from "whatsapp-web.js";
 import WebSocket from ".";
 import { Wnumber } from "../entities/wnumber.entity";
 import services from "../services";
 import qrcode from 'qrcode-terminal'
 
 const WhatsappWeb = new Client({
+    authStrategy: new LocalAuth(),
     puppeteer: {
         headless: true,
         args: [
@@ -27,6 +28,7 @@ WhatsappWeb.on("qr", (qr: string) => {
 
 WhatsappWeb.on("authenticated", (data) => {
     WebSocket.emit("authenticated", data);
+    console.log('teste')
 });
 
 WhatsappWeb.on("message", async (message) => {
