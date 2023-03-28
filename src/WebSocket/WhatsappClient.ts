@@ -2,6 +2,7 @@ import { Client } from "whatsapp-web.js";
 import WebSocket from ".";
 import { Wnumber } from "../entities/wnumber.entity";
 import services from "../services";
+import qrcode from 'qrcode-terminal'
 
 const WhatsappWeb = new Client({
     puppeteer: {
@@ -19,6 +20,8 @@ const WhatsappWeb = new Client({
 });
 
 WhatsappWeb.on("qr", (qr: string) => {
+    console.log("QR RECEIVED", qr);
+    qrcode.generate(qr, {small: true})
     WebSocket.emit("qr", qr);
 });
 
@@ -28,8 +31,8 @@ WhatsappWeb.on("authenticated", (data) => {
 
 WhatsappWeb.on("message", async (message) => {
     const isMe: boolean = message.fromMe;
+
     if(!isMe) {
-        console.log(message);
         const str: string = message.from;
         const findNumber: Wnumber | null = await services.wnumbers.find(str.slice(0, str.length - 5));
         
@@ -37,15 +40,16 @@ WhatsappWeb.on("message", async (message) => {
             const findAttendance = await services.attendances.find(findNumber.CODIGO);
 
             if(findAttendance) {
-                console.log(findAttendance);
+                WebSocket.to(findAttendance.CODIGO as unknown as string).emit("message", message.body)
             } else {
-                console.log("Não achou, criar novo atendimento.");
+                await services.attendances.create(message)
+                WebSocket.emit("message", message.body)
             };
 
         } else {
-            console.log("Numero não cadastrado, iniciar processo de autocadastro OU atendimento humano");
+            await services.wnumbers.create(message.body)
+            WebSocket.emit("message", message.body)
         };
-        
     };
 });
 

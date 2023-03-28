@@ -1,4 +1,6 @@
 import { findAttendanceService } from "./attendances/find.service";
+import { createAttendanceService } from "./attendances/create.service";
+import { createNumberService } from "./wnumbers/create.service";
 import { getOneAvatarByUserIdService } from "./avatars/getOneByUserId.service";
 import { insertUserAvatarService } from "./avatars/insert.service";
 import { createCostumerService } from "./costumers/create.service";
@@ -34,10 +36,12 @@ const services = {
         getOneById: getOneAvatarByUserIdService
     },
     wnumbers: {
-        find: findNumberService
+        find: findNumberService,
+        create: createNumberService
     },
     attendances: {
-        find: findAttendanceService
+        find: findAttendanceService,
+        create: createAttendanceService
     },
     costumers: {
         create: createCostumerService,
