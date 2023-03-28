@@ -4,7 +4,8 @@ declare global {
     namespace Express {
         interface Request {
             user: {
-                CODIGO: number
+                CODIGO: number,
+                isAdmin: boolean
             }
         }
     }

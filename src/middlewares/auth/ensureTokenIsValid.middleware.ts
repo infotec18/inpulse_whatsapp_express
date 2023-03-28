@@ -9,7 +9,7 @@ export function ensureTokenIsValid (req: Request, res: Response, next: NextFunct
 
     Jwt.verify(token, process.env.JWT__SECRET_KEY!, (error, decoded: any) => {
         if (error) throw new AppError(error.message, 401);
-        if (decoded) { req.user.CODIGO = decoded.CODIGO };
+        if (decoded.CODIGO) { req.user = { CODIGO: Number(decoded.CODIGO), isAdmin: Boolean(decoded.isAdmin) }};
     });
 
     next();
