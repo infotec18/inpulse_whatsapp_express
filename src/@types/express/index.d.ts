@@ -1,4 +1,5 @@
 import { Request } from "express"
+import { User } from "../../entities/user.entity"
 
 declare global {
     namespace Express {
@@ -6,7 +7,8 @@ declare global {
             user: {
                 CODIGO: number,
                 isAdmin: boolean
-            }
+            },
+            findUser: User
         }
     }
 }

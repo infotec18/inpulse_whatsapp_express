@@ -20,3 +20,8 @@ userRoutes.get("/api/users/status",
     middlewares.auth.ensureTokenIsValid,
     controllers.users.getOneById
 );
+
+userRoutes.delete("/api/users/:userId",
+    middlewares.users.ensureParamUserIdExists,
+    controllers.users.softDelete
+)
