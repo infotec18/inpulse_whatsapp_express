@@ -1,5 +1,12 @@
 import { getOneAvatarByUserIdService } from "./avatars/getOneByUserId.service";
 import { insertUserAvatarService } from "./avatars/insert.service";
+import { createCostumerService } from "./costumers/create.service";
+import { getAllCostumersService } from "./costumers/getAll.service";
+import { getLastCostumerIdService } from "./costumers/getLastId.service";
+import { getOneCostumersService } from "./costumers/getOneById.service";
+import { recoverCostumerService } from "./costumers/recover.service";
+import { deleteCostumerService } from "./costumers/softDelete.service";
+import { updateCostumerService } from "./costumers/update.service";
 import { createUserService } from "./users/create.service";
 import { getAllUsersService } from "./users/getAll.service";
 import { getLastUserIdService } from "./users/getLastId.service";
@@ -23,6 +30,15 @@ const services = {
     avatars: {
         insert: insertUserAvatarService,
         getOneById: getOneAvatarByUserIdService
+    },
+    costumers: {
+        create: createCostumerService,
+        getAll: getAllCostumersService,
+        getOneById: getOneCostumersService,
+        recover: recoverCostumerService,
+        softDelete: deleteCostumerService,
+        update: updateCostumerService,
+        getLastId: getLastCostumerIdService
     }
 };
 
