@@ -11,8 +11,11 @@
     "jsonwebtoken": "^9.0.0",
     "mysql": "^2.18.1",
     "pg": "^8.10.0",
+    "qrcode-terminal": "^0.12.0",
     "reflect-metadata": "^0.1.13",
+    "socket.io": "^4.6.1",
     "typeorm": "0.3.11",
+    "whatsapp-web.js": "^1.19.5",
     "zod": "^3.21.4"
   },
   "devDependencies": {
@@ -21,6 +24,7 @@
     "@types/jsonwebtoken": "^9.0.1",
     "@types/mysql": "^2.15.21",
     "@types/pg": "^8.6.6",
+    "@types/socket.io": "^3.0.2",
     "sqlite3": "^5.1.6",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.0.2"
