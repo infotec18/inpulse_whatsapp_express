@@ -31,7 +31,11 @@ userRoutes.put("/api/users/:userId/recover",
     controllers.users.recover
 );
 
-userRoutes.patch("/api/users/:userId/", 
+userRoutes.patch("/api/users/:userId", 
     middlewares.users.ensureParamUserIdExists,
     controllers.users.update
+);
+
+userRoutes.get("/api/users/lastid",
+    controllers.users.getLastId
 );

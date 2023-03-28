@@ -1,5 +1,8 @@
+import { getOneAvatarByUserIdService } from "./avatars/getOneByUserId.service";
+import { insertUserAvatarService } from "./avatars/insert.service";
 import { createUserService } from "./users/create.service";
 import { getAllUsersService } from "./users/getAll.service";
+import { getLastUserIdService } from "./users/getLastId.service";
 import { getOneUserByIdService } from "./users/getOneById.service";
 import { loginUserService } from "./users/login.service";
 import { recoverUserService } from "./users/recover.service";
@@ -14,7 +17,12 @@ const services = {
         login: loginUserService,
         recover: recoverUserService,
         softDelete: softDeleteUserService,
-        update: updateUserService
+        update: updateUserService,
+        getLastId: getLastUserIdService
+    },
+    avatars: {
+        insert: insertUserAvatarService,
+        getOneById: getOneAvatarByUserIdService
     }
 };
 
