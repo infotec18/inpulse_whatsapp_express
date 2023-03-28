@@ -1,5 +1,7 @@
 import app from "./app";
 import { AppDataSource } from "./data-source";
+import './sockets/index';
+import './sockets/qrCode/index';
 
 const PORT: number = Number(process.env.PORT) | 8000;
 
