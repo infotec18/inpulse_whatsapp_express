@@ -38,6 +38,7 @@ const services = {
     },
     attendances: {
         find: findAttendanceService
+    },
     costumers: {
         create: createCostumerService,
         getAll: getAllCostumersService,
