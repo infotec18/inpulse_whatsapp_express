@@ -3,7 +3,7 @@ import services from "../../services";
 
 export const getOneAvatarByUserIdController = async (req: Request, res: Response) => {
 
-    const findAvatar = await services.avatars.getOneById(req.user.CODIGO);
+    const findAvatar = await services.avatars.getOneById(req.findUser.CODIGO);
 
     return res.status(200).json(findAvatar);
 };
