@@ -1,5 +1,5 @@
 import { ensureTokenIsValid } from "./auth/ensureTokenIsValid.middleware";
-import { ensureParamCostumerIdExists } from "./costumers/ensureParamCostumerIdExists.middleware";
+import { ensureParamCustomerIdExists } from "./customers/ensureParamCustomerIdExists.middleware";
 import { ensureParamUserIdExists } from "./users/ensureParamUserIdExists.middleware";
 
 const middlewares = {
@@ -9,8 +9,8 @@ const middlewares = {
     users: {
         ensureParamUserIdExists
     },
-    costumers: {
-        ensureParamCostumerIdExists
+    customers: {
+        ensureParamCustomerIdExists
     }
 };
 

@@ -5,7 +5,7 @@ import {
 } from "typeorm";
 
 @Entity('clientes')
-export class Costumer {
+export class Customer {
     @PrimaryColumn()
     CODIGO: number;
 
@@ -25,7 +25,7 @@ export class Costumer {
     CPF_CNPJ: string;
 
     @Column({ type: 'datetime', default: '0000-00-00 00:00:00' })
-    DATACAD: string;
+    DATACAD: Date;
 
     @Column({ type: 'date', default: '0000-00-00' })
     ULTI_RESULTADO: string;

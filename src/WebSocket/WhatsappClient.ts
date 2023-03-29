@@ -2,7 +2,10 @@ import { Client, LocalAuth } from "whatsapp-web.js";
 import WebSocket from ".";
 import { Wnumber } from "../entities/wnumber.entity";
 import services from "../services";
-import qrcode from 'qrcode-terminal'
+import { Sessions } from ".";
+import { Attendance } from "../entities/attendance.entity";
+import { RunningAttendance, RunningRegistration } from "../interfaces/attendances.interfaces";
+import { registrationBot } from "../bots/registration.bot";
 
 const WhatsappWeb = new Client({
     authStrategy: new LocalAuth(),
@@ -20,37 +23,71 @@ const WhatsappWeb = new Client({
     }
 });
 
+let RunningAttendances: Array<RunningAttendance> = [];
+let RunningRegistrations: Array<RunningRegistration> = [];
+
 WhatsappWeb.on("qr", (qr: string) => {
-    console.log("QR RECEIVED", qr);
-    qrcode.generate(qr, {small: true})
     WebSocket.emit("qr", qr);
 });
 
 WhatsappWeb.on("authenticated", (data) => {
     WebSocket.emit("authenticated", data);
-    console.log('teste')
 });
 
 WhatsappWeb.on("message", async (message) => {
-    const isMe: boolean = message.fromMe;
+    // Remove caracteres extras do número
+    const str: string = message.from;
+    const number: string = str.slice(0, str.length - 5);
 
-    if(!isMe) {
-        const str: string = message.from;
-        const findNumber: Wnumber | null = await services.wnumbers.find(str.slice(0, str.length - 5));
+    console.log(RunningRegistrations);
+
+    const isMe: boolean = message.fromMe;
+    let registrating = RunningRegistrations.find(r => r.WPP_NUMERO === number);
+    
+    if(registrating) {
+        const { registration, reply } = await registrationBot(registrating, message.body);
+        reply && message.reply(reply);
+        let index = RunningRegistrations.findIndex(r => r.WPP_NUMERO === number);
+        RunningRegistrations[index] = registration;
+        if(registration.CONCLUIDO) {
+            RunningRegistrations = RunningRegistrations.filter(r => r.WPP_NUMERO !== registration.WPP_NUMERO);
+        };
+    } else if(!isMe) {
+    // Caso a mensagem não seja minha (mensagem recebida):
+        // Tenta encontrar o número na base de dados...
+        const findNumber: Wnumber | null = await services.wnumbers.find(number);
         
+
         if(findNumber) {
+        // Caso encontre o número
+            // Tenta encontrar um atendimento para esse número (não concluído)
             const findAttendance = await services.attendances.find(findNumber.CODIGO);
 
             if(findAttendance) {
-                WebSocket.to(findAttendance.CODIGO as unknown as string).emit("message", message.body)
+            // Caso encontre um atendimento para este número...
             } else {
-                await services.attendances.create(message)
-                WebSocket.emit("message", message.body)
-            };
+            // Caso não encontre um atendimento para este número...
+                // Cria um novo atendimento:
+                const newAttendance: Attendance = await services.attendances.create({
+                    CODIGO_OPERADOR: null,
+                    CODIGO_CLIENTE: findNumber.CODIGO_CLIENTE,
+                    CODIGO_NUMERO: findNumber.CODIGO,
+                    CONCUIDO: false,
+                    DATA_INICIO: new Date(),
+                    DATA_FIM: null
+                });
 
+                console.log(newAttendance);
+            };
         } else {
-            await services.wnumbers.create(message.body)
-            WebSocket.emit("message", message.body)
+            // Caso não encontre o número na base de dados...
+            const newRegistration = { WPP_NUMERO: number, ETAPA: 1, DADOS: {}, CONCLUIDO: false};
+            RunningRegistrations.push(newRegistration);
+            const { registration, reply } = await registrationBot(newRegistration, message.body);
+            reply && message.reply(reply);
+            let index = RunningRegistrations.findIndex(r => r.WPP_NUMERO === number);
+            RunningRegistrations[index] = registration;
+
         };
     };
 });

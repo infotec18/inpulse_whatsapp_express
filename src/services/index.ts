@@ -3,13 +3,13 @@ import { createAttendanceService } from "./attendances/create.service";
 import { createNumberService } from "./wnumbers/create.service";
 import { getOneAvatarByUserIdService } from "./avatars/getOneByUserId.service";
 import { insertUserAvatarService } from "./avatars/insert.service";
-import { createCostumerService } from "./costumers/create.service";
-import { getAllCostumersService } from "./costumers/getAll.service";
-import { getLastCostumerIdService } from "./costumers/getLastId.service";
-import { getOneCostumersService } from "./costumers/getOneById.service";
-import { recoverCostumerService } from "./costumers/recover.service";
-import { deleteCostumerService } from "./costumers/softDelete.service";
-import { updateCostumerService } from "./costumers/update.service";
+import { createCustomerService } from "./customers/create.service";
+import { getAllCustomersService } from "./customers/getAll.service";
+import { getLastCustomerIdService } from "./customers/getLastId.service";
+import { getOneCustomersService } from "./customers/getOneById.service";
+import { recoverCustomerService } from "./customers/recover.service";
+import { deleteCustomerService } from "./customers/softDelete.service";
+import { updateCustomerService } from "./customers/update.service";
 import { createUserService } from "./users/create.service";
 import { getAllUsersService } from "./users/getAll.service";
 import { getLastUserIdService } from "./users/getLastId.service";
@@ -19,6 +19,9 @@ import { recoverUserService } from "./users/recover.service";
 import { softDeleteUserService } from "./users/softDelete.service";
 import { updateUserService } from "./users/update.service";
 import { findNumberService } from "./wnumbers/find.service";
+import { findAttendancesByUserService } from "./attendances/findByOperator.service";
+import { findByCPFCNPJ } from "./customers/findByCPF.service";
+import { directCreateCustomerService } from "./customers/directCreate.service";
 
 const services = {
     users: {
@@ -41,16 +44,19 @@ const services = {
     },
     attendances: {
         find: findAttendanceService,
-        create: createAttendanceService
+        create: createAttendanceService,
+        findByUser: findAttendancesByUserService
     },
-    costumers: {
-        create: createCostumerService,
-        getAll: getAllCostumersService,
-        getOneById: getOneCostumersService,
-        recover: recoverCostumerService,
-        softDelete: deleteCostumerService,
-        update: updateCostumerService,
-        getLastId: getLastCostumerIdService
+    customers: {
+        directCreate: directCreateCustomerService,
+        create: createCustomerService,
+        getAll: getAllCustomersService,
+        getOneById: getOneCustomersService,
+        recover: recoverCustomerService,
+        softDelete: deleteCustomerService,
+        update: updateCustomerService,
+        getLastId: getLastCustomerIdService,
+        findByCPFCNPJ: findByCPFCNPJ
     }
 };
 

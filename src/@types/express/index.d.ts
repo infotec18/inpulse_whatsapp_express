@@ -1,6 +1,6 @@
 import { Request } from "express"
 import { User } from "../../entities/user.entity"
-import { Costumer } from "../../entities/costumer.entity"
+import { Customer } from "../../entities/customer"
 
 declare global {
     namespace Express {
@@ -9,11 +9,11 @@ declare global {
                 CODIGO: number,
                 isAdmin: boolean
             },
-            costumer: {
+            customer: {
                 CODIGO: number
             },
             findUser: User,
-            findCostumer: Costumer
+            findCustomer: Customer
         }
     }
 }
