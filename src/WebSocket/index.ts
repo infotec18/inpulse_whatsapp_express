@@ -16,7 +16,7 @@ WebSocket.on('connection', (socket: Socket) => {
     socket.on("session-connect", (data: number) => {
         if(!Sessions.find(s => s.userId === data )) {
             Sessions.push({ socketId: socket.id, userId: data});
-        }
+        };
         console.log(Sessions);
     });
 

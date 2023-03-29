@@ -39,7 +39,7 @@ export class User {
     CODIGO_ERP: string;
 
     @Column({ type: 'datetime' })
-      DATACAD: Date;
+    DATACAD: Date;
 
     @BeforeInsert()
     @BeforeUpdate()

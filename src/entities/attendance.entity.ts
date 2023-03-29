@@ -3,10 +3,12 @@ import {
     Entity, 
     JoinColumn, 
     ManyToOne, 
+    OneToMany, 
     OneToOne, 
     PrimaryGeneratedColumn, 
 } from "typeorm";
-import { Chat } from "./chat.entity";
+import { Message } from "./message.entity";
+import { Tabulation } from "./tabulation.entity";
 import { User } from "./user.entity";
 
 @Entity('atendimentos')
@@ -14,7 +16,7 @@ export class Attendance {
     @PrimaryGeneratedColumn()
     CODIGO: number;
 
-    @Column({ type: 'int',  unique: true, nullable: false})
+    @Column({ type: 'int',  unique: true, nullable: true})
     CODIGO_OPERADOR: number;
 
     @Column({ type: 'int',  unique: true, nullable: false})
@@ -30,13 +32,15 @@ export class Attendance {
     DATA_INICIO: Date;
 
     @Column({ type: 'datetime', nullable: true })
-    DATA_FIM: Date;
+    DATA_FIM: string;
 
     @ManyToOne(() => User, user => user.ATENDIMENTOS)
     @JoinColumn()
     OPERADOR: User;
 
-    @OneToOne(() => Chat)
-    @JoinColumn({ name: 'CODIGO' })
-    chat: Chat;
+    @OneToMany(() => Message, message => message.ATENDIMENTO)
+    MENSAGENS: Message[];
+
+    @OneToMany(() => Tabulation, tabulation => tabulation.ATENDIMENTO)
+    HISTORICO: Tabulation[];
 };
