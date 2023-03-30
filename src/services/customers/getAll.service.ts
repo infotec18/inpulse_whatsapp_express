@@ -1,12 +1,16 @@
-import { Request, Response } from "express";
 import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
 import { Customer } from "../../entities/customer";
 
-export async function getAllCustomersService(): Promise<Customer[]> {
+export async function getAllCustomersService(limite: number, pagina: number) {
     const customersRepository: Repository<Customer> = AppDataSource.getRepository(Customer);
 
-    const findCustomers: Customer[] = await customersRepository.find();
+    const [ dados, total ] = await customersRepository
+        .createQueryBuilder('clientes')
+        .orderBy('clientes.CODIGO', 'ASC')
+        .skip((pagina - 1) * limite)
+        .take(limite)
+        .getManyAndCount()
 
-    return findCustomers;
+    return { dados, total };
 }
