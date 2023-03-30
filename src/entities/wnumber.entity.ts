@@ -1,8 +1,11 @@
 import { 
     Column,
     Entity, 
+    JoinColumn, 
+    ManyToOne, 
     PrimaryGeneratedColumn, 
 } from "typeorm";
+import { Customer } from "./customer";
 
 @Entity('clientes_numeros')
 export class Wnumber {
@@ -18,4 +21,7 @@ export class Wnumber {
     @Column({ type: 'varchar', length: 20, unique: true })
     NUMERO: string;
 
+    @ManyToOne(() => Customer, (customer) => customer.TELEFONES)
+    @JoinColumn({ name: 'CODIGO_CLIENTE' })
+    CLIENTE: Customer;
 };

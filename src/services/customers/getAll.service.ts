@@ -7,6 +7,7 @@ export async function getAllCustomersService(limite: number, pagina: number) {
 
     const [ dados, total ] = await customersRepository
         .createQueryBuilder('clientes')
+        .leftJoinAndSelect('clientes.TELEFONES', 'wn')
         .orderBy('clientes.CODIGO', 'ASC')
         .skip((pagina - 1) * limite)
         .take(limite)
