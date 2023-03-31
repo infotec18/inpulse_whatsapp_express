@@ -1,8 +1,10 @@
 import { 
     Column,
     Entity, 
+    OneToMany, 
     PrimaryColumn, 
 } from "typeorm";
+import { Wnumber } from "./wnumber.entity";
 
 @Entity('clientes')
 export class Customer {
@@ -35,4 +37,7 @@ export class Customer {
     
     @Column({ type: 'varchar', length: '20', default: null })
     COD_ERP: string
+
+    @OneToMany(() => Wnumber, (wn) => wn.CLIENTE)
+    TELEFONES: Wnumber[];
 }
