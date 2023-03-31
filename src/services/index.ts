@@ -22,6 +22,7 @@ import { findNumberService } from "./wnumbers/find.service";
 import { findAttendancesByUserService } from "./attendances/findByOperator.service";
 import { findByCPFCNPJ } from "./customers/findByCPF.service";
 import { directCreateCustomerService } from "./customers/directCreate.service";
+import { createMessageService } from "./messages/create.service";
 
 const services = {
     users: {
@@ -57,6 +58,9 @@ const services = {
         update: updateCustomerService,
         getLastId: getLastCustomerIdService,
         findByCPFCNPJ: findByCPFCNPJ
+    },
+    messages: {
+        create: createMessageService
     }
 };
 

@@ -48,6 +48,4 @@ export class User {
         if(!isEncrypted) this.SENHA = hashSync(this.SENHA, 10);
     };
 
-    @OneToMany(() => Attendance, attendance => attendance.OPERADOR)
-    ATENDIMENTOS: Attendance[];
 };

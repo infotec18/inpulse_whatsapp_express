@@ -12,7 +12,7 @@ export async function directCreateCustomerService(params: CustomerRegistrationDa
 
     const customersRepository: Repository<Customer> = AppDataSource.getRepository(Customer);
 
-    const newCustomer = await customersRepository.save({...params, CODIGO: lastId + 1, DATACAD });
+    const newCustomer = await customersRepository.save({...params, CODIGO: lastId + 1, DATACAD, COD_ERP: null });
 
     return newCustomer;
 };
