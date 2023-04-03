@@ -11,6 +11,7 @@ WebSocket.on('connection', (socket: Socket) => {
 
     socket.on("disconnect", (reason, description) => {
         Sessions = Sessions.filter(s => s.socketId !== socket.id);
+        console.log(`${socket.id} is disconnected. reason: ${reason}.`)
     });
 
     socket.on("session-connect", async(data: number) => {
