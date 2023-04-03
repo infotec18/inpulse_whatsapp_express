@@ -22,6 +22,9 @@ import { findNumberService } from "./wnumbers/find.service";
 import { findAttendancesByUserService } from "./attendances/findByOperator.service";
 import { findByCPFCNPJ } from "./customers/findByCPF.service";
 import { directCreateCustomerService } from "./customers/directCreate.service";
+import { createMessageService } from "./messages/create.service";
+import { getOperatorForAttendance } from "./attendances/getOperatorForAttendance.service";
+import { retrieveMessageService } from "./messages/retrieve.service";
 
 const services = {
     users: {
@@ -45,7 +48,8 @@ const services = {
     attendances: {
         find: findAttendanceService,
         create: createAttendanceService,
-        findByUser: findAttendancesByUserService
+        findByUser: findAttendancesByUserService,
+        getOperator: getOperatorForAttendance
     },
     customers: {
         directCreate: directCreateCustomerService,
@@ -57,6 +61,10 @@ const services = {
         update: updateCustomerService,
         getLastId: getLastCustomerIdService,
         findByCPFCNPJ: findByCPFCNPJ
+    },
+    messages: {
+        create: createMessageService,
+        retrieve: retrieveMessageService
     }
 };
 

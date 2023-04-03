@@ -36,8 +36,8 @@ export class Customer {
     DT_AGENDAMENTO: string;
     
     @Column({ type: 'varchar', length: '20', default: null })
-    COD_ERP: string
+    COD_ERP: string | null;
 
-    @OneToMany(() => Wnumber, (wn) => wn.CLIENTE)
-    TELEFONES: Wnumber[];
-}
+    @Column({ type: 'int' })
+    OPERADOR: number;
+};

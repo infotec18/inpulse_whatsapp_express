@@ -28,6 +28,9 @@ export class Message {
     @Column({ type: 'datetime' })
     DATA_HORA: Date;
 
+    @Column({ type: 'bigint' })
+    TIMESTAMP: number;
+
     @ManyToOne(() => Attendance, att => att.MENSAGENS)
     @JoinColumn({ name: 'CODIGO_ATENDIMENTO' })
     ATENDIMENTO: Attendance;

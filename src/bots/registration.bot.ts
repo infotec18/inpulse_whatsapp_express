@@ -48,7 +48,8 @@ Responda "cadastrar" para prosseguir.
     };
 
     if(RR.ETAPA === 3 && validate.result === "valid") {
-        reply = `Seu ${validate.value} é válido. para prosseguir com o cadastro, digite sua RAZÃO SOCIAL:`;
+        const substr = validate.value === "CPF" ? "o seu NOME" : "a RAZÃO SOCIAL da sua empresa"
+        reply = `Seu ${validate.value} é válido. para prosseguir com o cadastro, digite ${substr}:`;
         RR.DADOS.CPF_CNPJ = msg.replace(/\D/g, "");
         RR.DADOS.PESSOA = validate.value === "CNPJ" ? "JUR" : "FIS";
         RR.ETAPA ++;
@@ -60,18 +61,12 @@ Responda "cadastrar" para prosseguir.
         return { registration: RR, reply };
     };
 
-    if(RR.ETAPA === 4 && !RR.DADOS.RAZAO) {
+    if(RR.ETAPA === 4) {
         RR.DADOS.RAZAO = msg;
-        reply = `Ok, agora por favor, digite seu nome FANTASIA: `
-        return { registration: RR, reply };
-    };
-
-    if(RR.ETAPA === 4 && !RR.DADOS.FANTASIA) {
-        RR.DADOS.FANTASIA = msg;
+        const substr = RR.DADOS.PESSOA === "FIS" ? "NOME" : "RAZÃO SOCIAl";
         reply = `Verifique se os dados estão corretos:
 - CPF/CNPJ: ${RR.DADOS.CPF_CNPJ}
-- RAZÃO SOCIAL: ${RR.DADOS.RAZAO}
-- FANTASIA: ${RR.DADOS.FANTASIA}
+- ${substr}: ${RR.DADOS.RAZAO}
 - PESSOA: ${RR.DADOS.PESSOA === "FIS" ? "física" : "jurídica"}
 
 Digite "sim" para continuar ou "reiniciar" para recomeçar.
@@ -80,7 +75,7 @@ Digite "sim" para continuar ou "reiniciar" para recomeçar.
         return { registration: RR, reply };
     };
 
-    if(RR.ETAPA === 5 && msg === "sim" && RR.DADOS.PESSOA === "FIS") {
+    if(RR.ETAPA === 5 && msg.toUpperCase() === "SIM" && RR.DADOS.PESSOA === "FIS") {
         const newCustomer = await services.customers.directCreate(RR.DADOS);
         const newNumber = { CODIGO_CLIENTE: newCustomer.CODIGO, NOME: RR.DADOS.RAZAO!, NUMERO: RR.WPP_NUMERO };
         await services.wnumbers.create(newNumber);
@@ -91,7 +86,7 @@ Digite "sim" para continuar ou "reiniciar" para recomeçar.
         return { registration: RR, reply };
     };
 
-    if(RR.ETAPA === 5 && msg === "sim" && RR.DADOS.PESSOA === "JUR") {
+    if(RR.ETAPA === 5 && msg.toUpperCase() === "SIM" && RR.DADOS.PESSOA === "JUR") {
         const newCustomer = await services.customers.directCreate(RR.DADOS);
 
         RR.CADASTRO_CLIENTE = newCustomer;

@@ -1,15 +1,11 @@
 import { 
     Column,
     Entity, 
-    JoinColumn, 
-    ManyToOne, 
     OneToMany, 
-    OneToOne, 
     PrimaryGeneratedColumn, 
 } from "typeorm";
 import { Message } from "./message.entity";
 import { Tabulation } from "./tabulation.entity";
-import { User } from "./user.entity";
 
 @Entity('atendimentos')
 export class Attendance {
@@ -26,17 +22,13 @@ export class Attendance {
     CODIGO_NUMERO: number;
 
     @Column({ type: 'tinyint' })
-    CONCLUIDO: boolean;
+    CONCLUIDO: number;
 
     @Column({ type: 'datetime', default: new Date() })
     DATA_INICIO: Date;
 
     @Column({ type: 'datetime', nullable: true })
     DATA_FIM: string;
-
-    @ManyToOne(() => User, user => user.ATENDIMENTOS)
-    @JoinColumn()
-    OPERADOR: User;
 
     @OneToMany(() => Message, message => message.ATENDIMENTO)
     MENSAGENS: Message[];
