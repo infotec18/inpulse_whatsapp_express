@@ -3,8 +3,9 @@ import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
 import { WhatsappChatMessage, WhatsappFileMessage, WhatsappMessage } from "../../interfaces/messages.interfaces";
 import { MessageFile } from "../../entities/messageFile,entity";
+import { RetrieveMessage } from "../../interfaces/attendances.interfaces";
 
-export async function createMessageService(message: WhatsappMessage, cod_a: number): Promise<Message> {
+export async function createMessageService(message: WhatsappMessage, cod_a: number): Promise<RetrieveMessage> {
 
     const messagesRepository: Repository<Message> = AppDataSource.getRepository(Message);
     const messagesFilesRepository: Repository<MessageFile> = AppDataSource.getRepository(MessageFile);
@@ -28,12 +29,18 @@ export async function createMessageService(message: WhatsappMessage, cod_a: numb
         FROM_ME: message._data.id.fromMe
     }); 
 
-    if(message._data.type === "image") {
+    if(message._data.type !== "chat") {
         const newFile: MessageFile = await messagesFilesRepository.save({
             CODIGO_MENSAGEM: newMessage.CODIGO,
             TIPO: message._data.mimetype,
             ARQUIVO: message._data.body      
         });
+
+        return {
+            ...newMessage,
+            ARQUIVO: newFile.ARQUIVO,
+            TIPO: newFile.TIPO
+        };
     };
 
     return newMessage;

@@ -1,6 +1,6 @@
 import app from "./app";
 import { AppDataSource } from "./data-source";
-import WebSocket from "./WebSocket";
+import WebSocket from "./WebSocket/WebSocket";
 import WhatsappWeb from "./WebSocket/WhatsappClient";
 
 const PORT: number = Number(process.env.PORT) | 8000;
