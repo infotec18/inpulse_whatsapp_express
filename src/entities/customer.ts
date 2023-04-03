@@ -1,8 +1,10 @@
 import { 
     Column,
     Entity, 
+    OneToMany, 
     PrimaryColumn, 
 } from "typeorm";
+import { Wnumber } from "./wnumber.entity";
 
 @Entity('clientes')
 export class Customer {
