@@ -15,6 +15,7 @@ import { deleteCustomerController } from "./customers/delete.controller";
 import { recoverCustomerController } from "./customers/recover.controller";
 import { updateCustomerController } from "./customers/update.controller";
 import { getLastCustomerIdController } from "./customers/getLastId.controller";
+import { getOneNumberByIdController } from "./numbers/getOneById.controller";
 
 const controllers = {
     users: {
@@ -39,6 +40,9 @@ const controllers = {
         recover: recoverCustomerController,
         update: updateCustomerController,
         getLastId: getLastCustomerIdController
+    },
+    numbers: {
+        getOneById: getOneNumberByIdController
     }
 };
 

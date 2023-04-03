@@ -22,11 +22,9 @@ WebSocket.on('connection', (socket: Socket) => {
                 if(!isAdmin) {
                     const op_attendances = RunningAttendances.filter(ra => ra.CODIGO_OPERADOR === data);
                     WebSocket.to(socket.id).emit("load-attendances", op_attendances)
-                }
+                };
             });
         };
-
-        console.log(Sessions)
     });
 
     socket.on("session-disconnect", () => {

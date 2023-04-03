@@ -6,7 +6,6 @@ import { Sessions } from "./Sessions";
 import { Attendance } from "../entities/attendance.entity";
 import { RetrieveMessage, RunningAttendance, RunningRegistration, Session } from "../interfaces/attendances.interfaces";
 import { registrationBot } from "../bots/registration.bot";
-import { Message } from "../entities/message.entity";
 import { WhatsappMessage } from "../interfaces/messages.interfaces";
 import { Customer } from "../entities/customer";
 
@@ -45,17 +44,18 @@ WhatsappWeb.on("message", async (message) => {
     const isMe: boolean = message.fromMe;
     const registrating: RunningRegistration | undefined = RunningRegistrations.find(rr => rr.WPP_NUMERO === number && !rr.CONCLUIDO);
     const attending: number = RunningAttendances.findIndex(ra => ra.WPP_NUMERO === number);
-    console.log("attending: ", attending);
+
+    console.log(Sessions)
+    console.log(RunningAttendances)
+    
 
     if (attending >= 0) {
         const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, RunningAttendances[attending].CODIGO_ATENDIMENTO);
         RunningAttendances[attending].MENSAGENS = [...RunningAttendances[attending].MENSAGENS, newMessage];
         
         const findSession: Session | undefined = Sessions.find(s => s.userId === RunningAttendances[attending].CODIGO_OPERADOR);
-        console.log("find session: ", findSession)
         findSession && WebSocket.to(findSession.socketId).emit("new-message", newMessage);
-    }
-    else if(registrating) {
+    } else if(registrating) {
 
         const { registration, reply } = await registrationBot(registrating, message.body);
         reply && message.reply(reply);
@@ -80,6 +80,7 @@ WhatsappWeb.on("message", async (message) => {
                 CODIGO_ATENDIMENTO: findAttendance.CODIGO,
                 CODIGO_CLIENTE: findAttendance.CODIGO_CLIENTE,
                 CODIGO_OPERADOR: findAttendance.CODIGO_OPERADOR,
+                CODIGO_NUMERO: findNumber.CODIGO,
                 WPP_NUMERO: number,
                 MENSAGENS: [newMessage]
             };
@@ -110,12 +111,16 @@ WhatsappWeb.on("message", async (message) => {
                             CODIGO_ATENDIMENTO: newAttendance.CODIGO,
                             CODIGO_CLIENTE: newAttendance.CODIGO_CLIENTE,
                             CODIGO_OPERADOR: findCustomer.OPERADOR || 0,
+                            CODIGO_NUMERO: findNumber.CODIGO,
                             WPP_NUMERO: number,
                             MENSAGENS: [newMessage]
                         };
     
                         RunningAttendances.push(newRA);
-                        WebSocket.to(s.socketId).emit("new-message", newMessage);
+
+                        const op_attendances = RunningAttendances.filter(ra => ra.CODIGO_OPERADOR === s.userId);
+                        WebSocket.to(s.socketId).emit("load-attendances", op_attendances);
+                    
                     } else {
                         message.reply("Desculpe, não estamos atendendo neste momento.")
                     };
