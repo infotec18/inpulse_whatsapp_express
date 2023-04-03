@@ -25,6 +25,7 @@ import { directCreateCustomerService } from "./customers/directCreate.service";
 import { createMessageService } from "./messages/create.service";
 import { getOperatorForAttendance } from "./attendances/getOperatorForAttendance.service";
 import { retrieveMessageService } from "./messages/retrieve.service";
+import { getOneNumberByIdService } from "./wnumbers/getOneById.service";
 
 const services = {
     users: {
@@ -43,7 +44,8 @@ const services = {
     },
     wnumbers: {
         find: findNumberService,
-        create: createNumberService
+        create: createNumberService,
+        getOneById: getOneNumberByIdService
     },
     attendances: {
         find: findAttendanceService,

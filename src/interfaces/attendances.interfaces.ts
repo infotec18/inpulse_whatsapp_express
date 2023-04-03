@@ -7,6 +7,7 @@ export interface RunningAttendance {
     CODIGO_ATENDIMENTO: number;
     CODIGO_OPERADOR: number;
     CODIGO_CLIENTE: number;
+    CODIGO_NUMERO: number;
     WPP_NUMERO: string;
     MENSAGENS: RetrieveMessage[];
 };
