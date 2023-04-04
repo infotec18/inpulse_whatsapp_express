@@ -27,6 +27,11 @@ import { deleteWNumberService } from "./wnumbers/delete.service";
 import { createMessageService } from "./messages/create.service";
 import { getOperatorForAttendance } from "./attendances/getOperatorForAttendance.service";
 import { retrieveMessageService } from "./messages/retrieve.service";
+import { insertReadyMessageService } from "./readyMessages/insertMessage.service";
+import { updateReadyMessagesService } from "./readyMessages/updateMessage.service";
+import { deleteReadyMessageService } from "./readyMessages/deleteMessage.service";
+import { getAllReadyMessagesService } from "./readyMessages/getAllMessages.service";
+import { getOneReadyMessageService } from "./readyMessages/getOneById.service";
 
 
 const services = {
@@ -70,6 +75,13 @@ const services = {
     messages: {
         create: createMessageService,
         retrieve: retrieveMessageService
+    },
+    readyMessages: {
+        create: insertReadyMessageService,
+        update: updateReadyMessagesService,
+        delete: deleteReadyMessageService,
+        getAll: getAllReadyMessagesService,
+        getOneById: getOneReadyMessageService
     }
 };
 

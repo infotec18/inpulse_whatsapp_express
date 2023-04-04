@@ -19,6 +19,11 @@ import { createWNumberController } from "./Wnumbers/create.controller";
 import { deleteWNumberController } from "./Wnumbers/delete.controller";
 import { getOneNumberByIdController } from "./Wnumbers/getOneById.controller";
 import { updateNumberController } from "./Wnumbers/update.controller";
+import { createReadyMessageController } from "./readyMessages/create.controller";
+import { updateReadyMessageController } from "./readyMessages/update.controller";
+import { deleteReadyMessageController } from "./readyMessages/delete.controller";
+import { getAllReadyMessagesController } from "./readyMessages/getAll.controller";
+import { getOneReadyMessageByIdController } from "./readyMessages/getOneById.controller";
 
 const controllers = {
     users: {
@@ -49,6 +54,13 @@ const controllers = {
         delete: deleteWNumberController,
         getOneById: getOneNumberByIdController,
         update: updateNumberController
+    },
+    readyMessages: {
+        create: createReadyMessageController,
+        update: updateReadyMessageController,
+        delete: deleteReadyMessageController,
+        getAll: getAllReadyMessagesController,
+        getOneById: getOneReadyMessageByIdController
     }
 };
 
