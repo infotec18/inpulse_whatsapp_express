@@ -40,4 +40,7 @@ export class Customer {
 
     @Column({ type: 'int' })
     OPERADOR: number;
+
+    @OneToMany(() => Wnumber, (wn) => wn.CLIENTE)
+    TELEFONES: Wnumber[]
 };

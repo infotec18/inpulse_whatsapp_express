@@ -27,7 +27,6 @@ import { deleteWNumberService } from "./wnumbers/delete.service";
 import { createMessageService } from "./messages/create.service";
 import { getOperatorForAttendance } from "./attendances/getOperatorForAttendance.service";
 import { retrieveMessageService } from "./messages/retrieve.service";
-import { getOneNumberByIdService } from "./wnumbers/getOneById.service";
 
 
 const services = {
