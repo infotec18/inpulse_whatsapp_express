@@ -18,14 +18,17 @@ import { loginUserService } from "./users/login.service";
 import { recoverUserService } from "./users/recover.service";
 import { softDeleteUserService } from "./users/softDelete.service";
 import { updateUserService } from "./users/update.service";
-import { findNumberService } from "./wnumbers/find.service";
+import { getOneByIdNumberService } from "./wnumbers/getOneById.service";
 import { findAttendancesByUserService } from "./attendances/findByOperator.service";
 import { findByCPFCNPJ } from "./customers/findByCPF.service";
 import { directCreateCustomerService } from "./customers/directCreate.service";
+import { updateWNumberService } from "./wnumbers/update.service";
+import { deleteWNumberService } from "./wnumbers/delete.service";
 import { createMessageService } from "./messages/create.service";
 import { getOperatorForAttendance } from "./attendances/getOperatorForAttendance.service";
 import { retrieveMessageService } from "./messages/retrieve.service";
 import { getOneNumberByIdService } from "./wnumbers/getOneById.service";
+
 
 const services = {
     users: {
@@ -43,9 +46,10 @@ const services = {
         getOneById: getOneAvatarByUserIdService
     },
     wnumbers: {
-        find: findNumberService,
+        find: getOneByIdNumberService,
         create: createNumberService,
-        getOneById: getOneNumberByIdService
+        update: updateWNumberService,
+        delete: deleteWNumberService
     },
     attendances: {
         find: findAttendanceService,

@@ -29,7 +29,7 @@ export let RunningAttendances: Array<RunningAttendance> = [];
 let RunningRegistrations: Array<RunningRegistration> = [];
 
 WhatsappWeb.on("qr", (qr: string) => {
-    WebSocket.emit("qr", qr);
+    // WebSocket.emit("qr", qr);
 });
 
 WhatsappWeb.on("authenticated", (data) => {

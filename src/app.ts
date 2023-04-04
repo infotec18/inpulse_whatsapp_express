@@ -5,7 +5,7 @@ import { userRoutes } from './routes/users.routes';
 import cors from 'cors';
 import { avatarRoutes } from './routes/avatars.routes';
 import { customerRoutes } from './routes/customers.routes';
-import { numberRoutes } from './routes/numbers.routes';
+import { wnumbersRoutes } from './routes/wnumbers.routes';
 
 const app: Application = express();
 app.use(express.json());
@@ -15,7 +15,7 @@ app.use(cors());
 app.use(userRoutes);
 app.use(avatarRoutes);
 app.use(customerRoutes);
-app.use(numberRoutes);
+app.use(wnumbersRoutes);
 
 app.use(errorHandler);
 

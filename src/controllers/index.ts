@@ -15,7 +15,10 @@ import { deleteCustomerController } from "./customers/delete.controller";
 import { recoverCustomerController } from "./customers/recover.controller";
 import { updateCustomerController } from "./customers/update.controller";
 import { getLastCustomerIdController } from "./customers/getLastId.controller";
-import { getOneNumberByIdController } from "./numbers/getOneById.controller";
+import { createWNumberController } from "./Wnumbers/create.controller";
+import { deleteWNumberController } from "./Wnumbers/delete.controller";
+import { getOneNumberByIdController } from "./Wnumbers/getOneById.controller";
+import { updateNumberController } from "./Wnumbers/update.controller";
 
 const controllers = {
     users: {
@@ -41,8 +44,11 @@ const controllers = {
         update: updateCustomerController,
         getLastId: getLastCustomerIdController
     },
-    numbers: {
-        getOneById: getOneNumberByIdController
+    wnumbers: {
+        create: createWNumberController,
+        delete: deleteWNumberController,
+        getOneById: getOneNumberByIdController,
+        update: updateNumberController
     }
 };
 
