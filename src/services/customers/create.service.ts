@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request } from "express";
 import { Repository } from "typeorm";
 import { Customer } from "../../entities/customer";
 import { AppDataSource } from "../../data-source";
@@ -15,4 +15,4 @@ export async function createCustomerService(req: Request): Promise<Customer> {
     const newCustomer = await customersRepository.save({...req.body, CODIGO: lastId + 1, DATA_CAD });
 
     return newCustomer;
-}
+};

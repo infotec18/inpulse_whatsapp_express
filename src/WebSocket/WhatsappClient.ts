@@ -1,11 +1,13 @@
 import { Client, LocalAuth } from "whatsapp-web.js";
-import WebSocket from ".";
+import WebSocket from "./WebSocket";
 import { Wnumber } from "../entities/wnumber.entity";
 import services from "../services";
-import { Sessions } from ".";
+import { Sessions } from "./Sessions";
 import { Attendance } from "../entities/attendance.entity";
-import { RunningAttendance, RunningRegistration } from "../interfaces/attendances.interfaces";
+import { RetrieveMessage, RunningAttendance, RunningRegistration, Session } from "../interfaces/attendances.interfaces";
 import { registrationBot } from "../bots/registration.bot";
+import { WhatsappMessage } from "../interfaces/messages.interfaces";
+import { Customer } from "../entities/customer";
 
 const WhatsappWeb = new Client({
     authStrategy: new LocalAuth(),
@@ -23,7 +25,7 @@ const WhatsappWeb = new Client({
     }
 });
 
-let RunningAttendances: Array<RunningAttendance> = [];
+export let RunningAttendances: Array<RunningAttendance> = [];
 let RunningRegistrations: Array<RunningRegistration> = [];
 
 WhatsappWeb.on("qr", (qr: string) => {
@@ -39,46 +41,90 @@ WhatsappWeb.on("message", async (message) => {
     const str: string = message.from;
     const number: string = str.slice(0, str.length - 5);
 
-    console.log(RunningRegistrations);
-
     const isMe: boolean = message.fromMe;
-    let registrating = RunningRegistrations.find(r => r.WPP_NUMERO === number);
+    const registrating: RunningRegistration | undefined = RunningRegistrations.find(rr => rr.WPP_NUMERO === number && !rr.CONCLUIDO);
+    const attending: number = RunningAttendances.findIndex(ra => ra.WPP_NUMERO === number);
+
+    console.log(Sessions)
+    console.log(RunningAttendances)
     
-    if(registrating) {
+
+    if (attending >= 0) {
+        const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, RunningAttendances[attending].CODIGO_ATENDIMENTO);
+        RunningAttendances[attending].MENSAGENS = [...RunningAttendances[attending].MENSAGENS, newMessage];
+        
+        const findSession: Session | undefined = Sessions.find(s => s.userId === RunningAttendances[attending].CODIGO_OPERADOR);
+        findSession && WebSocket.to(findSession.socketId).emit("new-message", newMessage);
+    } else if(registrating) {
+
         const { registration, reply } = await registrationBot(registrating, message.body);
         reply && message.reply(reply);
+
         let index = RunningRegistrations.findIndex(r => r.WPP_NUMERO === number);
         RunningRegistrations[index] = registration;
+
         if(registration.CONCLUIDO) {
-            RunningRegistrations = RunningRegistrations.filter(r => r.WPP_NUMERO !== registration.WPP_NUMERO);
+            RunningRegistrations = RunningRegistrations.filter(r => !r.CONCLUIDO);
         };
+
     } else if(!isMe) {
-    // Caso a mensagem não seja minha (mensagem recebida):
-        // Tenta encontrar o número na base de dados...
         const findNumber: Wnumber | null = await services.wnumbers.find(number);
-        
 
         if(findNumber) {
-        // Caso encontre o número
-            // Tenta encontrar um atendimento para esse número (não concluído)
-            const findAttendance = await services.attendances.find(findNumber.CODIGO);
+            const findCustomer: Customer | null = await services.customers.getOneById(findNumber.CODIGO_CLIENTE);
+            const findAttendance: Attendance | null = await services.attendances.find(findNumber.CODIGO_CLIENTE);
 
-            if(findAttendance) {
-            // Caso encontre um atendimento para este número...
-            } else {
-            // Caso não encontre um atendimento para este número...
-                // Cria um novo atendimento:
-                const newAttendance: Attendance = await services.attendances.create({
-                    CODIGO_OPERADOR: null,
-                    CODIGO_CLIENTE: findNumber.CODIGO_CLIENTE,
-                    CODIGO_NUMERO: findNumber.CODIGO,
-                    CONCUIDO: false,
-                    DATA_INICIO: new Date(),
-                    DATA_FIM: null
-                });
-
-                console.log(newAttendance);
+           if(findAttendance) {
+            const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, findAttendance.CODIGO);
+            const newRA: RunningAttendance = {
+                CODIGO_ATENDIMENTO: findAttendance.CODIGO,
+                CODIGO_CLIENTE: findAttendance.CODIGO_CLIENTE,
+                CODIGO_OPERADOR: findAttendance.CODIGO_OPERADOR,
+                CODIGO_NUMERO: findNumber.CODIGO,
+                WPP_NUMERO: number,
+                MENSAGENS: [newMessage]
             };
+
+            RunningAttendances.push(newRA);
+            const findSession: Session | undefined = Sessions.find(s => s.userId === findAttendance.CODIGO_OPERADOR);
+            findSession && WebSocket.to(findSession.socketId).emit("new-message", newMessage);
+
+            } else {
+                // Caso não encontre um atendimento para este número...
+                    // Procura um operador logado:
+                    const s: Session | undefined = await services.attendances.getOperator(findCustomer.OPERADOR | 0);
+
+                    // Cria um novo atendimento:
+                    if(s) {
+                        const newAttendance: Attendance = await services.attendances.create({
+                            CODIGO_OPERADOR: s.userId,
+                            CODIGO_CLIENTE: findNumber.CODIGO_CLIENTE,
+                            CODIGO_NUMERO: findNumber.CODIGO,
+                            CONCUIDO: 0,
+                            DATA_INICIO: new Date(),
+                            DATA_FIM: null
+                        }); 
+    
+                        const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, newAttendance.CODIGO);
+    
+                        const newRA: RunningAttendance = {
+                            CODIGO_ATENDIMENTO: newAttendance.CODIGO,
+                            CODIGO_CLIENTE: newAttendance.CODIGO_CLIENTE,
+                            CODIGO_OPERADOR: findCustomer.OPERADOR || 0,
+                            CODIGO_NUMERO: findNumber.CODIGO,
+                            WPP_NUMERO: number,
+                            MENSAGENS: [newMessage]
+                        };
+    
+                        RunningAttendances.push(newRA);
+
+                        const op_attendances = RunningAttendances.filter(ra => ra.CODIGO_OPERADOR === s.userId);
+                        WebSocket.to(s.socketId).emit("load-attendances", op_attendances);
+                    
+                    } else {
+                        message.reply("Desculpe, não estamos atendendo neste momento.")
+                    };
+            };  
         } else {
             // Caso não encontre o número na base de dados...
             const newRegistration = { WPP_NUMERO: number, ETAPA: 1, DADOS: {}, CONCLUIDO: false};
@@ -87,8 +133,9 @@ WhatsappWeb.on("message", async (message) => {
             reply && message.reply(reply);
             let index = RunningRegistrations.findIndex(r => r.WPP_NUMERO === number);
             RunningRegistrations[index] = registration;
-
         };
+    } else {
+        console.log(message);
     };
 });
 
