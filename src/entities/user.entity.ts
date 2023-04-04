@@ -38,6 +38,12 @@ export class User {
     @Column({ type: 'varchar', length: 255, unique: true, nullable: true})
     CODIGO_ERP: string;
 
+    @Column({ type: 'datetime', nullable: true })
+    ULTIMO_LOGIN_INI: string;
+
+    @Column({ type: 'datetime', nullable: true })
+    ULTIMO_LOGIN_FIM: string;
+
     @Column({ type: 'datetime' })
     DATACAD: Date;
 
