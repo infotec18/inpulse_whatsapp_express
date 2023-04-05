@@ -85,7 +85,7 @@ const services = {
     },
     files: {
         download: downloadFileService,
-        returnBase64: returnBase64Service
+        returnBase64: returnBase64Service,
         retrieve: retrieveMessageService
     },
     readyMessages: {
