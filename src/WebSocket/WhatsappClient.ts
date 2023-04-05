@@ -1,4 +1,4 @@
-import {  Client, LocalAuth } from "whatsapp-web.js";
+import WAWebJS, {  Client, LocalAuth } from "whatsapp-web.js";
 import WebSocket from "./WebSocket";
 import { Wnumber } from "../entities/wnumber.entity";
 import services from "../services";
@@ -34,7 +34,7 @@ export async function getRunningAttendances () {
     
     attendances.forEach(async(a) => {
         const findMessages = await services.messages.getAllByAttendance(a.CODIGO);
-        const WPP = await services.wnumbers.getOneById(a.CODIGO_NUMERO);
+        const WPP = await services.wnumbers.getById(a.CODIGO_NUMERO);
 
 
         if(WPP) {
@@ -185,7 +185,7 @@ WebSocket.on('connection', (socket: Socket) => {
         await WhatsappWeb.sendMessage(data.chatId, data.content, { quotedMessageId: data.referenceId })
         :
         await WhatsappWeb.sendMessage(data.chatId, data.content);
-        
+
         const number = message.to;
 
         const index = RunningAttendances.findIndex(r => number.includes(r.WPP_NUMERO));
@@ -194,6 +194,8 @@ WebSocket.on('connection', (socket: Socket) => {
         RunningAttendances[index].MENSAGENS = [...RunningAttendances[index].MENSAGENS, newMessage];
         WebSocket.to(socket.id).emit("new-message", newMessage);
     }); 
+
 });
+
 
 export default WhatsappWeb;

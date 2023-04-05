@@ -48,7 +48,7 @@ const controllers = {
     },
     files: {
         download: downloadFileController,
-        base64: returnBase64Controllerm
+        base64: returnBase64Controller
     },
     wnumbers: {
         create: createWNumberController,

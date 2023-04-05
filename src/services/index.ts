@@ -27,11 +27,11 @@ import { deleteWNumberService } from "./wnumbers/delete.service";
 import { createMessageService } from "./messages/create.service";
 import { getOperatorForAttendance } from "./attendances/getOperatorForAttendance.service";
 import { retrieveMessageService } from "./messages/retrieve.service";
-import { getOneNumberByIdService } from "./wnumbers/getOneById.service";
 import { getAllRunningAttendancesService } from "./attendances/getAllRunningAttendances.service";
 import { getAllMessagesByAttendanceService } from "./messages/getAllByAttendance.service";
 import { downloadFileService } from "./files/download.service";
 import { returnBase64Service } from "./files/returnBase64.service";
+import { findNumberService } from "./wnumbers/find.service";
 
 const services = {
     users: {
@@ -49,7 +49,8 @@ const services = {
         getOneById: getOneAvatarByUserIdService
     },
     wnumbers: {
-        find: getOneByIdNumberService,
+        find: findNumberService,
+        getById: getOneByIdNumberService,
         create: createNumberService,
         update: updateWNumberService,
         delete: deleteWNumberService
