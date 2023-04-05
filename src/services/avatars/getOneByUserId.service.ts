@@ -11,7 +11,12 @@ export async function getOneAvatarByUserIdService(userId: number): Promise<Avata
         CODIGO_OPERADOR: userId
     });
 
-    if(!findAvatar) throw new AppError("Didn't find user's avatar.", 404);
+    if(!findAvatar) {
+        const newAvatar = await avatarsRepository.save({
+            CODIGO_OPERADOR: userId
+        });
+        return newAvatar;
+    }
 
     return findAvatar;
 };

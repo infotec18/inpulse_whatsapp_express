@@ -16,6 +16,8 @@ import { recoverCustomerController } from "./customers/recover.controller";
 import { updateCustomerController } from "./customers/update.controller";
 import { getLastCustomerIdController } from "./customers/getLastId.controller";
 import { getOneNumberByIdController } from "./numbers/getOneById.controller";
+import { downloadFileController } from "./files/download.controller";
+import { returnBase64Controller } from "./files/returnBase64.controller";
 
 const controllers = {
     users: {
@@ -43,6 +45,10 @@ const controllers = {
     },
     numbers: {
         getOneById: getOneNumberByIdController
+    },
+    files: {
+        download: downloadFileController,
+        base64: returnBase64Controller
     }
 };
 
