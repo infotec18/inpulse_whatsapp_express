@@ -27,12 +27,16 @@ import { deleteWNumberService } from "./wnumbers/delete.service";
 import { createMessageService } from "./messages/create.service";
 import { getOperatorForAttendance } from "./attendances/getOperatorForAttendance.service";
 import { retrieveMessageService } from "./messages/retrieve.service";
+import { getOneNumberByIdService } from "./wnumbers/getOneById.service";
+import { getAllRunningAttendancesService } from "./attendances/getAllRunningAttendances.service";
+import { getAllMessagesByAttendanceService } from "./messages/getAllByAttendance.service";
+import { downloadFileService } from "./files/download.service";
+import { returnBase64Service } from "./files/returnBase64.service";
 import { insertReadyMessageService } from "./readyMessages/insertMessage.service";
 import { updateReadyMessagesService } from "./readyMessages/updateMessage.service";
 import { deleteReadyMessageService } from "./readyMessages/deleteMessage.service";
 import { getAllReadyMessagesService } from "./readyMessages/getAllMessages.service";
 import { getOneReadyMessageService } from "./readyMessages/getOneById.service";
-
 
 const services = {
     users: {
@@ -59,7 +63,8 @@ const services = {
         find: findAttendanceService,
         create: createAttendanceService,
         findByUser: findAttendancesByUserService,
-        getOperator: getOperatorForAttendance
+        getOperator: getOperatorForAttendance,
+        getAllRunning: getAllRunningAttendancesService
     },
     customers: {
         directCreate: directCreateCustomerService,
@@ -74,6 +79,12 @@ const services = {
     },
     messages: {
         create: createMessageService,
+        retrieve: retrieveMessageService,
+        getAllByAttendance: getAllMessagesByAttendanceService
+    },
+    files: {
+        download: downloadFileService,
+        returnBase64: returnBase64Service
         retrieve: retrieveMessageService
     },
     readyMessages: {

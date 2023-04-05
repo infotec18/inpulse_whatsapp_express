@@ -1,7 +1,8 @@
 import { Customer } from "../entities/customer";
 import { Message } from "../entities/message.entity";
+import { MessageFile } from "../entities/messageFile.entity";
 
-export type RetrieveMessage = Message | Message & { ARQUIVO: string, TIPO: string}
+export type RetrieveMessage = Message | Message & { ARQUIVO: MessageFile }
 
 export interface RunningAttendance {
     CODIGO_ATENDIMENTO: number;
@@ -10,6 +11,7 @@ export interface RunningAttendance {
     CODIGO_NUMERO: number;
     WPP_NUMERO: string;
     MENSAGENS: RetrieveMessage[];
+    AVATAR?: string;
 };
 
 export interface CustomerRegistrationData {
