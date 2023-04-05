@@ -12,7 +12,7 @@ export async function getAllReadyMessagesService(limite: number, pagina: number,
         .take(limite)
         
     if(search){
-        messagesQuery.where('mensagens_prontas.TEXTO_MENSAGEM LIKE :search', {search: `%${search}%`})
+        messagesQuery.where('mensagens_prontas.TITULO LIKE :search', {search: `%${search}%`})
     }
 
     const [dados, total] = await messagesQuery.getManyAndCount();

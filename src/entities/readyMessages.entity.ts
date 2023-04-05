@@ -17,4 +17,7 @@ export class ReadyMessages {
 
     @Column({type: 'longblob', nullable:false})
     ARQUIVO: string
+
+    @Column({type: 'varchar', length: 255})
+    TITULO: string
 }
