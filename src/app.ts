@@ -5,8 +5,9 @@ import { userRoutes } from './routes/users.routes';
 import cors from 'cors';
 import { avatarRoutes } from './routes/avatars.routes';
 import { customerRoutes } from './routes/customers.routes';
-import { numberRoutes } from './routes/numbers.routes';
 import { filesRoutes } from './routes/files.routes';
+import { wnumbersRoutes } from './routes/wnumbers.routes';
+
 
 const app: Application = express();
 app.use(express.json({ limit: '20mb' }));
@@ -17,8 +18,8 @@ app.use(cors());
 app.use(userRoutes);
 app.use(avatarRoutes);
 app.use(customerRoutes);
-app.use(numberRoutes);
 app.use(filesRoutes);
+app.use(wnumbersRoutes);
 
 app.use(errorHandler);
 
