@@ -1,8 +1,11 @@
 import { 
     Column,
     Entity, 
+    JoinColumn, 
+    OneToOne, 
     PrimaryGeneratedColumn, 
 } from "typeorm";
+import { Message } from "./message.entity";
 
 @Entity('mensagens_arquivos')
 export class MessageFile {
@@ -15,6 +18,10 @@ export class MessageFile {
     @Column({ type: 'varchar', length: 30 })
     TIPO: string;
 
-    @Column({ type: 'longblob', nullable: true})
+    @Column({ type: 'text' })
     ARQUIVO: string;
+
+    @OneToOne(() => Message, message => message.arquivo)
+    @JoinColumn({ name: 'CODIGO_MENSAGEM' })
+    message: Message;
 };

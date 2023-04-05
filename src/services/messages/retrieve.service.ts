@@ -1,7 +1,7 @@
 import { Message } from "../../entities/message.entity";
 import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
-import { MessageFile } from "../../entities/messageFile,entity";
+import { MessageFile } from "../../entities/messageFile.entity";
 import WebSocket from "../../WebSocket/WebSocket";
 
 export async function retrieveMessageService(message: Message, socketId: string) {
