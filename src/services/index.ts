@@ -32,6 +32,11 @@ import { getAllMessagesByAttendanceService } from "./messages/getAllByAttendance
 import { downloadFileService } from "./files/download.service";
 import { returnBase64Service } from "./files/returnBase64.service";
 import { findNumberService } from "./wnumbers/find.service";
+import { insertReadyMessageService } from "./readyMessages/insertMessage.service";
+import { updateReadyMessagesService } from "./readyMessages/updateMessage.service";
+import { deleteReadyMessageService } from "./readyMessages/deleteMessage.service";
+import { getAllReadyMessagesService } from "./readyMessages/getAllMessages.service";
+import { getOneReadyMessageService } from "./readyMessages/getOneById.service";
 
 const services = {
     users: {
@@ -81,6 +86,14 @@ const services = {
     files: {
         download: downloadFileService,
         returnBase64: returnBase64Service
+        retrieve: retrieveMessageService
+    },
+    readyMessages: {
+        create: insertReadyMessageService,
+        update: updateReadyMessagesService,
+        delete: deleteReadyMessageService,
+        getAll: getAllReadyMessagesService,
+        getOneById: getOneReadyMessageService
     }
 };
 
