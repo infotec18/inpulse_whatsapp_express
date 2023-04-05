@@ -15,6 +15,8 @@ import { deleteCustomerController } from "./customers/delete.controller";
 import { recoverCustomerController } from "./customers/recover.controller";
 import { updateCustomerController } from "./customers/update.controller";
 import { getLastCustomerIdController } from "./customers/getLastId.controller";
+import { downloadFileController } from "./files/download.controller";
+import { returnBase64Controller } from "./files/returnBase64.controller";
 import { createWNumberController } from "./Wnumbers/create.controller";
 import { deleteWNumberController } from "./Wnumbers/delete.controller";
 import { getOneNumberByIdController } from "./Wnumbers/getOneById.controller";
@@ -43,6 +45,10 @@ const controllers = {
         recover: recoverCustomerController,
         update: updateCustomerController,
         getLastId: getLastCustomerIdController
+    },
+    files: {
+        download: downloadFileController,
+        base64: returnBase64Controllerm
     },
     wnumbers: {
         create: createWNumberController,

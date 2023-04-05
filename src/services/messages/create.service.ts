@@ -2,8 +2,10 @@ import { Message } from "../../entities/message.entity";
 import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
 import { WhatsappChatMessage, WhatsappFileMessage, WhatsappMessage } from "../../interfaces/messages.interfaces";
-import { MessageFile } from "../../entities/messageFile,entity";
+import { MessageFile } from "../../entities/messageFile.entity";
 import { RetrieveMessage } from "../../interfaces/attendances.interfaces";
+import { writeFile } from "fs";
+import WAWebJS from "whatsapp-web.js";
 
 export async function createMessageService(message: WhatsappMessage, cod_a: number): Promise<RetrieveMessage> {
 
@@ -20,26 +22,51 @@ export async function createMessageService(message: WhatsappMessage, cod_a: numb
         messageText = msg._data.caption;
     };
 
-    const newMessage: Message = await messagesRepository.save({
+    let newMessageB: Message = messagesRepository.create({
         CODIGO_ATENDIMENTO: cod_a,
         TIPO: message._data.type,
         MENSAGEM: messageText,
         DATA_HORA: new Date(Number(`${message._data.t}000`)),
         TIMESTAMP: Date.now(),
-        FROM_ME: message._data.id.fromMe
+        FROM_ME: message._data.id.fromMe,
+        ID: message._data.id._serialized
     }); 
 
-    if(message._data.type !== "chat") {
-        const newFile: MessageFile = await messagesFilesRepository.save({
+    if(message._data.quotedStanzaID) {
+        newMessageB.ID_REFERENCIA = message._data.quotedStanzaID
+    };
+
+    if(message._data.type !== "chat" && message._data.mimetype) {
+        newMessageB.TIPO = message._data.mimetype
+    };
+
+    const newMessage = await messagesRepository.save(newMessageB);
+
+    if(message._data.type !== "chat" && message._data.body && message._data.mimetype) {
+        const msg = message as unknown as WAWebJS.Message;
+        const file = await msg.downloadMedia();
+        const fileContent = Buffer.from(file.data, 'base64');
+        
+        const i = message._data.mimetype.split("").findIndex(i => i === "/");
+        const ext = message._data.mimetype.slice(i+1)
+
+        const path = "./files/messages";
+        const filename = file.filename ? `${Date.now()}${file.filename}` : `${Date.now()}.${ext}`;
+        
+        writeFile(`${path}/${filename}`, fileContent, (err) => {
+            if (err) throw err;
+            console.log('Arquivo salvo com sucesso!');
+        });
+
+        const newMessageFile: MessageFile = await messagesFilesRepository.save({
             CODIGO_MENSAGEM: newMessage.CODIGO,
             TIPO: message._data.mimetype,
-            ARQUIVO: message._data.body      
+            ARQUIVO: filename    
         });
 
         return {
             ...newMessage,
-            ARQUIVO: newFile.ARQUIVO,
-            TIPO: newFile.TIPO
+            ARQUIVO: newMessageFile
         };
     };
 
