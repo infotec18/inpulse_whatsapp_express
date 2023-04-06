@@ -66,7 +66,7 @@ const controllers = {
         update: updateReadyMessageController,
         delete: deleteReadyMessageController,
         getAll: getAllReadyMessagesController,
-        getOneById: getOneReadyMessageByIdController
+        getOneById: getOneReadyMessageByIdController,
     }
 };
 

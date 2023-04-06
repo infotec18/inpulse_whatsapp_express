@@ -1,8 +1,10 @@
 import { 
     Column,
     Entity, 
+    OneToOne, 
     PrimaryGeneratedColumn, 
 } from "typeorm";
+import { ReadyMessageFile } from "./readyMessageFile.entity";
 
 @Entity('mensagens_prontas')
 export class ReadyMessages {
@@ -15,10 +17,9 @@ export class ReadyMessages {
     @Column({type: 'text'})
     TEXTO_MENSAGEM: string
 
-    @Column({type: 'longblob', nullable:false})
-    ARQUIVO: string
-
     @Column({type: 'text'})
     TITULO: string
 
+    @OneToOne(() => ReadyMessageFile, file => file.message)
+    ARQUIVO: ReadyMessageFile
 }

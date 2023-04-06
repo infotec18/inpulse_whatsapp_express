@@ -93,7 +93,7 @@ const services = {
         update: updateReadyMessagesService,
         delete: deleteReadyMessageService,
         getAll: getAllReadyMessagesService,
-        getOneById: getOneReadyMessageService
+        getOneById: getOneReadyMessageService,
     }
 };
 
