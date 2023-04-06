@@ -20,7 +20,7 @@ async function initialize () {
     app.listen(PORT, () => {
         console.log(`App is running on http://localhost:${PORT}`);
     });
-
+    
     await WhatsappWeb.initialize().then(_ => console.log("Whatsapp Initialized"));
     getRunningAttendances();
 };
