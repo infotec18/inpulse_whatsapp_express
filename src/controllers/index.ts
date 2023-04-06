@@ -26,6 +26,10 @@ import { updateReadyMessageController } from "./readyMessages/update.controller"
 import { deleteReadyMessageController } from "./readyMessages/delete.controller";
 import { getAllReadyMessagesController } from "./readyMessages/getAll.controller";
 import { getOneReadyMessageByIdController } from "./readyMessages/getOneById.controller";
+import { insert } from "../services/readyMessageFile/insert.service";
+import { getOneReadyMessageFileById } from "./readyMessagesFile/getOneById.controller";
+import { updateReadyMessageFile } from "./readyMessagesFile/update.controller";
+import { deleteReadyMessageFile } from "./readyMessagesFile/delete.controller";
 
 const controllers = {
     users: {
@@ -67,6 +71,12 @@ const controllers = {
         delete: deleteReadyMessageController,
         getAll: getAllReadyMessagesController,
         getOneById: getOneReadyMessageByIdController,
+    },
+    readyMessageFile: {
+        insert: insert,
+        getOneById: getOneReadyMessageFileById,
+        update: updateReadyMessageFile,
+        delete: deleteReadyMessageFile
     }
 };
 
