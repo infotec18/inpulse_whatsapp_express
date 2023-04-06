@@ -12,7 +12,7 @@ export async function returnBase64Service(req: Request, res: Response) {
 
     if(!file) throw new AppError("File not found.", 404);
 
-    const filePath = path.join(__dirname, `../../../files/messages`, file.ARQUIVO);
+    const filePath = path.join(__dirname, `../../../localFiles/messages`, file.ARQUIVO);
 
     if (fs.existsSync(filePath)) {
 

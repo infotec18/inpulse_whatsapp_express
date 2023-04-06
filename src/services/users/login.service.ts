@@ -14,7 +14,9 @@ export async function loginUserService(username: string, password: string): Prom
     if(!findUser) throw new AppError("Invalid login.", 404);
     if(findUser.ATIVO === "NAO") throw new AppError("Inactive user.", 403);
 
-    const isPasswordCorrect: boolean = await compare(password, findUser.SENHA);
+    // Desabilitado devido a integração com Inpulse
+    //const isPasswordCorrect: boolean = await compare(password, findUser.SENHA);
+    const isPasswordCorrect: boolean = password === findUser.SENHA;
 
     if(!isPasswordCorrect) throw new AppError("Invalid password.", 401);
 

@@ -36,26 +36,24 @@ export async function createMessageService(message: WhatsappMessage, cod_a: numb
         newMessageB.ID_REFERENCIA = message._data.quotedStanzaID
     };
 
-    if(message._data.type !== "chat" && message._data.mimetype) {
-        newMessageB.TIPO = message._data.mimetype
-    };
-
     const newMessage = await messagesRepository.save(newMessageB);
 
-    if(message._data.type !== "chat" && message._data.body && message._data.mimetype) {
+    if(message._data.type !== "chat" && message._data.mimetype) {
         const msg = message as unknown as WAWebJS.Message;
+
         const file = await msg.downloadMedia();
         const fileContent = Buffer.from(file.data, 'base64');
         
         const i = message._data.mimetype.split("").findIndex(i => i === "/");
-        const ext = message._data.mimetype.slice(i+1)
+        const isAudio: boolean = message._data.mimetype.includes("audio");
 
-        const path = "./files/messages";
-        const filename = file.filename ? `${Date.now()}${file.filename}` : `${Date.now()}.${ext}`;
+        const ext = isAudio ? "ogg" : message._data.mimetype.slice(i+1);
+
+        const path = "./localFiles/messages";
+        const filename = file.filename ? `${msg.id.id}_${Date.now()}_${file.filename}` : `${msg.id.id}_${Date.now()}.${ext}`;
         
         writeFile(`${path}/${filename}`, fileContent, (err) => {
             if (err) throw err;
-            console.log('Arquivo salvo com sucesso!');
         });
 
         const newMessageFile: MessageFile = await messagesFilesRepository.save({

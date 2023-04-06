@@ -9,7 +9,7 @@ export async function getAllMessagesByAttendanceService(cod_a: number): Promise<
 
     const messages = await messageRepository
         .createQueryBuilder("message")
-        .leftJoinAndSelect("message.arquivo", "arquivo")
+        .leftJoinAndSelect("message.ARQUIVO", "ARQUIVO")
         .where("message.CODIGO_ATENDIMENTO = :cod_a", { cod_a })
         .getMany();
 

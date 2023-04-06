@@ -1,4 +1,4 @@
-import WAWebJS, {  Client, LocalAuth } from "whatsapp-web.js";
+import WAWebJS, {  Client, LocalAuth, MessageMedia } from "whatsapp-web.js";
 import WebSocket from "./WebSocket";
 import { Wnumber } from "../entities/wnumber.entity";
 import services from "../services";
@@ -36,7 +36,6 @@ export async function getRunningAttendances () {
         const findMessages = await services.messages.getAllByAttendance(a.CODIGO);
         const WPP = await services.wnumbers.getById(a.CODIGO_NUMERO);
 
-
         if(WPP) {
             const PFP = await WhatsappWeb.getProfilePicUrl(WPP.NUMERO + "@c.us");
             
@@ -47,7 +46,8 @@ export async function getRunningAttendances () {
                 CODIGO_OPERADOR: a.CODIGO_OPERADOR,
                 MENSAGENS: findMessages ,
                 WPP_NUMERO: WPP.NUMERO,
-                AVATAR: PFP
+                AVATAR: PFP,
+                DATA_INICIO: a.DATA_INICIO
             };
 
             RunningAttendances.push(newRA);
@@ -114,7 +114,8 @@ WhatsappWeb.on("message", async (message) => {
                 CODIGO_NUMERO: findNumber.CODIGO,
                 WPP_NUMERO: number,
                 MENSAGENS: [newMessage],
-                AVATAR: PFP
+                AVATAR: PFP,
+                DATA_INICIO: findAttendance.DATA_INICIO
             };
 
             RunningAttendances.push(newRA);
@@ -150,7 +151,8 @@ WhatsappWeb.on("message", async (message) => {
                             CODIGO_NUMERO: findNumber.CODIGO,
                             WPP_NUMERO: number,
                             MENSAGENS: [newMessage],
-                            AVATAR: PFP
+                            AVATAR: PFP,
+                            DATA_INICIO: newAttendance.DATA_INICIO
                         };
     
                         RunningAttendances.push(newRA);
@@ -180,19 +182,30 @@ WhatsappWeb.on("message", async (message) => {
 
 WebSocket.on('connection', (socket: Socket) => {
     socket.on("send-message", async(data: SendMessageData) => {
+        const options = data.referenceId ? { quotedMessageId: data.referenceId } : {};
 
-        const message = data.referenceId ?
-        await WhatsappWeb.sendMessage(data.chatId, data.content, { quotedMessageId: data.referenceId })
-        :
-        await WhatsappWeb.sendMessage(data.chatId, data.content);
+        if(data.type === "audio" && !!data.file) {
 
-        const number = message.to;
+            const newData = await services.files.saveLocally(data.file);
+            const media = new MessageMedia("audio/ogg; codecs=opus", newData, data.file.name);
+            
+            const message = await WhatsappWeb.sendMessage(data.chatId, media, { ...options, sendAudioAsVoice: true });
+            handleMessage(message);
 
-        const index = RunningAttendances.findIndex(r => number.includes(r.WPP_NUMERO));
-        const newMessage = await services.messages.create(message as unknown as WhatsappMessage, RunningAttendances[index].CODIGO_ATENDIMENTO);
+        } else {
+            const message = await WhatsappWeb.sendMessage(data.chatId, data.text, options);
+            handleMessage(message);
+        };
 
-        RunningAttendances[index].MENSAGENS = [...RunningAttendances[index].MENSAGENS, newMessage];
-        WebSocket.to(socket.id).emit("new-message", newMessage);
+        async function handleMessage(message: WAWebJS.Message) {
+            const number = message.to;
+
+            const index = RunningAttendances.findIndex(r => number.includes(r.WPP_NUMERO));
+            const newMessage = await services.messages.create(message as unknown as WhatsappMessage, RunningAttendances[index].CODIGO_ATENDIMENTO);
+
+            RunningAttendances[index].MENSAGENS = [...RunningAttendances[index].MENSAGENS, newMessage];
+            WebSocket.to(socket.id).emit("new-message", newMessage); 
+        };
     }); 
 
 });
