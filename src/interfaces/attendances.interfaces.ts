@@ -12,6 +12,7 @@ export interface RunningAttendance {
     WPP_NUMERO: string;
     MENSAGENS: RetrieveMessage[];
     AVATAR?: string;
+    DATA_INICIO: Date;
 };
 
 export interface CustomerRegistrationData {
