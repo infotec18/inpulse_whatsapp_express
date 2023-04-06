@@ -12,6 +12,6 @@ export class Avatar {
     @Column({ type: 'int',  unique: true, nullable: false})
     CODIGO_OPERADOR: number;
 
-    @Column({ type: 'longblob', nullable: true, default: null })
-    ARQUIVO: ArrayBuffer;
+    @Column({ type: 'text', nullable: true, default: null })
+    ARQUIVO: string;
 };
