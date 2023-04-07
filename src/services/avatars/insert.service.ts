@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
 import { Avatar } from "../../entities/avatar.entity";
-import { writeFile } from "fs";
+import { unlink, unlinkSync, writeFile } from "fs";
 import path from "path";
 
 export async function insertUserAvatarService(userId: number, data: string): Promise<Avatar> {
@@ -9,7 +9,6 @@ export async function insertUserAvatarService(userId: number, data: string): Pro
     const avatarsRepository: Repository<Avatar> = AppDataSource.getRepository(Avatar);
     const alreadyExists: Avatar | null = await avatarsRepository.findOneBy({ CODIGO_OPERADOR: userId });
 
-    
     
     const base64String = data.split(",")[1];
     const ext = data.split(";")[0].split("/")[1];
@@ -25,6 +24,10 @@ export async function insertUserAvatarService(userId: number, data: string): Pro
     });
 
     if(alreadyExists) {
+        unlink(path.join(__dirname, `../../../localFiles/avatars`, alreadyExists.ARQUIVO), (err) => {
+            console.log(err);
+        });
+
         const insertedAvatar: Avatar | null = await avatarsRepository.save({
             CODIGO: alreadyExists.CODIGO,
             CODIGO_OPERADOR: userId,
