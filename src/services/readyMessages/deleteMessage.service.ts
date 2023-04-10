@@ -9,6 +9,6 @@ export async function deleteReadyMessageService(number: number): Promise<void> {
     await messageRepository.createQueryBuilder('mensagens_prontas')
         .delete()
         .from(ReadyMessages)
-        .where("CODIGO = :id", {id: number})
+        .where("CODIGO = :messageId", {messageId: number})
         .execute();
 };

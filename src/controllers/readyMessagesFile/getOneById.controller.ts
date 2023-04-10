@@ -4,7 +4,7 @@ import { AppError } from "../../errors";
 
 export async function getOneReadyMessageFileById(req: Request, res: Response): Promise<Response> {
     try {
-        const codigo = parseInt(req.params.codigo);
+        const codigo = parseInt(req.params.id);
         const readyMessageFile = await services.readyMessageFile.getOneById(codigo);
 
         return res.status(200).json(readyMessageFile);

@@ -1,13 +1,27 @@
-import { Repository } from "typeorm";
-import { AppDataSource } from "../../data-source";
-import { ReadyMessageFile } from "../../entities/readyMessageFile.entity";
-import { AppError } from "../../errors";
-import { getOneById } from "./getOneById.service";
+import * as fs from 'fs-extra'
+import * as path from 'path';
+import { AppDataSource } from '../../data-source'
+import { ReadyMessageFile } from '../../entities/readyMessageFile.entity'
 
-export async function deleleteReadyMessageFile(CODIGO: number): Promise<void> {
-    const readyMessageFileRepository: Repository<ReadyMessageFile> = AppDataSource.getRepository(ReadyMessageFile);
+export async function deleteFileAndRemovePath(CODIGO: number) {
+    try {
 
-    const readyMessageFile = await getOneById(CODIGO);
+        const readyMessageFileRepository = AppDataSource.getRepository(ReadyMessageFile);
 
-    await readyMessageFileRepository.remove(readyMessageFile);
+        const entryToDelete = await readyMessageFileRepository.findOneBy({ CODIGO: CODIGO });
+
+        if(entryToDelete){
+            const filePath = path.join(__dirname, '../../../files', entryToDelete.ARQUIVO);
+            if(await fs.pathExists(filePath)){
+                await fs.unlink(filePath);
+            }
+
+            console.log(`${__dirname}/../../../files/${entryToDelete.ARQUIVO}`)
+
+            await readyMessageFileRepository.remove(entryToDelete)
+        }
+
+    } catch (error) {
+        console.error('Error deleting file and removing path:', error);
+    }
 }

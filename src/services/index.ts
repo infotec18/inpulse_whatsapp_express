@@ -39,8 +39,8 @@ import { getAllReadyMessagesService } from "./readyMessages/getAllMessages.servi
 import { getOneReadyMessageService } from "./readyMessages/getOneById.service";
 import { insert } from "./readyMessageFile/insert.service";
 import { getOneById } from "./readyMessageFile/getOneById.service";
-import { deleleteReadyMessageFile } from "./readyMessageFile/delete.service";
-import { update } from "./readyMessageFile/update.service";
+import { deleteFileAndRemovePath } from "./readyMessageFile/delete.service";
+import { downloadReadyFileService } from "./readyMessageFile/download.service";
 
 const services = {
     users: {
@@ -102,8 +102,8 @@ const services = {
     readyMessageFile: {
         insert: insert,
         getOneById: getOneById,
-        delete: deleleteReadyMessageFile,
-        update: update
+        delete: deleteFileAndRemovePath,
+        download: downloadReadyFileService
     }
 };
 

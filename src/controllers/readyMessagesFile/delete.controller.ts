@@ -1,16 +1,21 @@
-import { Request, Response } from "express"
-import services from "../../services"
-import { ReadyMessageFile } from "../../entities/readyMessageFile.entity"
-import { AppError } from "../../errors";
+import { Request, Response } from 'express';
+import services from '../../services';
 
-export async function deleteReadyMessageFile(req: Request, res: Response): Promise<Response> {
-    try {
-        const codigo = parseInt(req.params.codigo);
+export async function handleFileDeletion(req: Request, res: Response): Promise<Response> {
+  const { codigo } = req.params;
 
-        const deleteddReadyMessageFile = await services.readyMessageFile.delete(codigo);
+  console.log(codigo)
 
-        return res.status(200).json(deleteddReadyMessageFile);
-    } catch (error) {
-        throw new AppError(`Error updating message file: ${error}`, 400);
-    }
+  if (!codigo) {
+    return res.status(400).json({ message: 'Missing required parameters.' });
+  }
+
+  try {
+    await services.readyMessageFile.delete(Number(codigo));
+
+    return res.status(200).json({ message: 'File deleted successfully.' });
+  } catch (error) {
+    console.error('Error handling file deletion:', error);
+    return res.status(500).json({ message: 'Error handling file deletion.' });
+  }
 }

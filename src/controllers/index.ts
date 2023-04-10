@@ -28,8 +28,8 @@ import { getAllReadyMessagesController } from "./readyMessages/getAll.controller
 import { getOneReadyMessageByIdController } from "./readyMessages/getOneById.controller";
 import { insert } from "../services/readyMessageFile/insert.service";
 import { getOneReadyMessageFileById } from "./readyMessagesFile/getOneById.controller";
-import { updateReadyMessageFile } from "./readyMessagesFile/update.controller";
-import { deleteReadyMessageFile } from "./readyMessagesFile/delete.controller";
+import { handleFileDeletion } from "./readyMessagesFile/delete.controller";
+import { downloadReadyFileController } from "./readyMessagesFile/download.controller";
 
 const controllers = {
     users: {
@@ -75,8 +75,8 @@ const controllers = {
     readyMessageFile: {
         insert: insert,
         getOneById: getOneReadyMessageFileById,
-        update: updateReadyMessageFile,
-        delete: deleteReadyMessageFile
+        delete: handleFileDeletion,
+        download: downloadReadyFileController
     }
 };
 
