@@ -4,11 +4,12 @@ import { Wnumber } from "../entities/wnumber.entity";
 import services from "../services";
 import { Sessions } from "./Sessions";
 import { Attendance } from "../entities/attendance.entity";
-import { RetrieveMessage, RunningAttendance, RunningRegistration, Session } from "../interfaces/attendances.interfaces";
+import { FinishAttendanceProps, RetrieveMessage, RunningAttendance, RunningRegistration, Session } from "../interfaces/attendances.interfaces";
 import { registrationBot } from "../bots/registration.bot";
 import { SendMessageData, WhatsappMessage } from "../interfaces/messages.interfaces";
 import { Customer } from "../entities/customer";
 import { Socket } from "socket.io";
+import { RunningAttendances } from "./RunningAttendances";
 
 const WhatsappWeb = new Client({
     authStrategy: new LocalAuth(),
@@ -26,7 +27,8 @@ const WhatsappWeb = new Client({
     }
 });
 
-export let RunningAttendances: Array<RunningAttendance> = [];
+export let runningAttendances = new RunningAttendances([]);
+
 let RunningRegistrations: Array<RunningRegistration> = [];
 
 export async function getRunningAttendances () {
@@ -50,7 +52,7 @@ export async function getRunningAttendances () {
                 DATA_INICIO: a.DATA_INICIO
             };
 
-            RunningAttendances.push(newRA);
+            runningAttendances.create(newRA);
         };
     });
 };
@@ -63,14 +65,14 @@ WhatsappWeb.on("message", async (message) => {
     const number: string = str.slice(0, str.length - 5);
 
     const registrating: RunningRegistration | undefined = RunningRegistrations.find(rr => rr.WPP_NUMERO === number && !rr.CONCLUIDO);
-    const attending: number = RunningAttendances.findIndex(ra => ra.WPP_NUMERO === number);
+    const attending: RunningAttendance | undefined = runningAttendances.find({ WPP_NUMERO: number });
     const PFP = await WhatsappWeb.getProfilePicUrl(message.from);
     
-    if (attending >= 0) {
-        const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, RunningAttendances[attending].CODIGO_ATENDIMENTO);
-        RunningAttendances[attending].MENSAGENS = [...RunningAttendances[attending].MENSAGENS, newMessage];
+    if (attending) {
+        const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, attending.CODIGO_ATENDIMENTO);
+        runningAttendances.update(attending.CODIGO_ATENDIMENTO, { MENSAGENS: [...attending.MENSAGENS, newMessage]});
         
-        const findSession: Session | undefined = Sessions.find(s => s.userId === RunningAttendances[attending].CODIGO_OPERADOR);
+        const findSession: Session | undefined = Sessions.find(s => s.userId === attending.CODIGO_OPERADOR);
 
         if(!!findSession) WebSocket.to(findSession.socketId).emit("new-message", newMessage);
 
@@ -103,27 +105,32 @@ WhatsappWeb.on("message", async (message) => {
                     DATA_INICIO: findAttendance.DATA_INICIO
                 };
 
-                RunningAttendances.push(newRA);
+                runningAttendances.create(newRA);
+
                 const findSession: Session | undefined = Sessions.find(s => s.userId === findAttendance.CODIGO_OPERADOR);
-                const op_attendances = findSession && RunningAttendances.filter(ra => ra.CODIGO_OPERADOR === findSession.userId);
+                const op_attendances = findSession && runningAttendances.value.filter(ra => ra.CODIGO_OPERADOR === findSession.userId);
                 findSession && WebSocket.to(findSession.socketId).emit("load-attendances", op_attendances);
                 findSession && console.log("Encontrou uma sessão e emitiu a mensagem.", findSession);
 
             } else {
                 const s: Session | undefined = await services.attendances.getOperator(findCustomer.OPERADOR | 0);
+
                     if(s) {
+                        console.log("foi")
                         const newAttendance: Attendance = await services.attendances.create({
                             CODIGO_OPERADOR: s.userId,
                             CODIGO_CLIENTE: findNumber.CODIGO_CLIENTE,
                             CODIGO_NUMERO: findNumber.CODIGO,
-                            CONCUIDO: 0,
+                            CONCUIDO: null,
                             DATA_INICIO: new Date(),
                             DATA_FIM: null
                         }); 
+
+                        console.log(newAttendance)
     
                         const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, newAttendance.CODIGO);
     
-                        const newRA: RunningAttendance = {
+                        runningAttendances.create({
                             CODIGO_ATENDIMENTO: newAttendance.CODIGO,
                             CODIGO_CLIENTE: newAttendance.CODIGO_CLIENTE,
                             CODIGO_OPERADOR: findCustomer.OPERADOR || 0,
@@ -132,11 +139,9 @@ WhatsappWeb.on("message", async (message) => {
                             MENSAGENS: [newMessage],
                             AVATAR: PFP,
                             DATA_INICIO: newAttendance.DATA_INICIO
-                        };
-    
-                        RunningAttendances.push(newRA);
+                        });
 
-                        const op_attendances = RunningAttendances.filter(ra => ra.CODIGO_OPERADOR === s.userId);
+                        const op_attendances = runningAttendances.value.filter(ra => ra.CODIGO_OPERADOR === s.userId);
                         WebSocket.to(s.socketId).emit("load-attendances", op_attendances);
                     
                     } else {
@@ -145,7 +150,6 @@ WhatsappWeb.on("message", async (message) => {
             };  
             
         } else {
-            // Caso não encontre o número na base de dados...
             const newRegistration = { WPP_NUMERO: number, ETAPA: 1, DADOS: {}, CONCLUIDO: false};
             RunningRegistrations.push(newRegistration);
             const { registration, reply } = await registrationBot(newRegistration, message.body);
@@ -153,12 +157,12 @@ WhatsappWeb.on("message", async (message) => {
             let index = RunningRegistrations.findIndex(r => r.WPP_NUMERO === number);
             RunningRegistrations[index] = registration;
         };
-    }
+    };
 });
 
 WebSocket.on('connection', (socket: Socket) => {
     socket.on("send-message", async(data: SendMessageData) => {
-        const options = data.referenceId ? { quotedMessageId: data.referenceId } : {};
+        const options = data.referenceId ? { quotedMessageId: data.referenceId } : { };
 
         if(data.type === "audio" && !!data.file) {
 
@@ -183,15 +187,25 @@ WebSocket.on('connection', (socket: Socket) => {
         };
 
         async function handleMessage(message: WAWebJS.Message) {
-            const number = message.to;
+            const str: string = message.to;
+            const number: string = str.slice(0, str.length - 5);
 
-            const index = RunningAttendances.findIndex(r => number.includes(r.WPP_NUMERO));
-            const newMessage = await services.messages.create(message as unknown as WhatsappMessage, RunningAttendances[index].CODIGO_ATENDIMENTO);
+            const ra: RunningAttendance | undefined = runningAttendances.find({ WPP_NUMERO: number });
 
-            RunningAttendances[index].MENSAGENS = [...RunningAttendances[index].MENSAGENS, newMessage];
-            WebSocket.to(socket.id).emit("new-message", newMessage); 
+            if(ra) {
+                const newMessage = await services.messages.create(message as unknown as WhatsappMessage, ra.CODIGO_ATENDIMENTO);
+
+                runningAttendances.update(ra.CODIGO_ATENDIMENTO, { MENSAGENS: [...ra.MENSAGENS, newMessage] }); 
+                WebSocket.to(socket.id).emit("new-message", newMessage); 
+            }
+
         };
     }); 
+
+    socket.on("finish-attendance", async(data: FinishAttendanceProps) => {
+        // buscar campanha...
+        services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, 0);
+    });
 });
 
 export default WhatsappWeb;

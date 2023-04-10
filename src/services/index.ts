@@ -38,6 +38,7 @@ import { deleteReadyMessageService } from "./readyMessages/deleteMessage.service
 import { getAllReadyMessagesService } from "./readyMessages/getAllMessages.service";
 import { getOneReadyMessageService } from "./readyMessages/getOneById.service";
 import { saveAndConvertAudioService } from "./files/saveAndConvertAudio.service";
+import { finishAttendanceService } from "./attendances/finish.service";
 
 const services = {
     users: {
@@ -66,7 +67,8 @@ const services = {
         create: createAttendanceService,
         findByUser: findAttendancesByUserService,
         getOperator: getOperatorForAttendance,
-        getAllRunning: getAllRunningAttendancesService
+        getAllRunning: getAllRunningAttendancesService,
+        finish: finishAttendanceService
     },
     customers: {
         directCreate: directCreateCustomerService,

@@ -21,7 +21,7 @@ export class Attendance {
     @Column({ type: 'int',  unique: true, nullable: false})
     CODIGO_NUMERO: number;
 
-    @Column({ type: 'tinyint' })
+    @Column({ type: 'tinyint', nullable: true, default: 0 })
     CONCLUIDO: number;
 
     @Column({ type: 'datetime', nullable: true })
