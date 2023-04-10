@@ -24,6 +24,9 @@ export class ClientCampaign {
     @Column({ type: 'datetime', nullable: true, default: '0000-00-00 00:00:00' })
     DATA_HORA_LIG: Date;
 
+    @Column({ type: 'datetime', nullable: true, default: '0000-00-00 00:00:00' })
+    DATA_HORA_FIM: Date;
+
     @Column({ type: 'int', nullable: true, default: 0 })
     RESULTADO: number;
 

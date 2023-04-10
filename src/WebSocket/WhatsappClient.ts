@@ -60,6 +60,11 @@ export async function getRunningAttendances () {
 WhatsappWeb.on("qr", (qr: string) => { WebSocket.emit("qr", qr) });
 WhatsappWeb.on("authenticated", (data) => { WebSocket.emit("authenticated", data) });
 
+function returnUpdatedAttendancesForOperator (COD_OPERADOR: number, socket: Socket) {
+    const attendances = runningAttendances.value.filter(ra => ra.CODIGO_OPERADOR == COD_OPERADOR);
+    socket.emit("load-attendances", attendances);
+};
+
 WhatsappWeb.on("message", async (message) => {
     const str: string = message.from;
     const number: string = str.slice(0, str.length - 5);
@@ -205,7 +210,10 @@ WebSocket.on('connection', (socket: Socket) => {
     socket.on("finish-attendance", async(data: FinishAttendanceProps) => {
         // buscar campanha...
         services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, 0);
+        const s = Sessions.find(s => s.socketId === socket.id);
+        s && returnUpdatedAttendancesForOperator(s.userId, socket);
     });
+
 });
 
 export default WhatsappWeb;
