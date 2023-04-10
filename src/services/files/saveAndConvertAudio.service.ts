@@ -3,7 +3,7 @@ import { readFileSync, unlinkSync, writeFile, writeFileSync } from "fs";
 import path from "path";
 import ffmpeg from 'fluent-ffmpeg';
 
-export function saveFileLocallyService(file: SendFileData): Promise<string> {
+export function saveAndConvertAudioService(file: SendFileData): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         const fileContent = Buffer.from(file.base64, 'base64');
 

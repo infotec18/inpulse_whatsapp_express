@@ -30,6 +30,9 @@ export class Attendance {
     @Column({ type: 'datetime', nullable: true })
     DATA_FIM: string;
 
+    @Column({ type: 'enum', enum: ['URGENTE', 'ALTA', 'NORMAL'], default: 'NORMAL' })
+    URGENCIA: string;
+
     @OneToMany(() => Message, message => message.ATENDIMENTO)
     MENSAGENS: Message[];
 

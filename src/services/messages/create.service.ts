@@ -6,6 +6,7 @@ import { MessageFile } from "../../entities/messageFile.entity";
 import { RetrieveMessage } from "../../interfaces/attendances.interfaces";
 import { writeFile } from "fs";
 import WAWebJS from "whatsapp-web.js";
+import { emojify, unemojify } from "node-emoji";
 
 export async function createMessageService(message: WhatsappMessage, cod_a: number): Promise<RetrieveMessage> {
 
@@ -16,10 +17,10 @@ export async function createMessageService(message: WhatsappMessage, cod_a: numb
 
     if(message._data.type === "chat") {
         let msg = message as WhatsappChatMessage;
-        messageText = msg.body;
+        messageText = unemojify(msg.body)
     } else {
         let msg = message as WhatsappFileMessage;
-        messageText = msg._data.caption;
+        messageText = unemojify(msg._data.caption);
     };
 
     let newMessageB: Message = messagesRepository.create({
@@ -36,7 +37,8 @@ export async function createMessageService(message: WhatsappMessage, cod_a: numb
         newMessageB.ID_REFERENCIA = message._data.quotedStanzaID
     };
 
-    const newMessage = await messagesRepository.save(newMessageB);
+    let newMessage = await messagesRepository.save(newMessageB);
+    newMessage.MENSAGEM = emojify(newMessage.MENSAGEM);
 
     if(message._data.type !== "chat" && message._data.mimetype) {
         const msg = message as unknown as WAWebJS.Message;
