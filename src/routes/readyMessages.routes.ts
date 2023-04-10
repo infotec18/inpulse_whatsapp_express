@@ -11,18 +11,18 @@ readyMessagesRoutes.get('/api/ready-messages',
 readyMessagesRoutes.get('/api/ready-messages/:messageId', 
     middlewares.readyMessages.ensureParamReadyMessagesIdExists,
     controllers.readyMessages.getOneById
-)
+);
 
 readyMessagesRoutes.post('/api/ready-messages',
     controllers.readyMessages.create
-)
+);
 
 readyMessagesRoutes.put('/api/ready-messages/:messageId/update',
     middlewares.readyMessages.ensureParamReadyMessagesIdExists,
     controllers.readyMessages.update
-)
+);
 
 readyMessagesRoutes.delete('/api/ready-messages/:messageId/delete', 
     middlewares.readyMessages.ensureParamReadyMessagesIdExists,
-    controllers.readyMessages.delete
-)
+    controllers.readyMessages.erase
+);
