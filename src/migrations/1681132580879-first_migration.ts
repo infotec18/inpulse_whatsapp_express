@@ -9,6 +9,7 @@ export class firstMigration1681132580879 implements MigrationInterface {
         await queryRunner.query(`CREATE TABLE \`mensagens_arquivos\` (\`CODIGO\` int NOT NULL AUTO_INCREMENT, \`CODIGO_MENSAGEM\` int NOT NULL, \`TIPO\` text NOT NULL, \`ARQUIVO\` text NOT NULL, UNIQUE INDEX \`REL_48b1a90d0229f511c89ae23558\` (\`CODIGO_MENSAGEM\`), PRIMARY KEY (\`CODIGO\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`clientes_numeros\` (\`CODIGO\` int NOT NULL AUTO_INCREMENT, \`CODIGO_CLIENTE\` int NOT NULL, \`NOME\` varchar(30) NOT NULL, \`NUMERO\` varchar(20) NOT NULL, UNIQUE INDEX \`IDX_68d2b0bd18f11ff5d41049e266\` (\`CODIGO_CLIENTE\`), UNIQUE INDEX \`IDX_7e24a7cb9bed4ed6f96fa22978\` (\`NUMERO\`), PRIMARY KEY (\`CODIGO\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`mensagens_prontas\` (\`CODIGO\` int NOT NULL AUTO_INCREMENT, \`APENAS_ADMIN\` tinyint NOT NULL, \`TEXTO_MENSAGEM\` text NOT NULL, \`ARQUIVO\` longblob NOT NULL, PRIMARY KEY (\`CODIGO\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`atendimentos_historico\` (\`CODIGO\` int NOT NULL AUTO_INCREMENT, \`CODIGO_ATENDIMENTO\` int NOT NULL, \`MENSAGEM\` text NOT NULL, \`DATA_HORA\` datetime NOT NULL, PRIMARY KEY (\`CODIGO\`)) ENGINE=InnoDB`);
         await queryRunner.query(`ALTER TABLE \`atendimentos_historico\` ADD CONSTRAINT \`FK_abd3ff1160eb1148d7d39723239\` FOREIGN KEY (\`CODIGO_ATENDIMENTO\`) REFERENCES \`atendimentos\`(\`CODIGO\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`mensagens\` ADD CONSTRAINT \`FK_bfc61a855f72382f855dab49f8b\` FOREIGN KEY (\`CODIGO_ATENDIMENTO\`) REFERENCES \`atendimentos\`(\`CODIGO\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`mensagens_arquivos\` ADD CONSTRAINT \`FK_48b1a90d0229f511c89ae235581\` FOREIGN KEY (\`CODIGO_MENSAGEM\`) REFERENCES \`mensagens\`(\`CODIGO\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
@@ -20,6 +21,7 @@ export class firstMigration1681132580879 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE \`mensagens_arquivos\` DROP FOREIGN KEY \`FK_48b1a90d0229f511c89ae235581\``);
         await queryRunner.query(`ALTER TABLE \`mensagens\` DROP FOREIGN KEY \`FK_bfc61a855f72382f855dab49f8b\``);
         await queryRunner.query(`ALTER TABLE \`atendimentos_historico\` DROP FOREIGN KEY \`FK_abd3ff1160eb1148d7d39723239\``);
+        await queryRunner.query(`DROP TABLE \`atendimentos_historico\``);
         await queryRunner.query(`DROP TABLE \`mensagens_prontas\``);
         await queryRunner.query(`DROP INDEX \`IDX_7e24a7cb9bed4ed6f96fa22978\` ON \`clientes_numeros\``);
         await queryRunner.query(`DROP INDEX \`IDX_68d2b0bd18f11ff5d41049e266\` ON \`clientes_numeros\``);
