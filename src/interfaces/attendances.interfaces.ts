@@ -40,3 +40,8 @@ export interface Session {
     userId: number;
     admin: boolean;
 };
+
+export interface FinishAttendanceProps {
+    CODIGO_ATENDIMENTO: number;
+    CODIGO_RESULTADO: number;
+};

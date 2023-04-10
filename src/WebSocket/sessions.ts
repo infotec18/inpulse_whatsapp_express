@@ -2,7 +2,7 @@ import { Socket } from 'socket.io';
 import WebSocket from './WebSocket';
 import { Session } from '../interfaces/attendances.interfaces';
 import services from '../services';
-import { RunningAttendances } from './WhatsappClient';
+import { runningAttendances } from './WhatsappClient';
 
 export let Sessions: Array<Session> = [];
 
@@ -21,7 +21,7 @@ WebSocket.on('connection', (socket: Socket) => {
                 const isAdmin: boolean = res.NIVEL === "ADMIN";
                 Sessions.push({ socketId: socket.id, userId: data, admin: isAdmin});
                 if(!isAdmin) {
-                    const op_attendances = RunningAttendances.filter(ra => ra.CODIGO_OPERADOR === data);
+                    const op_attendances = runningAttendances.value.filter(ra => ra.CODIGO_OPERADOR === data);
                     WebSocket.to(socket.id).emit("load-attendances", op_attendances)
                 };
             });
