@@ -15,7 +15,7 @@ customerRoutes.get("/api/customers/",
 customerRoutes.get("/api/customers/:userId",
     middlewares.customers.ensureParamCustomerIdExists,
     controllers.customers.getOneById
-)
+);
 
 customerRoutes.delete("/api/customers/:userId",
     middlewares.customers.ensureParamCustomerIdExists,
@@ -34,4 +34,4 @@ customerRoutes.patch("/api/customers/:userId",
 
 customerRoutes.get("/api/customers/lastid", 
     controllers.customers.getLastId
-)
+);
