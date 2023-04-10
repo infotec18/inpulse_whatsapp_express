@@ -31,9 +31,10 @@ export async function getOneAvatarByUserIdService(userId: number, res: Response)
             const ext = findAvatar.ARQUIVO.split(".")[1]
             const dataUrl = `data:image/${ext};base64,${base64}`;
     
-            return dataUrl
+            return dataUrl;
+
         } else {
             return "";
-        }
+        };
     };
 };

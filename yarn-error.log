@@ -1,5 +1,5 @@
 Arguments: 
-  C:\Program Files\nodejs\node.exe C:\Users\rgran\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add @types/fs
+  C:\Program Files\nodejs\node.exe C:\Users\rgran\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add @types/emoji
 
 PATH: 
   C:\Users\rgran\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\local\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\rgran\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32\OpenSSH;C:\Program Files\dotnet;C:\Program Files\Git\cmd;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files\nodejs;C:\ProgramData\chocolatey\bin;C:\Users\rgran\AppData\Local\Microsoft\WindowsApps;C:\Users\rgran\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\rgran\AppData\Roaming\npm;C:\Program Files\Git\usr\bin\vendor_perl;C:\Program Files\Git\usr\bin\core_perl
@@ -14,7 +14,7 @@ Platform:
   win32 x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/@types%2ffs: Not found
+  Error: https://registry.yarnpkg.com/@types%2femoji: Not found
       at params.callback [as _callback] (C:\Users\rgran\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:66145:18)
       at self.callback (C:\Users\rgran\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:140890:22)
       at Request.emit (node:events:513:28)
@@ -34,6 +34,7 @@ npm manifest:
     "license": "MIT",
     "dependencies": {
       "@types/cors": "^2.8.13",
+      "@types/fluent-ffmpeg": "^2.1.21",
       "@types/qrcode-terminal": "^0.12.0",
       "bcryptjs": "^2.4.3",
       "body-parser": "^1.20.2",
@@ -41,10 +42,12 @@ npm manifest:
       "dot-env": "^0.0.1",
       "express": "^4.18.2",
       "express-async-errors": "^3.1.1",
+      "fluent-ffmpeg": "^2.1.2",
       "fs": "^0.0.1-security",
       "jsonwebtoken": "^9.0.0",
       "mysql": "^2.18.1",
       "mysql2": "^3.2.0",
+      "node-emoji": "^1.11.0",
       "pg": "^8.10.0",
       "qrcode-terminal": "^0.12.0",
       "reflect-metadata": "^0.1.13",
@@ -229,6 +232,13 @@ Lockfile:
       "@types/express-serve-static-core" "^4.17.33"
       "@types/qs" "*"
       "@types/serve-static" "*"
+  
+  "@types/fluent-ffmpeg@^2.1.21":
+    version "2.1.21"
+    resolved "https://registry.yarnpkg.com/@types/fluent-ffmpeg/-/fluent-ffmpeg-2.1.21.tgz#8f2f80370d36b09cae9c144cf9283f40c8cb7bfc"
+    integrity sha512-+n3dy/Tegt6n+YwGZUiGq6i8Jrnt8+MoyPiW1L6J5EWUl7GSt18a/VyReecfCsvTTNBXNMIKOMHDstiQM8nJLA==
+    dependencies:
+      "@types/node" "*"
   
   "@types/jsonwebtoken@^9.0.1":
     version "9.0.1"
@@ -1754,6 +1764,13 @@ Lockfile:
     version "4.3.0"
     resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-4.3.0.tgz#52a1a0b475193e0928e98e0426a0d1254782b77f"
     integrity sha512-73sE9+3UaLYYFmDsFZnqCInzPyh3MqIwZO9cw58yIqAZhONrrabrYyYe3TuIqtIiOuTXVhsGau8hcrhhwSsDIQ==
+  
+  node-emoji@^1.11.0:
+    version "1.11.0"
+    resolved "https://registry.yarnpkg.com/node-emoji/-/node-emoji-1.11.0.tgz#69a0150e6946e2f115e9d7ea4df7971e2628301c"
+    integrity sha512-wo2DpQkQp7Sjm2A0cq+sN7EHKO6Sl0ctXeBdFZrL9T9+UywORbufTcTZxom8YqpLQt/FqNMUkOpkZrJVYSKD3A==
+    dependencies:
+      lodash "^4.17.21"
   
   node-fetch@2.6.7:
     version "2.6.7"

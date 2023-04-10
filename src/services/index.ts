@@ -37,7 +37,7 @@ import { updateReadyMessagesService } from "./readyMessages/updateMessage.servic
 import { deleteReadyMessageService } from "./readyMessages/deleteMessage.service";
 import { getAllReadyMessagesService } from "./readyMessages/getAllMessages.service";
 import { getOneReadyMessageService } from "./readyMessages/getOneById.service";
-import { saveFileLocallyService } from "./files/saveLocally.service";
+import { saveAndConvertAudioService } from "./files/saveAndConvertAudio.service";
 
 const services = {
     users: {
@@ -88,7 +88,7 @@ const services = {
         download: downloadFileService,
         returnBase64: returnBase64Service,
         retrieve: retrieveMessageService,
-        saveLocally: saveFileLocallyService
+        saveAndConvertAudio: saveAndConvertAudioService
     },
     readyMessages: {
         create: insertReadyMessageService,

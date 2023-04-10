@@ -9,6 +9,7 @@ import { registrationBot } from "../bots/registration.bot";
 import { SendMessageData, WhatsappMessage } from "../interfaces/messages.interfaces";
 import { Customer } from "../entities/customer";
 import { Socket } from "socket.io";
+import { unemojify } from "node-emoji";
 
 const WhatsappWeb = new Client({
     authStrategy: new LocalAuth(),
@@ -60,8 +61,6 @@ WhatsappWeb.on("authenticated", (data) => { WebSocket.emit("authenticated", data
 
 WhatsappWeb.on("message", async (message) => {
 
-    if(message.type === "sticker") return;
-    
     const str: string = message.from;
     const number: string = str.slice(0, str.length - 5);
 
@@ -186,10 +185,19 @@ WebSocket.on('connection', (socket: Socket) => {
 
         if(data.type === "audio" && !!data.file) {
 
-            const newData = await services.files.saveLocally(data.file);
+            const newData = await services.files.saveAndConvertAudio(data.file);
             const media = new MessageMedia("audio/ogg; codecs=opus", newData, data.file.name);
             
             const message = await WhatsappWeb.sendMessage(data.chatId, media, { ...options, sendAudioAsVoice: true });
+            handleMessage(message);
+
+        } else if(data.type === "media" && !!data.file){
+            const base64 = data.file.base64.split(",")[1];
+            const { type, name } = data.file;
+
+            const media = new MessageMedia(type, base64, name);
+            const message = await WhatsappWeb.sendMessage(data.chatId, data.text, { ...options, media: media });
+
             handleMessage(message);
 
         } else {
@@ -207,7 +215,6 @@ WebSocket.on('connection', (socket: Socket) => {
             WebSocket.to(socket.id).emit("new-message", newMessage); 
         };
     }); 
-
 });
 
 
