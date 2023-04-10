@@ -12,35 +12,34 @@ export async function findNumberService(wpp: string): Promise<Wnumber | null> {
         NUMERO: wpp
     });
 
-    if(!findNumber) {
-        const ddd = wpp.slice(2,4);
-        const body = wpp.slice(4);
-        const search = `${ddd}9${body}`;
-        
-        const findInCampaigns: ClientCampaign | null = await ClientCampaignRepository
-        .createQueryBuilder("clientCampaign")
-        .where(
-          `clientCampaign.FONE1 LIKE :wpp OR 
-           clientCampaign.FONE2 LIKE :wpp OR 
-           clientCampaign.FONE3 LIKE :wpp`,
-          { wpp: `%${search}%` }
-        ).getOne();
+    if(findNumber) return findNumber;
 
-        console.log(findInCampaigns);
-        if(findInCampaigns) {
-            const newNumber: Wnumber = await WnumberRepository.save({
-                CODIGO_CLIENTE: findInCampaigns.CLIENTE,
-                NOME: "Nome Indefinido",
-                NUMERO: wpp
-            });
+    const ddd = wpp.slice(2,4);
+    const body = wpp.slice(4);
+    const search = `${ddd}9${body}`;
+    
+    const findInCampaigns: ClientCampaign | null = await ClientCampaignRepository
+    .createQueryBuilder("clientCampaign")
+    .where(
+      `clientCampaign.FONE1 LIKE :wpp OR 
+       clientCampaign.FONE2 LIKE :wpp OR 
+       clientCampaign.FONE3 LIKE :wpp`,
+      { wpp: `%${search}%` }
+    ).getOne();
 
-            return newNumber;
+    console.log(findInCampaigns);
+    
+    if(findInCampaigns) {
+        const newNumber: Wnumber = await WnumberRepository.save({
+            CODIGO_CLIENTE: findInCampaigns.CLIENTE,
+            NOME: "Nome Indefinido",
+            NUMERO: wpp
+        });
 
-        } else {
-            return null
-        };
+        return newNumber;
 
     } else {
-        return findNumber;
+        return null
     };
+
 };
