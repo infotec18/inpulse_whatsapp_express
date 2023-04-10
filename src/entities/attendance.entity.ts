@@ -24,11 +24,14 @@ export class Attendance {
     @Column({ type: 'tinyint' })
     CONCLUIDO: number;
 
-    @Column({ type: 'datetime', default: new Date() })
+    @Column({ type: 'datetime', nullable: true })
     DATA_INICIO: Date;
 
     @Column({ type: 'datetime', nullable: true })
-    DATA_FIM: string;
+    DATA_FIM: Date;
+
+    @Column({ type: 'datetime', nullable: true })
+    DATA_AGENDAMENTO: Date;
 
     @Column({ type: 'enum', enum: ['URGENTE', 'ALTA', 'NORMAL'], default: 'NORMAL' })
     URGENCIA: string;
