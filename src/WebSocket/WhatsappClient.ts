@@ -2,7 +2,7 @@ import WAWebJS, {  Client, LocalAuth, MessageMedia } from "whatsapp-web.js";
 import WebSocket from "./WebSocket";
 import { Wnumber } from "../entities/wnumber.entity";
 import services from "../services";
-import { Sessions } from "./Sessions2";
+import { Sessions } from "./Sessions";
 import { Attendance } from "../entities/attendance.entity";
 import { FinishAttendanceProps, RetrieveMessage, RunningAttendance, RunningRegistration, Session } from "../interfaces/attendances.interfaces";
 import { registrationBot } from "../bots/registration.bot";

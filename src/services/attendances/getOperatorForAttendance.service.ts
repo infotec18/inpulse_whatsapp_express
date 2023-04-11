@@ -2,7 +2,7 @@ import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
 import { Attendance } from "../../entities/attendance.entity";
 import { Session } from "../../interfaces/attendances.interfaces";
-import { Sessions } from "../../WebSocket/Sessions2";
+import { Sessions } from "../../WebSocket/Sessions";
 
 export async function getOperatorForAttendance(cod_o: number): Promise<Session | undefined> {
     const AttendancesRepository: Repository<Attendance> = AppDataSource.getRepository(Attendance);

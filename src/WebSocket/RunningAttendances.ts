@@ -1,5 +1,5 @@
 import { RunningAttendance } from "../interfaces/attendances.interfaces";
-import { Sessions } from "./Sessions2";
+import { Sessions } from "./Sessions";
 import WebSocket from "./WebSocket";
 
 export class RunningAttendances {
