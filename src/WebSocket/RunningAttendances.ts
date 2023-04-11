@@ -7,7 +7,7 @@ export class RunningAttendances {
 
     constructor(value: Array<RunningAttendance>) {
         this.value = value;
-    }
+    };
 
     update(COD_ATENDIMENTO: number, PARAMS: Partial<RunningAttendance>) {
         const index = this.value.findIndex((a) => a.CODIGO_ATENDIMENTO === COD_ATENDIMENTO);

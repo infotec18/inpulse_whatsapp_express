@@ -67,6 +67,8 @@ WhatsappWeb.on("message", async (message) => {
     const registrating: RunningRegistration | undefined = RunningRegistrations.find(rr => rr.WPP_NUMERO === number && !rr.CONCLUIDO);
     const attending: RunningAttendance | undefined = runningAttendances.find({ WPP_NUMERO: number });
     const PFP = await WhatsappWeb.getProfilePicUrl(message.from);
+
+    if((await message.getChat()).isGroup) return;
     
     if (attending) {
         const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, attending.CODIGO_ATENDIMENTO);

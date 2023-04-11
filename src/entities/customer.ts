@@ -18,7 +18,7 @@ export class Customer {
     FANTASIA: string;
 
     @Column({ type: 'enum', enum: ['FIS', 'JUR'], default: 'JUR' })
-    PESSOA: string;
+    PESSOA: "FIS" | "JUR";
 
     @Column({ type: 'enum', enum: ['SIM', 'NAO'], default: 'SIM' })
     ATIVO: string;

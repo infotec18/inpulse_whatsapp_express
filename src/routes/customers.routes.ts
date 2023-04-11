@@ -35,3 +35,7 @@ customerRoutes.patch("/api/customers/:userId",
 customerRoutes.get("/api/customers/lastid", 
     controllers.customers.getLastId
 );
+
+customerRoutes.get("/api/customers/findByOperator/:operatorId",
+    controllers.customers.getByOperatorId
+);

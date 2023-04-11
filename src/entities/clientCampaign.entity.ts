@@ -13,6 +13,9 @@ export class ClientCampaign {
     CLIENTE: number;
 
     @Column({ type: 'int', nullable: true, default: 0 })
+    OPERADOR: number;
+
+    @Column({ type: 'int', nullable: true, default: 0 })
     CAMPANHA: number;
 
     @Column({ type: 'date', nullable: true, default: '0000-00-00' })

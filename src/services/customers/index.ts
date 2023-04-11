@@ -5,8 +5,9 @@ import { getOneCustomersService } from "./getOneById.service";
 import { recoverCustomerService } from "./recover.service";
 import { deleteCustomerService } from "./softDelete.service";
 import { updateCustomerService } from "./update.service";
-import { findByCPFCNPJ as findByCPF } from "./findByCPF.service";
+import { findByCPFCNPJService } from "./findByCPF.service";
 import { directCreateCustomerService } from "./directCreate.service";
+import { findByOperatorIdService } from "./findByOperatorId.service";
 
 export const directCreate = directCreateCustomerService;
 export const create = createCustomerService;
@@ -16,4 +17,5 @@ export const recover = recoverCustomerService;
 export const softDelete = deleteCustomerService;
 export const update = updateCustomerService;
 export const getLastId = getLastCustomerIdService;
-export const findByCPFCNPJ = findByCPF;
+export const findByCPFCNPJ = findByCPFCNPJService;
+export const findByOperatorId = findByOperatorIdService;
