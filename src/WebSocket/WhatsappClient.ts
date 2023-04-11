@@ -91,6 +91,8 @@ WhatsappWeb.on("message", async (message) => {
             const findAttendance: Attendance | null = await services.attendances.find(findNumber.CODIGO_CLIENTE);
 
             if(findAttendance) {
+                const s: Session | undefined = await services.attendances.getOperator(findCustomer.OPERADOR);
+
                 const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, findAttendance.CODIGO);
                 const newRA: RunningAttendance = {
                     CODIGO_ATENDIMENTO: findAttendance.CODIGO,
@@ -105,10 +107,7 @@ WhatsappWeb.on("message", async (message) => {
 
                 runningAttendances.create(newRA);
 
-                const findSession: Session | undefined = Sessions.find(s => s.userId === findAttendance.CODIGO_OPERADOR);
-                const op_attendances = findSession && runningAttendances.value.filter(ra => ra.CODIGO_OPERADOR === findSession.userId);
-                findSession && WebSocket.to(findSession.socketId).emit("load-attendances", op_attendances);
-                findSession && console.log("Encontrou uma sessão e emitiu a mensagem.", findSession);
+                s && runningAttendances.returnOperatorAttendances(s.userId, s.socketId);
 
             } else {
                 const s: Session | undefined = await services.attendances.getOperator(findCustomer.OPERADOR || 0);
