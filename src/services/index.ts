@@ -41,6 +41,7 @@ import { insert } from "./readyMessageFile/insert.service";
 import { getOneById } from "./readyMessageFile/getOneById.service";
 import { deleteFileAndRemovePath } from "./readyMessageFile/delete.service";
 import { downloadReadyFileService } from "./readyMessageFile/download.service";
+import { getAllWNumberService } from "./wnumbers/getAll.service";
 
 const services = {
     users: {
@@ -60,6 +61,7 @@ const services = {
     wnumbers: {
         find: findNumberService,
         getById: getOneByIdNumberService,
+        getAll: getAllWNumberService,
         create: createNumberService,
         update: updateWNumberService,
         delete: deleteWNumberService

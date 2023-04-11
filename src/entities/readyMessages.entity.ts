@@ -1,6 +1,7 @@
 import { 
     Column,
     Entity, 
+    JoinColumn, 
     OneToOne, 
     PrimaryGeneratedColumn, 
 } from "typeorm";
@@ -20,6 +21,6 @@ export class ReadyMessages {
     @Column({type: 'text'})
     TITULO: string
 
-    @OneToOne(() => ReadyMessageFile, file => file.message)
+    @OneToOne(() => ReadyMessageFile, file => file.MENSAGEM)
     ARQUIVO: ReadyMessageFile
 }

@@ -1,4 +1,4 @@
-import WAWebJS, {  Client, LocalAuth } from "whatsapp-web.js";
+import WAWebJS, {  Client, LocalAuth, MessageMedia } from "whatsapp-web.js";
 import WebSocket from "./WebSocket";
 import { Wnumber } from "../entities/wnumber.entity";
 import services from "../services";
@@ -9,6 +9,8 @@ import { registrationBot } from "../bots/registration.bot";
 import { SendMessageData, WhatsappMessage } from "../interfaces/messages.interfaces";
 import { Customer } from "../entities/customer";
 import { Socket } from "socket.io";
+import * as fs from 'fs'
+import * as path from 'path'
 
 const WhatsappWeb = new Client({
     authStrategy: new LocalAuth(),
@@ -55,7 +57,7 @@ export async function getRunningAttendances () {
     });
 };
 
-// WhatsappWeb.on("qr", (qr: string) => { WebSocket.emit("qr", qr) });
+WhatsappWeb.on("qr", (qr: string) => { WebSocket.emit("qr", qr) });
 WhatsappWeb.on("authenticated", (data) => { WebSocket.emit("authenticated", data) });
 
 WhatsappWeb.on("message", async (message) => {
@@ -193,8 +195,32 @@ WebSocket.on('connection', (socket: Socket) => {
 
         RunningAttendances[index].MENSAGENS = [...RunningAttendances[index].MENSAGENS, newMessage];
         WebSocket.to(socket.id).emit("new-message", newMessage);
-    }); 
+    });
 
+    socket.on("send-ready-message", async (data: any) => {
+        const getMessage = await services.readyMessages.getOneById(data.messageId);
+
+        data.listaDeNumeros.forEach( async (number: string) => {
+            const numero = number.replace("/\+/g", '');
+
+            const numberPhone = `${numero}@c.us`;
+            const contact = await WhatsappWeb.getContactById(numberPhone);
+
+            if(contact){
+                if(getMessage.ARQUIVO !== undefined || null) {
+                    const filePath = path.join(__dirname, '../../files', getMessage.ARQUIVO.ARQUIVO);
+
+                    const media = new MessageMedia(getMessage.ARQUIVO.TIPO, fs.readFileSync(filePath).toString('base64'), getMessage.TITULO);
+
+                    await WhatsappWeb.sendMessage(numberPhone, media);
+                    await WhatsappWeb.sendMessage(numberPhone, getMessage.TEXTO_MENSAGEM);
+                } else {
+                    await WhatsappWeb.sendMessage(numberPhone, getMessage.TEXTO_MENSAGEM);
+                }
+            }
+        } )
+
+    })
 });
 
 

@@ -4,6 +4,10 @@ import middlewares from "../middlewares";
 
 export const wnumbersRoutes = Router();
 
+wnumbersRoutes.get('/api/wnumber',
+    controllers.wnumbers.getAll
+)
+
 wnumbersRoutes.get('/api/wnumber/:numberId',
     middlewares.wnumbers.ensureParamNumberIdExists,
     controllers.wnumbers.getOneById

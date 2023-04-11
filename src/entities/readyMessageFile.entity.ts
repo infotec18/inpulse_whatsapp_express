@@ -23,5 +23,5 @@ export class ReadyMessageFile {
 
     @OneToOne(() => ReadyMessages, message => message.ARQUIVO)
     @JoinColumn({ name: 'CODIGO_MENSAGEM' })
-    message: ReadyMessages;
+    MENSAGEM: ReadyMessages;
 };

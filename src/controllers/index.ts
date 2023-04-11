@@ -30,6 +30,7 @@ import { insert } from "../services/readyMessageFile/insert.service";
 import { getOneReadyMessageFileById } from "./readyMessagesFile/getOneById.controller";
 import { handleFileDeletion } from "./readyMessagesFile/delete.controller";
 import { downloadReadyFileController } from "./readyMessagesFile/download.controller";
+import { getAllWNumbersController } from "./Wnumbers/getAll.controller";
 
 const controllers = {
     users: {
@@ -63,6 +64,7 @@ const controllers = {
         create: createWNumberController,
         delete: deleteWNumberController,
         getOneById: getOneNumberByIdController,
+        getAll: getAllWNumbersController,
         update: updateNumberController
     },
     readyMessages: {
