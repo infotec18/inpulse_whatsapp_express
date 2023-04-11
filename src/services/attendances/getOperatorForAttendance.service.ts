@@ -5,10 +5,11 @@ import { Session } from "../../interfaces/attendances.interfaces";
 import { Sessions } from "../../WebSocket/Sessions";
 
 export async function getOperatorForAttendance(cod_o: number): Promise<Session | undefined> {
-    
     const AttendancesRepository: Repository<Attendance> = AppDataSource.getRepository(Attendance);
     const findOperatorSession: Session | undefined = Sessions.find(s => s.userId === cod_o);
-    console.log("Tentou encontrar o operador deste atendimento...")
+
+    console.log("Tentou encontrar o operador deste atendimento...");
+
     if(!findOperatorSession) {
         console.log("Não encontrou")
         let arr: Array<{ session: Session, count: number }> = []
