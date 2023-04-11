@@ -15,6 +15,8 @@ WebSocket.on('connection', (socket: Socket) => {
     });
 
     socket.on("session-connect", async(data: number) => {
+        console.log(data);
+        
         if(!Sessions.find(s => s.userId === data )) {
              await services.users.getOneById(data)
             .then(res => {
