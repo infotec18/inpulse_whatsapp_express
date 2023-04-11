@@ -112,7 +112,6 @@ WhatsappWeb.on("message", async (message) => {
                 const s: Session | undefined = await services.attendances.getOperator(findCustomer.OPERADOR || 0);
 
                     if(s) {
-                        console.log("foi")
                         const newAttendance: Attendance = await services.attendances.create({
                             CODIGO_OPERADOR: s.userId,
                             CODIGO_CLIENTE: findNumber.CODIGO_CLIENTE,
@@ -136,9 +135,6 @@ WhatsappWeb.on("message", async (message) => {
                         });
 
                         runningAttendances.returnOperatorAttendances(s.userId, s.socketId);
-
-                        //const op_attendances = runningAttendances.value.filter(ra => ra.CODIGO_OPERADOR === s.userId);
-                        //WebSocket.to(s.socketId).emit("load-attendances", op_attendances);
                     
                     } else {
                         message.reply("Desculpe, não estamos atendendo neste momento.");
@@ -193,7 +189,7 @@ WebSocket.on('connection', (socket: Socket) => {
 
                 runningAttendances.update(ra.CODIGO_ATENDIMENTO, { MENSAGENS: [...ra.MENSAGENS, newMessage] }); 
                 WebSocket.to(socket.id).emit("new-message", newMessage); 
-            }
+            };
 
         };
     }); 
