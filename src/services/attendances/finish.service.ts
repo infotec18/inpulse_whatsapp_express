@@ -18,7 +18,7 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
             DATA_FIM: new Date(),
         });
 
-        const registroCampanha = ClientCampaignRepository.save({
+        const registroCampanha = await ClientCampaignRepository.save({
             CAMPANHA: CAMPANHA,
             CLIENTE: findAttendance.CODIGO_CLIENTE,
             CONCLUIDO: "SIM",
@@ -29,9 +29,7 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
             RESULTADO: COD_RESULTADO,
         });
 
-        console.log(registroCampanha);
         runningAttendances.remove(COD_ATENDIMENTO);
-        console.log(runningAttendances.value);
     };
 
     return;

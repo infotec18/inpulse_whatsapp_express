@@ -1,14 +1,14 @@
 import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
-import { ReadyMessages } from "../../entities/readyMessages.entity";
+import { ReadyMessage } from "../../entities/readyMessage.entity";
 
 export async function deleteReadyMessageService(number: number): Promise<void> {
 
-    const messageRepository: Repository<ReadyMessages> = AppDataSource.getRepository(ReadyMessages);
+    const messageRepository: Repository<ReadyMessage> = AppDataSource.getRepository(ReadyMessage);
 
     await messageRepository.createQueryBuilder('mensagens_prontas')
         .delete()
-        .from(ReadyMessages)
+        .from(ReadyMessage)
         .where("CODIGO = :id", {id: number})
         .execute();
 };

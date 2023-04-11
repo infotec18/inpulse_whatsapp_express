@@ -1,4 +1,6 @@
 import { RunningAttendance } from "../interfaces/attendances.interfaces";
+import { Sessions } from "./Sessions";
+import WebSocket from "./WebSocket";
 
 export class RunningAttendances {
     value: Array<RunningAttendance> = [];
@@ -17,8 +19,9 @@ export class RunningAttendances {
     };
 
     find(PARAMS: Partial<RunningAttendance>) {
+        console.log("try to find")
         const entries = Object.entries(PARAMS);
-
+        console.log(entries)
         const find = this.value.find(ra => {
             const booleanArr: boolean[] = entries.map(e => {
                 const key = e[0] as keyof RunningAttendance
@@ -28,23 +31,25 @@ export class RunningAttendances {
 
             return !booleanArr.includes(false);
         });
-
-        return find
+        console.log(find)
+        return find;
     };
 
     remove(COD_ATENDIMENTO: number) {
         this.value = this.value.filter(ra => ra.CODIGO_ATENDIMENTO !== COD_ATENDIMENTO);
     };
+
+    returnOperatorAttendances(COD_OPERADOR: number, socketId?: string) {
+        console.log(this.value);
+        const operatorAttendances = this.value.filter(a => a.CODIGO_OPERADOR === COD_OPERADOR);
+        console.log("Enviando atendimentos atualizados: ", operatorAttendances);
+
+        if(socketId) WebSocket.to(socketId).emit("load-attendances", operatorAttendances);
+        else {
+            const sessions = Sessions.filter(s => s.userId === COD_OPERADOR);
+            sessions.forEach(s => {
+                WebSocket.to(s.socketId).emit("load-attendances", operatorAttendances);
+            });
+        };
+    };
 };
-
-
-/* 
-    CODIGO_ATENDIMENTO: number;
-    CODIGO_OPERADOR: number;
-    CODIGO_CLIENTE: number;
-    CODIGO_NUMERO: number;
-    WPP_NUMERO: string;
-    MENSAGENS: RetrieveMessage[];
-    AVATAR?: string;
-    DATA_INICIO: Date;
-*/

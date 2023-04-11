@@ -1,12 +1,12 @@
 import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
-import { ReadyMessages } from "../../entities/readyMessages.entity";
+import { ReadyMessage } from "../../entities/readyMessage.entity";
 
-export async function insertReadyMessageService({APENAS_ADMIN, TEXTO_MENSAGEM, ARQUIVO}: ReadyMessages): Promise<ReadyMessages> {
+export async function insertReadyMessageService({APENAS_ADMIN, TEXTO_MENSAGEM, ARQUIVO}: ReadyMessage): Promise<ReadyMessage> {
 
-    const messagesRepository: Repository<ReadyMessages> = AppDataSource.getRepository(ReadyMessages);
+    const messagesRepository: Repository<ReadyMessage> = AppDataSource.getRepository(ReadyMessage);
 
-    const insertedMessage: ReadyMessages | null = await messagesRepository.save({
+    const insertedMessage: ReadyMessage | null = await messagesRepository.save({
         APENAS_ADMIN,
         TEXTO_MENSAGEM,
         ARQUIVO

@@ -60,11 +60,6 @@ export async function getRunningAttendances () {
 WhatsappWeb.on("qr", (qr: string) => { WebSocket.emit("qr", qr) });
 WhatsappWeb.on("authenticated", (data) => { WebSocket.emit("authenticated", data) });
 
-function returnUpdatedAttendancesForOperator (COD_OPERADOR: number, socket: Socket) {
-    const attendances = runningAttendances.value.filter(ra => ra.CODIGO_OPERADOR == COD_OPERADOR);
-    socket.emit("load-attendances", attendances);
-};
-
 WhatsappWeb.on("message", async (message) => {
     const str: string = message.from;
     const number: string = str.slice(0, str.length - 5);
@@ -76,11 +71,7 @@ WhatsappWeb.on("message", async (message) => {
     if (attending) {
         const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, attending.CODIGO_ATENDIMENTO);
         runningAttendances.update(attending.CODIGO_ATENDIMENTO, { MENSAGENS: [...attending.MENSAGENS, newMessage]});
-        
-        const findSession: Session | undefined = Sessions.find(s => s.userId === attending.CODIGO_OPERADOR);
-
-        if(!!findSession) WebSocket.to(findSession.socketId).emit("new-message", newMessage);
-
+        runningAttendances.returnOperatorAttendances(attending.CODIGO_OPERADOR)
     } else if(registrating) {
         const { registration, reply } = await registrationBot(registrating, message.body);
         reply && message.reply(reply);
@@ -118,7 +109,7 @@ WhatsappWeb.on("message", async (message) => {
                 findSession && console.log("Encontrou uma sessão e emitiu a mensagem.", findSession);
 
             } else {
-                const s: Session | undefined = await services.attendances.getOperator(findCustomer.OPERADOR | 0);
+                const s: Session | undefined = await services.attendances.getOperator(findCustomer.OPERADOR || 0);
 
                     if(s) {
                         console.log("foi")
@@ -131,23 +122,23 @@ WhatsappWeb.on("message", async (message) => {
                             DATA_FIM: null
                         }); 
 
-                        console.log(newAttendance)
-    
                         const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, newAttendance.CODIGO);
     
                         runningAttendances.create({
                             CODIGO_ATENDIMENTO: newAttendance.CODIGO,
                             CODIGO_CLIENTE: newAttendance.CODIGO_CLIENTE,
-                            CODIGO_OPERADOR: findCustomer.OPERADOR || 0,
-                            CODIGO_NUMERO: findNumber.CODIGO,
+                            CODIGO_OPERADOR: newAttendance.CODIGO_OPERADOR,
+                            CODIGO_NUMERO: newAttendance.CODIGO_NUMERO,
                             WPP_NUMERO: number,
                             MENSAGENS: [newMessage],
                             AVATAR: PFP,
                             DATA_INICIO: newAttendance.DATA_INICIO
                         });
 
-                        const op_attendances = runningAttendances.value.filter(ra => ra.CODIGO_OPERADOR === s.userId);
-                        WebSocket.to(s.socketId).emit("load-attendances", op_attendances);
+                        runningAttendances.returnOperatorAttendances(s.userId, s.socketId);
+
+                        //const op_attendances = runningAttendances.value.filter(ra => ra.CODIGO_OPERADOR === s.userId);
+                        //WebSocket.to(s.socketId).emit("load-attendances", op_attendances);
                     
                     } else {
                         message.reply("Desculpe, não estamos atendendo neste momento.");
@@ -209,9 +200,9 @@ WebSocket.on('connection', (socket: Socket) => {
 
     socket.on("finish-attendance", async(data: FinishAttendanceProps) => {
         // buscar campanha...
-        services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, 0);
+        await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, 0);
         const s = Sessions.find(s => s.socketId === socket.id);
-        s && returnUpdatedAttendancesForOperator(s.userId, socket);
+        s && runningAttendances.returnOperatorAttendances(s.userId);  
     });
 
 });

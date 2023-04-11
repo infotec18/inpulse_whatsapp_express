@@ -12,13 +12,13 @@ export class Attendance {
     @PrimaryGeneratedColumn()
     CODIGO: number;
 
-    @Column({ type: 'int',  unique: true, nullable: true})
+    @Column({ type: 'int' })
     CODIGO_OPERADOR: number;
 
-    @Column({ type: 'int',  unique: true, nullable: false})
+    @Column({ type: 'int', nullable: false })
     CODIGO_CLIENTE: number;
 
-    @Column({ type: 'int',  unique: true, nullable: false})
+    @Column({ type: 'int', nullable: false })
     CODIGO_NUMERO: number;
 
     @Column({ type: 'tinyint', nullable: true, default: 0 })
