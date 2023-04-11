@@ -57,7 +57,7 @@ export async function getRunningAttendances () {
     });
 };
 
-WhatsappWeb.on("qr", (qr: string) => { WebSocket.emit("qr", qr) });
+// WhatsappWeb.on("qr", (qr: string) => { WebSocket.emit("qr", qr) });
 WhatsappWeb.on("authenticated", (data) => { WebSocket.emit("authenticated", data) });
 
 WhatsappWeb.on("message", async (message) => {
