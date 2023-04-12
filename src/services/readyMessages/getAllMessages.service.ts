@@ -7,6 +7,7 @@ export async function getAllReadyMessagesService(limite: number, pagina: number,
 
     const messagesQuery = await messagesRepository
         .createQueryBuilder('mensagens_prontas')
+        .leftJoinAndSelect('mensagens_prontas.ARQUIVO', 'file')
         .orderBy('mensagens_prontas.CODIGO', 'ASC')
         .skip((pagina - 1) * limite)
         .take(limite)

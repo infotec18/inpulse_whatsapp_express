@@ -26,6 +26,11 @@ import { updateReadyMessageController } from "./readyMessages/update.controller"
 import { deleteReadyMessageController } from "./readyMessages/delete.controller";
 import { getAllReadyMessagesController } from "./readyMessages/getAll.controller";
 import { getOneReadyMessageByIdController } from "./readyMessages/getOneById.controller";
+import { insert } from "../services/readyMessageFile/insert.service";
+import { getOneReadyMessageFileById } from "./readyMessagesFile/getOneById.controller";
+import { handleFileDeletion } from "./readyMessagesFile/delete.controller";
+import { downloadReadyFileController } from "./readyMessagesFile/download.controller";
+import { getAllWNumbersController } from "./Wnumbers/getAll.controller";
 
 const controllers = {
     users: {
@@ -53,12 +58,13 @@ const controllers = {
     },
     files: {
         download: downloadFileController,
-        base64: returnBase64Controllerm
+        base64: returnBase64Controller
     },
     wnumbers: {
         create: createWNumberController,
         delete: deleteWNumberController,
         getOneById: getOneNumberByIdController,
+        getAll: getAllWNumbersController,
         update: updateNumberController
     },
     readyMessages: {
@@ -66,7 +72,13 @@ const controllers = {
         update: updateReadyMessageController,
         delete: deleteReadyMessageController,
         getAll: getAllReadyMessagesController,
-        getOneById: getOneReadyMessageByIdController
+        getOneById: getOneReadyMessageByIdController,
+    },
+    readyMessageFile: {
+        insert: insert,
+        getOneById: getOneReadyMessageFileById,
+        delete: handleFileDeletion,
+        download: downloadReadyFileController
     }
 };
 

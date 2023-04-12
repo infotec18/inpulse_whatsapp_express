@@ -27,16 +27,21 @@ import { deleteWNumberService } from "./wnumbers/delete.service";
 import { createMessageService } from "./messages/create.service";
 import { getOperatorForAttendance } from "./attendances/getOperatorForAttendance.service";
 import { retrieveMessageService } from "./messages/retrieve.service";
-import { getOneNumberByIdService } from "./wnumbers/getOneById.service";
 import { getAllRunningAttendancesService } from "./attendances/getAllRunningAttendances.service";
 import { getAllMessagesByAttendanceService } from "./messages/getAllByAttendance.service";
 import { downloadFileService } from "./files/download.service";
 import { returnBase64Service } from "./files/returnBase64.service";
+import { findNumberService } from "./wnumbers/find.service";
 import { insertReadyMessageService } from "./readyMessages/insertMessage.service";
 import { updateReadyMessagesService } from "./readyMessages/updateMessage.service";
 import { deleteReadyMessageService } from "./readyMessages/deleteMessage.service";
 import { getAllReadyMessagesService } from "./readyMessages/getAllMessages.service";
 import { getOneReadyMessageService } from "./readyMessages/getOneById.service";
+import { insert } from "./readyMessageFile/insert.service";
+import { getOneById } from "./readyMessageFile/getOneById.service";
+import { deleteFileAndRemovePath } from "./readyMessageFile/delete.service";
+import { downloadReadyFileService } from "./readyMessageFile/download.service";
+import { getAllWNumberService } from "./wnumbers/getAll.service";
 
 const services = {
     users: {
@@ -54,7 +59,9 @@ const services = {
         getOneById: getOneAvatarByUserIdService
     },
     wnumbers: {
-        find: getOneByIdNumberService,
+        find: findNumberService,
+        getById: getOneByIdNumberService,
+        getAll: getAllWNumberService,
         create: createNumberService,
         update: updateWNumberService,
         delete: deleteWNumberService
@@ -84,7 +91,7 @@ const services = {
     },
     files: {
         download: downloadFileService,
-        returnBase64: returnBase64Service
+        returnBase64: returnBase64Service,
         retrieve: retrieveMessageService
     },
     readyMessages: {
@@ -92,7 +99,13 @@ const services = {
         update: updateReadyMessagesService,
         delete: deleteReadyMessageService,
         getAll: getAllReadyMessagesService,
-        getOneById: getOneReadyMessageService
+        getOneById: getOneReadyMessageService,
+    },
+    readyMessageFile: {
+        insert: insert,
+        getOneById: getOneById,
+        delete: deleteFileAndRemovePath,
+        download: downloadReadyFileService
     }
 };
 
