@@ -12,7 +12,7 @@ export async function downloadReadyFileService(req: Request, res: Response) {
 
     if(!file) throw new AppError("File not found.", 404);
 
-    const filePath = path.join(__dirname, `../../../files`, file.ARQUIVO);
+    const filePath = path.join(__dirname, `../../../localFiles/readyMessages/`, file.ARQUIVO);
     
     if (fs.existsSync(filePath)) {
         res.setHeader('Content-Disposition', `attachment; filename=${file.ARQUIVO}`);

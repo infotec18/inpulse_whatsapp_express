@@ -13,14 +13,16 @@ export async function createMessageService(message: WhatsappMessage, cod_a: numb
     const messagesRepository: Repository<Message> = AppDataSource.getRepository(Message);
     const messagesFilesRepository: Repository<MessageFile> = AppDataSource.getRepository(MessageFile);
 
+    const regexEmoji = /[\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}]/gu;
+
     let messageText: string = "";
 
     if(message._data.type === "chat") {
         let msg = message as WhatsappChatMessage;
-        messageText = unemojify(msg.body)
+        messageText = unemojify(msg.body).replace(regexEmoji, ":emoji-desconhecido:");
     } else {
         let msg = message as WhatsappFileMessage;
-        messageText = unemojify(msg._data.caption);
+        messageText = unemojify(msg._data.caption).replace(regexEmoji, ":emoji-desconhecido:");;
     };
 
     let newMessageB: Message = messagesRepository.create({

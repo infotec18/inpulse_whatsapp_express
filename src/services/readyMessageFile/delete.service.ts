@@ -11,7 +11,7 @@ export async function deleteFileAndRemovePath(CODIGO: number) {
         const entryToDelete = await readyMessageFileRepository.findOneBy({ CODIGO: CODIGO });
 
         if(entryToDelete){
-            const filePath = path.join(__dirname, '../../../files', entryToDelete.ARQUIVO);
+            const filePath = path.join(__dirname, '../../../localFiles/readyMessages/', entryToDelete.ARQUIVO);
             if(await fs.pathExists(filePath)){
                 await fs.unlink(filePath);
             }

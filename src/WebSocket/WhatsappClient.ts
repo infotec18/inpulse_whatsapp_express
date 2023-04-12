@@ -198,7 +198,9 @@ WebSocket.on('connection', (socket: Socket) => {
     }); 
 
     socket.on("send-ready-message", async (data: any) => {
+        console.log(data)
         const getMessage = await services.readyMessages.getOneById(data.messageId);
+        console.log(getMessage)
 
         data.listaDeNumeros.forEach( async (number: string) => {
             const numero = number.replace(/\+/g, '');
@@ -207,7 +209,7 @@ WebSocket.on('connection', (socket: Socket) => {
             const contact = await WhatsappWeb.getContactById(numberPhone);
 
             if(contact){
-                if(getMessage.ARQUIVO !== undefined || null) {
+                if(getMessage.ARQUIVO) {
                     const filePath = path.join(__dirname, '../../files', getMessage.ARQUIVO.ARQUIVO);
 
                     const media = new MessageMedia(getMessage.ARQUIVO.TIPO, fs.readFileSync(filePath).toString('base64'), getMessage.TITULO);

@@ -18,7 +18,7 @@ export async function insertFile(
 
     try {
         const buffer = Buffer.from(ARQUIVO, 'base64');
-        const uploadFolder = '../../../files';
+        const uploadFolder = '../../../localFiles/readyMessages/';
         const ext = TIPO.split('/')[1];
         const fileName = `${Date.now()}_${CODIGO_MENSAGEM}.${ext}`;
         const filePath = path.join(__dirname, uploadFolder, fileName);

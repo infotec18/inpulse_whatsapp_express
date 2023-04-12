@@ -19,7 +19,7 @@ export async function getOneReadyFileById(CODIGO: number) {
     } else if(!readyMessageFile.ARQUIVO){
         return "não achei 2";
     } else {
-        const filePath = path.join(__dirname, `../../../files/`, readyMessageFile.ARQUIVO);
+        const filePath = path.join(__dirname, `../../../localFiles/readyMessages/`, readyMessageFile.ARQUIVO);
         
         if(readyMessageFile.ARQUIVO && existsSync(filePath)) {  
             const data = readFileSync(filePath);
