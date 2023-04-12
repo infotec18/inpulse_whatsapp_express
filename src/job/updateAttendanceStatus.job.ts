@@ -2,6 +2,6 @@ import { updateAttendanceStatus } from "../services/attendances/scheduleAttendan
 import * as cron from "node-cron";
 
 // Define o cron job para ser executado a cada 15 minutos
-cron.schedule('*/15 * * * *', () => {
+export const cronJob = cron.schedule('*/1 * * * *', () => {
   updateAttendanceStatus();
 });
