@@ -6,7 +6,7 @@ import { AppError } from "../../errors";
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
-export async function insert( 
+export async function insertFile( 
     req: Request
     ): Promise<ReadyMessageFile | null> {
     

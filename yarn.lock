@@ -154,6 +154,13 @@
     "@types/qs" "*"
     "@types/serve-static" "*"
 
+"@types/fluent-ffmpeg@^2.1.21":
+  version "2.1.21"
+  resolved "https://registry.yarnpkg.com/@types/fluent-ffmpeg/-/fluent-ffmpeg-2.1.21.tgz#8f2f80370d36b09cae9c144cf9283f40c8cb7bfc"
+  integrity sha512-+n3dy/Tegt6n+YwGZUiGq6i8Jrnt8+MoyPiW1L6J5EWUl7GSt18a/VyReecfCsvTTNBXNMIKOMHDstiQM8nJLA==
+  dependencies:
+    "@types/node" "*"
+
 "@types/fs-extra@^11.0.1":
   version "11.0.1"
   resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-11.0.1.tgz#f542ec47810532a8a252127e6e105f487e0a6ea5"
@@ -166,11 +173,6 @@
   version "6.1.1"
   resolved "https://registry.yarnpkg.com/@types/jsonfile/-/jsonfile-6.1.1.tgz#ac84e9aefa74a2425a0fb3012bdea44f58970f1b"
   integrity sha512-GSgiRCVeapDN+3pqA35IkQwasaCh/0YFH5dEF6S88iDvEn901DjOeH3/QPY+XYP1DFzDZPvIvfeEgk+7br5png==
-
-"@types/fluent-ffmpeg@^2.1.21":
-  version "2.1.21"
-  resolved "https://registry.yarnpkg.com/@types/fluent-ffmpeg/-/fluent-ffmpeg-2.1.21.tgz#8f2f80370d36b09cae9c144cf9283f40c8cb7bfc"
-  integrity sha512-+n3dy/Tegt6n+YwGZUiGq6i8Jrnt8+MoyPiW1L6J5EWUl7GSt18a/VyReecfCsvTTNBXNMIKOMHDstiQM8nJLA==
   dependencies:
     "@types/node" "*"
 
@@ -211,6 +213,11 @@
     "@types/node" "*"
     pg-protocol "*"
     pg-types "^2.2.0"
+
+"@types/qrcode-terminal@^0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@types/qrcode-terminal/-/qrcode-terminal-0.12.0.tgz#cee13a96db9346e3240e2128290465db56799961"
+  integrity sha512-g0fQKl3IVnUePV8tLkiBTduxAVSZsXts444T2aMfjOEGxd7XoeSIs16/AmRe2NlcJLqbvsOBSXov7dKSo4wigA==
 
 "@types/qs@*":
   version "6.9.7"

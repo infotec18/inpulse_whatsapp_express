@@ -16,5 +16,5 @@ readyMessageFileRoutes.post("/api/readymessage/insert",
 );
 
 readyMessageFileRoutes.delete("/api/readymessage/delete/:codigo",
-    controllers.readyMessageFile.delete
+    controllers.readyMessageFile.erease
 )

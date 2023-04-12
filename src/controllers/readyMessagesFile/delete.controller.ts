@@ -11,7 +11,7 @@ export async function handleFileDeletion(req: Request, res: Response): Promise<R
   }
 
   try {
-    await services.readyMessageFile.delete(Number(codigo));
+    await services.readyMessageFile.erease(Number(codigo));
 
     return res.status(200).json({ message: 'File deleted successfully.' });
   } catch (error) {

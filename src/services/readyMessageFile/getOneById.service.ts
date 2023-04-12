@@ -5,7 +5,7 @@ import { AppError } from "../../errors";
 import * as path from 'path';
 import { existsSync, readFileSync } from "fs";
 
-export async function getOneById(CODIGO: number) {
+export async function getOneReadyFileById(CODIGO: number) {
     const readyMessageFileRepository: Repository<ReadyMessageFile> = AppDataSource.getRepository(ReadyMessageFile);
 
     const readyMessageFile = await readyMessageFileRepository.findOneBy({ CODIGO: CODIGO });
