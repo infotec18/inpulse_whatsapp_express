@@ -10,6 +10,7 @@ import { wnumbersRoutes } from './routes/wnumbers.routes';
 import { readyMessageFileRoutes } from './routes/readyMessageFile.routes';
 import { readyMessagesRoutes } from './routes/readyMessages.routes';
 
+
 const app: Application = express();
 app.use(express.json({ limit: '20mb' }));
 app.use(cors());
@@ -23,6 +24,7 @@ app.use(filesRoutes);
 app.use(wnumbersRoutes);
 app.use(readyMessageFileRoutes);
 app.use(readyMessagesRoutes)
+
 
 app.use(errorHandler);
 
