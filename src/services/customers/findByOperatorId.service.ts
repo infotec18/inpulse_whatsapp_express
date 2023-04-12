@@ -39,7 +39,8 @@ export async function findByOperatorIdService(CODIGO_OPERADOR: number) {
                     RAZAO: findCustomer.RAZAO,
                     PESSOA: findCustomer.PESSOA,
                     CPF_CNPJ: findCustomer.CPF_CNPJ,
-                    AVATAR: PFP || null
+                    AVATAR: PFP || null,
+                    WPP: n.NUMERO
                 });
             };
         };
