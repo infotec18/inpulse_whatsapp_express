@@ -1,9 +1,11 @@
 import { createNumberService } from "./create.service";
 import { deleteWNumberService } from "./delete.service";
 import { findNumberService } from "./find.service";
+import { getAllWNumberService } from "./getAll.service";
 import { getOneByIdNumberService } from "./getOneById.service";
 import { updateWNumberService } from "./update.service";
 
+export const getAllWNumbers = getAllWNumberService;
 export const find = findNumberService;
 export const getById = getOneByIdNumberService;
 export const create = createNumberService;

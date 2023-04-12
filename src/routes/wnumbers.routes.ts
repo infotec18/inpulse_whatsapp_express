@@ -5,7 +5,7 @@ import middlewares from "../middlewares";
 export const wnumbersRoutes = Router();
 
 wnumbersRoutes.get('/api/wnumber',
-    controllers.wnumbers.getAll
+    controllers.wnumbers.getAllWNumbers
 )
 
 wnumbersRoutes.get('/api/wnumber/:numberId',

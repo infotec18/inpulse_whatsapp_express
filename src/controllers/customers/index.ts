@@ -8,7 +8,7 @@ import { getLastCustomerIdController } from "./getLastId.controller";
 import { getByOperatorIdController } from "./getByOperatorId.controller";
 
 export const create = createCustomerController;
-export const getAll = getAllCustomersController;
+export const getAllCus = getAllCustomersController;
 export const getOneById = getOneCustomerByIdController;
 export const softDelete = deleteCustomerController;
 export const recover = recoverCustomerController;

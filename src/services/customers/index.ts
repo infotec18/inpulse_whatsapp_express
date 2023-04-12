@@ -11,7 +11,7 @@ import { findByOperatorIdService } from "./findByOperatorId.service";
 
 export const directCreate = directCreateCustomerService;
 export const create = createCustomerService;
-export const getAll = getAllCustomersService;
+export const getAllCustomer = getAllCustomersService;
 export const getOneById = getOneCustomersService;
 export const recover = recoverCustomerService;
 export const softDelete = deleteCustomerService;
