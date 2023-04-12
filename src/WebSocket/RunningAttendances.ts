@@ -1,5 +1,4 @@
 import { RunningAttendance } from "../interfaces/attendances.interfaces";
-import { Sessions } from "./Sessions";
 import WebSocket from "./WebSocket";
 
 export class RunningAttendances {
@@ -39,17 +38,8 @@ export class RunningAttendances {
         this.value = this.value.filter(ra => ra.CODIGO_ATENDIMENTO !== COD_ATENDIMENTO);
     };
 
-    returnOperatorAttendances(COD_OPERADOR: number, socketId?: string) {
-        console.log(this.value);
+    returnOperatorAttendances(COD_OPERADOR: number) {
         const operatorAttendances = this.value.filter(a => a.CODIGO_OPERADOR === COD_OPERADOR);
-        console.log("Enviando atendimentos atualizados: ", operatorAttendances);
-
-        if(socketId) WebSocket.to(socketId).emit("load-attendances", operatorAttendances);
-        else {
-            const sessions = Sessions.filter(s => s.userId === COD_OPERADOR);
-            sessions.forEach(s => {
-                WebSocket.to(s.socketId).emit("load-attendances", operatorAttendances);
-            });
-        };
+        WebSocket.to(`room_operator_${COD_OPERADOR}`).emit("load-attendances", operatorAttendances);
     };
 };

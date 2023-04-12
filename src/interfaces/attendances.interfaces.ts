@@ -38,7 +38,6 @@ export interface RegistrationReply {
 export interface Session {
     socketId: string;
     userId: number;
-    admin: boolean;
 };
 
 export interface FinishAttendanceProps {

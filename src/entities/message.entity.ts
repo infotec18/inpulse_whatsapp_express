@@ -32,7 +32,7 @@ export class Message {
     @Column({ type: 'bigint' })
     TIMESTAMP: number;
 
-    @Column({ type: 'varchar', length: 50, nullable: false })
+    @Column({ type: 'varchar', length: 255, nullable: false })
     ID: string;
 
     @Column({ type: 'varchar', length: 255, nullable: true, default: null })

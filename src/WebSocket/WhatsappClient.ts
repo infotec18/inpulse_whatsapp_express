@@ -73,7 +73,8 @@ WhatsappWeb.on("message", async (message) => {
     if (attending) {
         const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, attending.CODIGO_ATENDIMENTO);
         runningAttendances.update(attending.CODIGO_ATENDIMENTO, { MENSAGENS: [...attending.MENSAGENS, newMessage]});
-        runningAttendances.returnOperatorAttendances(attending.CODIGO_OPERADOR)
+        WebSocket.to(`room_operator_${attending.CODIGO_OPERADOR}`).emit("new-message", newMessage)
+
     } else if(registrating) {
         const { registration, reply } = await registrationBot(registrating, message.body);
         reply && message.reply(reply);
@@ -91,6 +92,8 @@ WhatsappWeb.on("message", async (message) => {
             const findAttendance: Attendance | null = await services.attendances.find(findNumber.CODIGO_CLIENTE);
 
             if(findAttendance) {
+                const isOperatorOnline: boolean = !!Sessions.find(s => s.userId === findAttendance.CODIGO_OPERADOR);
+
                 const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, findAttendance.CODIGO);
                 const newRA: RunningAttendance = {
                     CODIGO_ATENDIMENTO: findAttendance.CODIGO,
@@ -104,18 +107,14 @@ WhatsappWeb.on("message", async (message) => {
                 };
 
                 runningAttendances.create(newRA);
-
-                const findSession: Session | undefined = Sessions.find(s => s.userId === findAttendance.CODIGO_OPERADOR);
-                const op_attendances = findSession && runningAttendances.value.filter(ra => ra.CODIGO_OPERADOR === findSession.userId);
-                findSession && WebSocket.to(findSession.socketId).emit("load-attendances", op_attendances);
-                findSession && console.log("Encontrou uma sessão e emitiu a mensagem.", findSession);
+                isOperatorOnline && runningAttendances.returnOperatorAttendances(findAttendance.CODIGO_OPERADOR);
 
             } else {
-                const s: Session | undefined = await services.attendances.getOperator(findCustomer.OPERADOR || 0);
+                const avaliableOperator: number | undefined = await services.attendances.getOperator(findCustomer.OPERADOR);
 
-                    if(s) {
+                    if(avaliableOperator) {
                         const newAttendance: Attendance = await services.attendances.create({
-                            CODIGO_OPERADOR: s.userId,
+                            CODIGO_OPERADOR: avaliableOperator,
                             CODIGO_CLIENTE: findNumber.CODIGO_CLIENTE,
                             CODIGO_NUMERO: findNumber.CODIGO,
                             CONCUIDO: null,
@@ -136,26 +135,27 @@ WhatsappWeb.on("message", async (message) => {
                             DATA_INICIO: newAttendance.DATA_INICIO
                         });
 
-                        runningAttendances.returnOperatorAttendances(s.userId, s.socketId);
+                        runningAttendances.returnOperatorAttendances(avaliableOperator);
                     
                     } else {
                         message.reply("Desculpe, não estamos atendendo neste momento.");
                     };
             };  
             
-        } else {
+        } /* else {
             const newRegistration = { WPP_NUMERO: number, ETAPA: 1, DADOS: {}, CONCLUIDO: false};
             RunningRegistrations.push(newRegistration);
             const { registration, reply } = await registrationBot(newRegistration, message.body);
             reply && message.reply(reply);
             let index = RunningRegistrations.findIndex(r => r.WPP_NUMERO === number);
             RunningRegistrations[index] = registration;
-        };
+        }; */
     };
 });
 
 WebSocket.on('connection', (socket: Socket) => {
     socket.on("send-message", async(data: SendMessageData) => {
+        console.log(data);
         const options = data.referenceId ? { quotedMessageId: data.referenceId } : { };
 
         if(data.type === "audio" && !!data.file) {
