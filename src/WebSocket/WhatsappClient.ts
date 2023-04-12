@@ -203,6 +203,36 @@ WebSocket.on('connection', (socket: Socket) => {
         s && runningAttendances.returnOperatorAttendances(s.userId);  
     });
 
+    socket.on("start-attendance", async(data: { cliente: number, numero: number, wpp: string, pfp: string }) => {
+        const operator = Sessions.find(s => s.socketId === socket.id);
+
+        if(operator){
+            const newAttendance: Attendance = await services.attendances.create({
+                CODIGO_OPERADOR: operator.userId,
+                CODIGO_CLIENTE: data.cliente,
+                CODIGO_NUMERO: data.numero,
+                CONCUIDO: 0,
+                DATA_INICIO: new Date(),
+                DATA_FIM: null
+            }); 
+
+            runningAttendances.create({
+                CODIGO_ATENDIMENTO: newAttendance.CODIGO,
+                CODIGO_CLIENTE: newAttendance.CODIGO_CLIENTE,
+                CODIGO_OPERADOR: newAttendance.CODIGO_OPERADOR,
+                CODIGO_NUMERO: newAttendance.CODIGO_NUMERO,
+                WPP_NUMERO: data.wpp,
+                MENSAGENS: [],
+                AVATAR: data.pfp,
+                DATA_INICIO: newAttendance.DATA_INICIO
+            });
+
+            runningAttendances.returnOperatorAttendances(operator.userId);
+        } else {
+            console.log("Não encontrou operador em Sessions.find");
+        };
+    });
+
 });
 
 export default WhatsappWeb;
