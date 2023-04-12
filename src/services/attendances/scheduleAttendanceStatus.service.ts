@@ -16,17 +16,11 @@ export async function updateAttendanceStatus(): Promise<void> {
     const agora = Date.now();
     const agendamento = (date: Date) => date.getTime();
     
-    console.log(scheduledAttendances);
-
-    
     const result = scheduledAttendances.filter(item => item.DATA_AGENDAMENTO && agendamento(item.DATA_AGENDAMENTO) <= agora );
-    console.log("result", result);
 
     result.forEach(async(attendance) => { 
         const number = await services.wnumbers.getById(attendance.CODIGO_NUMERO);
         const avatar = number && await WhatsappWeb.getProfilePicUrl(`${number.NUMERO}@c.us`)
-
-        console.log(attendance);
 
         number && runningAttendances.create({
             CODIGO_ATENDIMENTO: attendance.CODIGO,

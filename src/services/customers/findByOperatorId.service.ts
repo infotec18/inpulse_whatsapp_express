@@ -14,16 +14,12 @@ export async function findByOperatorIdService(CODIGO_OPERADOR: number) {
         where: { CONCLUIDO: "NAO", OPERADOR: CODIGO_OPERADOR }
     });
 
-    console.log("findInClientsCampaign: ", findInClientsCampaign);
     const clientIds = findInClientsCampaign.map(cc => cc.CLIENTE);
-    console.log("clientIds: ", clientIds);
     if(!clientIds.length) return
 
     const findNumbers = await clientsNumbersRepository.createQueryBuilder("clientes_numeros")
         .where("CODIGO_CLIENTE in (:...ids)", { ids: clientIds })
         .getMany(); 
-    
-    console.log(findNumbers);
 
     const returnArr = [];
     

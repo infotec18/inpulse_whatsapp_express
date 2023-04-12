@@ -16,8 +16,6 @@ export async function deleteFileAndRemovePath(CODIGO: number) {
                 await fs.unlink(filePath);
             }
 
-            console.log(`${__dirname}/../../../files/${entryToDelete.ARQUIVO}`)
-
             await readyMessageFileRepository.remove(entryToDelete)
         }
 

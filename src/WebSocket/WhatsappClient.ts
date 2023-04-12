@@ -157,7 +157,6 @@ WhatsappWeb.on("message", async (message) => {
 
 WebSocket.on('connection', (socket: Socket) => {
     socket.on("send-message", async(data: SendMessageData) => {
-        console.log(data);
         const options = data.referenceId ? { quotedMessageId: data.referenceId } : { };
 
         if(data.type === "audio" && !!data.file) {
@@ -200,14 +199,12 @@ WebSocket.on('connection', (socket: Socket) => {
 
     socket.on("send-ready-message", async (data: any) => {
         const getMessage = await services.readyMessages.getOneById(data.messageId);
-        console.log(getMessage)
 
         data.listaDeNumeros.forEach( async (number: string) => {
             const numero = number.replace("/\+/g", '');
 
             const numberPhone = `${numero}@c.us`;
             const contact = await WhatsappWeb.getContactById(numberPhone);
-            console.log(contact)
 
             if(contact){
                 if(getMessage.ARQUIVO !== undefined || null) {
@@ -221,9 +218,19 @@ WebSocket.on('connection', (socket: Socket) => {
                     await WhatsappWeb.sendMessage(numberPhone, getMessage.TEXTO_MENSAGEM);
                 }
             }
-        } )
+        } )   
+    });
+
+    socket.on("finish-attendance", async(data: FinishAttendanceProps) => {
+        console.log(data);
+        // buscar campanha...
+        await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, 0);
+        const s = Sessions.find(s => s.socketId === socket.id);
+        s && runningAttendances.returnOperatorAttendances(s.userId);  
+    });
 
     socket.on("start-attendance", async(data: { cliente: number, numero: number, wpp: string, pfp: string }) => {
+        console.log(data);
         const operator = Sessions.find(s => s.socketId === socket.id);
 
         if(operator){
@@ -248,10 +255,8 @@ WebSocket.on('connection', (socket: Socket) => {
             });
 
             runningAttendances.returnOperatorAttendances(operator.userId);
-        } else {
-            console.log("Não encontrou operador em Sessions.find");
         };
     });
-})});
+});
 
 export default WhatsappWeb;

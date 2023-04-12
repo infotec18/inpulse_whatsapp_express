@@ -18,9 +18,7 @@ export class RunningAttendances {
     };
 
     find(PARAMS: Partial<RunningAttendance>) {
-        console.log("try to find")
         const entries = Object.entries(PARAMS);
-        console.log(entries)
         const find = this.value.find(ra => {
             const booleanArr: boolean[] = entries.map(e => {
                 const key = e[0] as keyof RunningAttendance
@@ -30,7 +28,6 @@ export class RunningAttendances {
 
             return !booleanArr.includes(false);
         });
-        console.log(find)
         return find;
     };
 
