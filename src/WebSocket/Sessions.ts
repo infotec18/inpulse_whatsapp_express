@@ -28,5 +28,9 @@ WebSocket.on('connection', (socket: Socket) => {
     socket.on("join-room", (id: number) => {
         socket.join(`room_operator_${id}`);
         runningAttendances.returnOperatorAttendances(id);
+
+        socket.on("leave-room", () => {
+            socket.leave(`room_operator_${id}`);
+        });
     });
 });
