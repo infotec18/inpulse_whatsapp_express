@@ -252,6 +252,6 @@ WebSocket.on('connection', (socket: Socket) => {
             console.log("Não encontrou operador em Sessions.find");
         };
     });
-})})
+})});
 
 export default WhatsappWeb;

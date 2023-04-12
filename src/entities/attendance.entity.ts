@@ -31,7 +31,7 @@ export class Attendance {
     DATA_FIM: Date;
 
     @Column({ type: 'datetime', nullable: true })
-    DATA_AGENDAMENTO: Date;
+    DATA_AGENDAMENTO: Date | null;
 
     @Column({ type: 'enum', enum: ['URGENTE', 'ALTA', 'NORMAL'], default: 'NORMAL' })
     URGENCIA: string;
