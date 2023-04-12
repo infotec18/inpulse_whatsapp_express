@@ -200,14 +200,12 @@ WebSocket.on('connection', (socket: Socket) => {
 
     socket.on("send-ready-message", async (data: any) => {
         const getMessage = await services.readyMessages.getOneById(data.messageId);
-        console.log(getMessage)
 
         data.listaDeNumeros.forEach( async (number: string) => {
-            const numero = number.replace("/\+/g", '');
+            const numero = number.replace(/\+/g, '');
 
             const numberPhone = `${numero}@c.us`;
             const contact = await WhatsappWeb.getContactById(numberPhone);
-            console.log(contact)
 
             if(contact){
                 if(getMessage.ARQUIVO !== undefined || null) {
@@ -221,7 +219,7 @@ WebSocket.on('connection', (socket: Socket) => {
                     await WhatsappWeb.sendMessage(numberPhone, getMessage.TEXTO_MENSAGEM);
                 }
             }
-        } )
+        })})
 
     socket.on("start-attendance", async(data: { cliente: number, numero: number, wpp: string, pfp: string }) => {
         const operator = Sessions.find(s => s.socketId === socket.id);
@@ -252,6 +250,6 @@ WebSocket.on('connection', (socket: Socket) => {
             console.log("Não encontrou operador em Sessions.find");
         };
     });
-})})
+})
 
 export default WhatsappWeb;
