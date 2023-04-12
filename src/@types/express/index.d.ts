@@ -2,7 +2,8 @@ import { Request } from "express"
 import { User } from "../../entities/user.entity"
 import { Customer } from "../../entities/customer"
 import { Wnumber } from "../../entities/wnumber.entity"
-import { ReadyMessage } from "../../entities/readyMessage.entity"
+import { ReadyMessages } from "../../entities/readyMessages.entity"
+import { ReadyMessageFile } from "../../entities/readyMessageFile.entity"
 
 declare global {
     namespace Express {
@@ -17,7 +18,8 @@ declare global {
             findUser: User,
             findCustomer: Customer,
             findNumber: Wnumber,
-            findReadyMessage: ReadyMessage
+            findReadyMessage: ReadyMessages,
+            findArchive: ReadyMessageFile
         }
     }
 }

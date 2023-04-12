@@ -4,35 +4,40 @@ import { Attendance } from "../../entities/attendance.entity";
 import { Session } from "../../interfaces/attendances.interfaces";
 import { Sessions } from "../../WebSocket/Sessions";
 
-export async function getOperatorForAttendance(cod_o: number): Promise<Session | undefined> {
+export async function getOperatorForAttendance(cod_o: number): Promise<number | undefined> {
     const AttendancesRepository: Repository<Attendance> = AppDataSource.getRepository(Attendance);
     const findOperatorSession: Session | undefined = Sessions.find(s => s.userId === cod_o);
+    const usersIdSet = new Set(Sessions.map(s => s.userId));
 
     console.log("Tentou encontrar o operador deste atendimento...");
 
     if(!findOperatorSession) {
-        console.log("Não encontrou")
-        let arr: Array<{ session: Session, count: number }> = []
+        console.log("Não encontrou. Tentando encontrar operador disponível...")
+        let arr: Array<{ userId: number, count: number }> = []
 
-         await Promise.all(Sessions.map(async(s) => {
-            if(!s.admin) {
-                const find = await AttendancesRepository.findAndCountBy({
-                    CONCLUIDO: 0, CODIGO_OPERADOR: s.userId
-                });
-                arr.push({ session: s, count: find[1]})
-            };
-        }));
+        const promise: Promise<void> = new Promise((resolve) => {
+            usersIdSet.forEach(async (id) => {
+                const find = await AttendancesRepository.findAndCountBy({ CONCLUIDO: 0, CODIGO_OPERADOR: id });
+                arr.push({ userId: id, count: find[1] });
+                if (arr.length === usersIdSet.size) resolve(); 
+            });
+        });
+        
+        await promise;
         
         const countArr: number[] = arr.map(i => i.count);
         const minCount: number = Math.min(...countArr);
         const findMin = arr.find((item) => item.count === minCount);
 
-        console.log("Tentou encontrar um operador disponível: ", findMin)
-
-        return findMin?.session;
+        if(findMin) {
+            console.log("Encontrou o operador de ID: ", findMin.userId);
+            return findMin.userId;
+        }
+        
     } else { 
         console.log("Encontrou: ", findOperatorSession);
-        return findOperatorSession;
+        return findOperatorSession.userId;
+
     };
     
 };
