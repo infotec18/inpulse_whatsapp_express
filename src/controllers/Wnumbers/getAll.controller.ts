@@ -6,7 +6,7 @@ export const getAllWNumbersController = async (req: Request, res: Response) => {
     const pagina = Number(req.query.pagina) || 1;
     const search = req.query.search?.toString() || undefined;
 
-    const { dados, total } = await services.wnumbers.getAll(limite, pagina, search);
+    const { dados, total } = await services.wnumbers.getAllWNumbers(limite, pagina, search);
 
     const totalPaginas = Math.ceil(total / limite);
 

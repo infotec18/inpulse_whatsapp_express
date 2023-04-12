@@ -9,7 +9,7 @@ customerRoutes.post("/api/customers/",
 );
 
 customerRoutes.get("/api/customers/",
-    controllers.customers.getAll
+    controllers.customers.getAllCus
 );
 
 customerRoutes.get("/api/customers/:userId",

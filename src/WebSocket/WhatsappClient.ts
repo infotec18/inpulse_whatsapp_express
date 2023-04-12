@@ -59,7 +59,7 @@ export async function getRunningAttendances () {
     });
 };
 
-// WhatsappWeb.on("qr", (qr: string) => { WebSocket.emit("qr", qr) });
+WhatsappWeb.on("qr", (qr: string) => { WebSocket.emit("qr", qr) });
 WhatsappWeb.on("authenticated", (data) => { WebSocket.emit("authenticated", data) });
 
 WhatsappWeb.on("message", async (message) => {
@@ -200,12 +200,14 @@ WebSocket.on('connection', (socket: Socket) => {
 
     socket.on("send-ready-message", async (data: any) => {
         const getMessage = await services.readyMessages.getOneById(data.messageId);
+        console.log(getMessage)
 
         data.listaDeNumeros.forEach( async (number: string) => {
             const numero = number.replace("/\+/g", '');
 
             const numberPhone = `${numero}@c.us`;
             const contact = await WhatsappWeb.getContactById(numberPhone);
+            console.log(contact)
 
             if(contact){
                 if(getMessage.ARQUIVO !== undefined || null) {
@@ -250,6 +252,6 @@ WebSocket.on('connection', (socket: Socket) => {
             console.log("Não encontrou operador em Sessions.find");
         };
     });
-});
+})})
 
 export default WhatsappWeb;
