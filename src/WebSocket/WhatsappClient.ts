@@ -10,6 +10,8 @@ import { SendMessageData, WhatsappMessage } from "../interfaces/messages.interfa
 import { Customer } from "../entities/customer";
 import { Socket } from "socket.io";
 import { RunningAttendances } from "./RunningAttendances";
+import path from "path";
+import * as fs from 'fs';
 
 const WhatsappWeb = new Client({
     authStrategy: new LocalAuth(),
@@ -57,7 +59,7 @@ export async function getRunningAttendances () {
     });
 };
 
-WhatsappWeb.on("qr", (qr: string) => { WebSocket.emit("qr", qr) });
+// WhatsappWeb.on("qr", (qr: string) => { WebSocket.emit("qr", qr) });
 WhatsappWeb.on("authenticated", (data) => { WebSocket.emit("authenticated", data) });
 
 WhatsappWeb.on("message", async (message) => {
@@ -196,12 +198,28 @@ WebSocket.on('connection', (socket: Socket) => {
         };
     }); 
 
-    socket.on("finish-attendance", async(data: FinishAttendanceProps) => {
-        // buscar campanha...
-        await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, 0);
-        const s = Sessions.find(s => s.socketId === socket.id);
-        s && runningAttendances.returnOperatorAttendances(s.userId);  
-    });
+    socket.on("send-ready-message", async (data: any) => {
+        const getMessage = await services.readyMessages.getOneById(data.messageId);
+
+        data.listaDeNumeros.forEach( async (number: string) => {
+            const numero = number.replace("/\+/g", '');
+
+            const numberPhone = `${numero}@c.us`;
+            const contact = await WhatsappWeb.getContactById(numberPhone);
+
+            if(contact){
+                if(getMessage.ARQUIVO !== undefined || null) {
+                    const filePath = path.join(__dirname, '../../files', getMessage.ARQUIVO.ARQUIVO);
+
+                    const media = new MessageMedia(getMessage.ARQUIVO.TIPO, fs.readFileSync(filePath).toString('base64'), getMessage.TITULO);
+
+                    await WhatsappWeb.sendMessage(numberPhone, media);
+                    await WhatsappWeb.sendMessage(numberPhone, getMessage.TEXTO_MENSAGEM);
+                } else {
+                    await WhatsappWeb.sendMessage(numberPhone, getMessage.TEXTO_MENSAGEM);
+                }
+            }
+        } )
 
     socket.on("start-attendance", async(data: { cliente: number, numero: number, wpp: string, pfp: string }) => {
         const operator = Sessions.find(s => s.socketId === socket.id);
@@ -232,7 +250,6 @@ WebSocket.on('connection', (socket: Socket) => {
             console.log("Não encontrou operador em Sessions.find");
         };
     });
-
 });
 
 export default WhatsappWeb;
