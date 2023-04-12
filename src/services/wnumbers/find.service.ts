@@ -26,8 +26,6 @@ export async function findNumberService(wpp: string): Promise<Wnumber | null> {
        clientCampaign.FONE3 LIKE :wpp`,
       { wpp: `%${search}%` }
     ).getOne();
-
-    console.log(findInCampaigns);
     
     if(findInCampaigns) {
         const newNumber: Wnumber = await WnumberRepository.save({

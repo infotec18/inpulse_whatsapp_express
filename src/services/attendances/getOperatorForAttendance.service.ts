@@ -9,10 +9,7 @@ export async function getOperatorForAttendance(cod_o: number): Promise<number | 
     const findOperatorSession: Session | undefined = Sessions.find(s => s.userId === cod_o);
     const usersIdSet = new Set(Sessions.map(s => s.userId));
 
-    console.log("Tentou encontrar o operador deste atendimento...");
-
     if(!findOperatorSession) {
-        console.log("Não encontrou. Tentando encontrar operador disponível...")
         let arr: Array<{ userId: number, count: number }> = []
 
         const promise: Promise<void> = new Promise((resolve) => {
@@ -30,14 +27,11 @@ export async function getOperatorForAttendance(cod_o: number): Promise<number | 
         const findMin = arr.find((item) => item.count === minCount);
 
         if(findMin) {
-            console.log("Encontrou o operador de ID: ", findMin.userId);
             return findMin.userId;
         }
         
     } else { 
-        console.log("Encontrou: ", findOperatorSession);
         return findOperatorSession.userId;
-
     };
     
 };

@@ -1,8 +1,8 @@
 import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
 import { Attendance } from "../../entities/attendance.entity";
-import { ClientCampaign } from "../../entities/clientCampaign.entity";
 import { runningAttendances } from "../../WebSocket/WhatsappClient";
+import { ClientCampaign } from "../../entities/clientCampaign.entity";
 
 export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESULTADO: number, CAMPANHA: number): Promise<void>  {
 
@@ -22,9 +22,9 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
             CAMPANHA: CAMPANHA,
             CLIENTE: findAttendance.CODIGO_CLIENTE,
             CONCLUIDO: "SIM",
-            DT_AGENDAMENTO: findAttendance.DATA_AGENDAMENTO,
+            DT_AGENDAMENTO: new Date(), /* findAttendance.DATA_AGENDAMENTO */
             DT_RESULTADO: new Date(),
-            DATA_HORA_LIG: findAttendance.DATA_INICIO,
+            DATA_HORA_LIG: new Date(), /* findAttendance.DATA_INICIO */
             DATA_HORA_FIM: new Date(),
             RESULTADO: COD_RESULTADO,
             OPERADOR: findAttendance.CODIGO_OPERADOR

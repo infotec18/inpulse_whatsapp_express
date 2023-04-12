@@ -157,7 +157,6 @@ WhatsappWeb.on("message", async (message) => {
 
 WebSocket.on('connection', (socket: Socket) => {
     socket.on("send-message", async(data: SendMessageData) => {
-        console.log(data);
         const options = data.referenceId ? { quotedMessageId: data.referenceId } : { };
 
         if(data.type === "audio" && !!data.file) {
@@ -219,9 +218,19 @@ WebSocket.on('connection', (socket: Socket) => {
                     await WhatsappWeb.sendMessage(numberPhone, getMessage.TEXTO_MENSAGEM);
                 }
             }
-        })})
+        } )   
+    });
+
+    socket.on("finish-attendance", async(data: FinishAttendanceProps) => {
+        console.log(data);
+        // buscar campanha...
+        await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, 0);
+        const s = Sessions.find(s => s.socketId === socket.id);
+        s && runningAttendances.returnOperatorAttendances(s.userId);  
+    });
 
     socket.on("start-attendance", async(data: { cliente: number, numero: number, wpp: string, pfp: string }) => {
+        console.log(data);
         const operator = Sessions.find(s => s.socketId === socket.id);
 
         if(operator){
@@ -246,10 +255,8 @@ WebSocket.on('connection', (socket: Socket) => {
             });
 
             runningAttendances.returnOperatorAttendances(operator.userId);
-        } else {
-            console.log("Não encontrou operador em Sessions.find");
         };
     });
-})
+});
 
 export default WhatsappWeb;

@@ -12,8 +12,6 @@ export async function getAllMessagesByAttendanceService(cod_a: number): Promise<
         .where("message.CODIGO_ATENDIMENTO = :cod_a", { cod_a })
         .getMany();
 
-        console.log(messages);
-
     const returnMessagesWithEmoji = messages.map(m => {
         let msg = m;
         msg.MENSAGEM = emojify(msg.MENSAGEM);
