@@ -12,23 +12,29 @@ export class Attendance {
     @PrimaryGeneratedColumn()
     CODIGO: number;
 
-    @Column({ type: 'int',  unique: true, nullable: true})
+    @Column({ type: 'int' })
     CODIGO_OPERADOR: number;
 
-    @Column({ type: 'int',  unique: true, nullable: false})
+    @Column({ type: 'int', nullable: false })
     CODIGO_CLIENTE: number;
 
-    @Column({ type: 'int',  unique: true, nullable: false})
+    @Column({ type: 'int', nullable: false })
     CODIGO_NUMERO: number;
 
-    @Column({ type: 'tinyint' })
+    @Column({ type: 'tinyint', nullable: true, default: 0 })
     CONCLUIDO: number;
 
-    @Column({ type: 'datetime', default: new Date() })
+    @Column({ type: 'datetime', nullable: true })
     DATA_INICIO: Date;
 
     @Column({ type: 'datetime', nullable: true })
-    DATA_FIM: string;
+    DATA_FIM: Date;
+
+    @Column({ type: 'datetime', nullable: true })
+    DATA_AGENDAMENTO: Date;
+
+    @Column({ type: 'enum', enum: ['URGENTE', 'ALTA', 'NORMAL'], default: 'NORMAL' })
+    URGENCIA: string;
 
     @OneToMany(() => Message, message => message.ATENDIMENTO)
     MENSAGENS: Message[];

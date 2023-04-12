@@ -12,6 +12,7 @@ export interface RunningAttendance {
     WPP_NUMERO: string;
     MENSAGENS: RetrieveMessage[];
     AVATAR?: string;
+    DATA_INICIO: Date;
 };
 
 export interface CustomerRegistrationData {
@@ -38,4 +39,9 @@ export interface Session {
     socketId: string;
     userId: number;
     admin: boolean;
+};
+
+export interface FinishAttendanceProps {
+    CODIGO_ATENDIMENTO: number;
+    CODIGO_RESULTADO: number;
 };

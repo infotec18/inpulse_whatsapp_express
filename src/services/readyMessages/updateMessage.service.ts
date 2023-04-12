@@ -1,10 +1,10 @@
 import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
-import { ReadyMessages } from "../../entities/readyMessages.entity";
+import { ReadyMessage } from "../../entities/readyMessage.entity";
 
-export async function updateReadyMessagesService(number: ReadyMessages, newData: Partial<ReadyMessages>): Promise<ReadyMessages> {
+export async function updateReadyMessagesService(number: ReadyMessage, newData: Partial<ReadyMessage>): Promise<ReadyMessage> {
 
-    const messagesRepository: Repository<ReadyMessages> = AppDataSource.getRepository(ReadyMessages);
+    const messagesRepository: Repository<ReadyMessage> = AppDataSource.getRepository(ReadyMessage);
 
     const updatedMessages = await messagesRepository.save({ ...number, ...newData });
 

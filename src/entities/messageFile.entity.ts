@@ -15,13 +15,13 @@ export class MessageFile {
     @Column({ type: 'int', nullable: false})
     CODIGO_MENSAGEM: number;
 
-    @Column({ type: 'varchar', length: 30 })
+    @Column({ type: 'text' })
     TIPO: string;
 
     @Column({ type: 'text' })
     ARQUIVO: string;
 
-    @OneToOne(() => Message, message => message.arquivo)
+    @OneToOne(() => Message, message => message.ARQUIVO)
     @JoinColumn({ name: 'CODIGO_MENSAGEM' })
-    message: Message;
+    MENSAGEM: Message;
 };

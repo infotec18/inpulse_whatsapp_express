@@ -1,9 +1,9 @@
 import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
-import { ReadyMessages } from "../../entities/readyMessages.entity";
+import { ReadyMessage } from "../../entities/readyMessage.entity";
 
 export async function getAllReadyMessagesService(limite: number, pagina: number, search: string | undefined) {
-    const messagesRepository: Repository<ReadyMessages> = AppDataSource.getRepository(ReadyMessages);
+    const messagesRepository: Repository<ReadyMessage> = AppDataSource.getRepository(ReadyMessage);
 
     const messagesQuery = await messagesRepository
         .createQueryBuilder('mensagens_prontas')

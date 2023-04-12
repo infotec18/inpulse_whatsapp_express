@@ -42,6 +42,6 @@ export class Message {
     @JoinColumn({ name: 'CODIGO_ATENDIMENTO' })
     ATENDIMENTO: Attendance;
 
-    @OneToOne(() => MessageFile, file => file.message)
-    arquivo: MessageFile;
+    @OneToOne(() => MessageFile, file => file.MENSAGEM)
+    ARQUIVO: MessageFile;
 };

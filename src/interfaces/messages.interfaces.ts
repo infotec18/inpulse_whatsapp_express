@@ -28,15 +28,24 @@ export interface WhatsappFileMessage {
         size: number;
         t: number;
         body: string;
-        quotedStanzaID?: string
-        
-    }
+        quotedStanzaID?: string;  
+    };
 };
 
 export type WhatsappMessage = WhatsappChatMessage | WhatsappFileMessage;
 
 export interface SendMessageData {
     chatId: string;
-    content: WAWebJS.MessageContent;
+    text: string;
     referenceId: string;
+    type: SendMessageType;
+    file: null | SendFileData;
 };
+
+export interface SendFileData {
+    name: string;
+    type: string;
+    base64: string;
+};
+
+export type SendMessageType = "chat" | "media" | "audio";

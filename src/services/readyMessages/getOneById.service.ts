@@ -1,14 +1,11 @@
 import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
-import { ReadyMessages } from "../../entities/readyMessages.entity";
+import { ReadyMessage } from "../../entities/readyMessage.entity";
 import { AppError } from "../../errors";
 
 export async function getOneReadyMessageService(id: number) {
-    const messagesRepository: Repository<ReadyMessages> = AppDataSource.getRepository(ReadyMessages);
+    const messagesRepository: Repository<ReadyMessage> = AppDataSource.getRepository(ReadyMessage);
 
-    // const findMessage: ReadyMessages | null = await messagesRepository.findOneBy({
-    //     CODIGO: id
-    // });
 
     const findMessage = await messagesRepository
         .createQueryBuilder('mensagens_prontas')

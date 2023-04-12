@@ -5,7 +5,7 @@ import {
     OneToOne, 
     PrimaryGeneratedColumn, 
 } from "typeorm";
-import { ReadyMessages } from "./readyMessages.entity";
+import { ReadyMessage } from "./readyMessage.entity";
 
 @Entity('mensagensprontas_arquivos')
 export class ReadyMessageFile {
@@ -21,7 +21,7 @@ export class ReadyMessageFile {
     @Column({ type: 'text' })
     ARQUIVO: string;
 
-    @OneToOne(() => ReadyMessages, message => message.ARQUIVO)
+    @OneToOne(() => ReadyMessage, message => message.ARQUIVO)
     @JoinColumn({ name: 'CODIGO_MENSAGEM' })
-    MENSAGEM: ReadyMessages;
+    MENSAGEM: ReadyMessage;
 };

@@ -20,8 +20,4 @@ export class Wnumber {
 
     @Column({ type: 'varchar', length: 20, unique: true })
     NUMERO: string;
-
-    @ManyToOne(() => Customer, (customer) => customer.TELEFONES)
-    @JoinColumn({ name: 'CODIGO_CLIENTE' })
-    CLIENTE: Customer;
 };

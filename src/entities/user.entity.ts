@@ -44,11 +44,4 @@ export class User {
 
     @Column({ type: 'datetime' })
     DATACAD: Date;
-
-    @BeforeInsert()
-    @BeforeUpdate()
-    encryptPassword(){
-        const isEncrypted = getRounds(this.SENHA);
-        if(!isEncrypted) this.SENHA = hashSync(this.SENHA, 10);
-    };
 };

@@ -1,14 +1,13 @@
 import { 
     Column,
-    Entity, 
-    JoinColumn, 
+    Entity,
     OneToOne, 
     PrimaryGeneratedColumn, 
 } from "typeorm";
 import { ReadyMessageFile } from "./readyMessageFile.entity";
 
 @Entity('mensagens_prontas')
-export class ReadyMessages {
+export class ReadyMessage {
     @PrimaryGeneratedColumn()
     CODIGO: number
 

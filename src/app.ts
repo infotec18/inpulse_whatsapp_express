@@ -9,6 +9,7 @@ import { filesRoutes } from './routes/files.routes';
 import { wnumbersRoutes } from './routes/wnumbers.routes';
 import { readyMessageFileRoutes } from './routes/readyMessageFile.routes';
 import { readyMessagesRoutes } from './routes/readyMessages.routes';
+import { resultsRoutes } from './routes/results.routes';
 
 const app: Application = express();
 app.use(express.json({ limit: '20mb' }));
@@ -23,6 +24,7 @@ app.use(filesRoutes);
 app.use(wnumbersRoutes);
 app.use(readyMessageFileRoutes);
 app.use(readyMessagesRoutes)
+app.use(resultsRoutes);
 
 app.use(errorHandler);
 
