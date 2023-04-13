@@ -13,6 +13,7 @@ export interface RunningAttendance {
     MENSAGENS: RetrieveMessage[];
     AVATAR?: string;
     DATA_INICIO: Date;
+    URGENCIA: "URGENTE" | "ALTA" | "NORMAL";
 };
 
 export interface CustomerRegistrationData {

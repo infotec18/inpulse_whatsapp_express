@@ -51,7 +51,8 @@ export async function getRunningAttendances () {
                 MENSAGENS: findMessages ,
                 WPP_NUMERO: WPP.NUMERO,
                 AVATAR: PFP,
-                DATA_INICIO: a.DATA_INICIO
+                DATA_INICIO: a.DATA_INICIO,
+                URGENCIA: a.URGENCIA
             };
 
             runningAttendances.create(newRA);
@@ -101,7 +102,8 @@ WhatsappWeb.on("message", async (message) => {
                     WPP_NUMERO: number,
                     MENSAGENS: [newMessage],
                     AVATAR: PFP,
-                    DATA_INICIO: findAttendance.DATA_INICIO
+                    DATA_INICIO: findAttendance.DATA_INICIO,
+                    URGENCIA: findAttendance.URGENCIA
                 };
 
                 runningAttendances.create(newRA);
@@ -127,6 +129,7 @@ WhatsappWeb.on("message", async (message) => {
                             CODIGO_CLIENTE: newAttendance.CODIGO_CLIENTE,
                             CODIGO_OPERADOR: newAttendance.CODIGO_OPERADOR,
                             CODIGO_NUMERO: newAttendance.CODIGO_NUMERO,
+                            URGENCIA: newAttendance.URGENCIA,
                             WPP_NUMERO: number,
                             MENSAGENS: [newMessage],
                             AVATAR: PFP,
@@ -248,7 +251,8 @@ WebSocket.on('connection', (socket: Socket) => {
                 WPP_NUMERO: data.wpp,
                 MENSAGENS: [],
                 AVATAR: data.pfp,
-                DATA_INICIO: newAttendance.DATA_INICIO
+                DATA_INICIO: newAttendance.DATA_INICIO,
+                URGENCIA: newAttendance.URGENCIA
             });
 
             runningAttendances.returnOperatorAttendances(operator.userId);
