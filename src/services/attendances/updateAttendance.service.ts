@@ -6,8 +6,16 @@ import { runningAttendances } from "../../WebSocket/WhatsappClient";
 
 export async function updateSchedulingDate(cod: number, date: Date): Promise<void> {
     const AttendancesRepository: Repository<Attendance> = AppDataSource.getRepository(Attendance);
-    
-    await AttendancesRepository.update(cod, { DATA_AGENDAMENTO: date, CONCLUIDO: 1 });
+    let findAttendance = await AttendancesRepository.findOneBy({ CODIGO: cod });
 
-    runningAttendances.remove(cod);
+    console.log(findAttendance);
+
+    if(findAttendance) {
+        findAttendance.DATA_AGENDAMENTO = date;
+        findAttendance.CONCLUIDO = 1;
+
+        await AttendancesRepository.save(findAttendance);
+        console.log(findAttendance);
+        runningAttendances.remove(cod);
+    }
 };

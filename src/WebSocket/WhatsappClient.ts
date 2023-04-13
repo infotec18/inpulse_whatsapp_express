@@ -70,7 +70,6 @@ WhatsappWeb.on("authenticated", (data) => { WebSocket.emit("authenticated", data
 WhatsappWeb.on("message", async (message) => {
 
     if((await message.getChat()).isGroup) return;
-    if(message.body.length > 2000) return;
 
     const str: string = message.from;
     const number: string = str.slice(0, str.length - 5);
@@ -277,6 +276,7 @@ WebSocket.on('connection', (socket: Socket) => {
     });
 
     socket.on("schedule-attendance", async(data: { CODIGO_ATENDIMENTO: number, DATA_AGENDAMENTO: Date }) => {
+        console.log(data.CODIGO_ATENDIMENTO, data.DATA_AGENDAMENTO);
         await services.attendances.updateSchedulesDate(data.CODIGO_ATENDIMENTO, data.DATA_AGENDAMENTO);
         const s = Sessions.find(s => s.socketId === socket.id);
         s && runningAttendances.returnOperatorAttendances(s.userId); 
