@@ -8,7 +8,7 @@ export async function updateSchedulingDate(cod: number, date: Date): Promise<voi
     const AttendancesRepository: Repository<Attendance> = AppDataSource.getRepository(Attendance);
     let findAttendance = await AttendancesRepository.findOneBy({ CODIGO: cod });
 
-    console.log(findAttendance);
+    console.log("findAttendance: ", findAttendance);
 
     if(findAttendance) {
         findAttendance.DATA_AGENDAMENTO = date;
