@@ -5,11 +5,12 @@ export class RunningRegistrations {
 
     constructor(value: Array<RunningRegistration>) {
         this.value = value;
-    }
+    };
 
-    update(wpp: string, newValue: Partial<RunningRegistration>) {
+    update(wpp: string, newValue: RunningRegistration) {
         const i = this.value.findIndex(rr => rr.WPP_NUMERO === wpp);
-        if(i) this.value[i] = { ...this.value[i], ...newValue }
+        if(newValue.CONCLUIDO) this.remove(newValue.WPP_NUMERO);
+        else if(i) this.value[i] = newValue;
     };
 
     create(rr: RunningRegistration) {
