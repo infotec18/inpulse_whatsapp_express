@@ -82,7 +82,7 @@ WhatsappWeb.on("message", async (message) => {
         const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, attending.CODIGO_ATENDIMENTO);
         runningAttendances.update(attending.CODIGO_ATENDIMENTO, { MENSAGENS: [...attending.MENSAGENS, newMessage]});
         WebSocket.to(`room_operator_${attending.CODIGO_OPERADOR}`).emit("new-message", newMessage)
-
+        
     } else if(registrating) {
         const { registration, reply } = await registrationBot(registrating, message.body);
         reply && message.reply(reply);
@@ -115,7 +115,6 @@ WhatsappWeb.on("message", async (message) => {
 
                 runningAttendances.create(newRA);
                 isOperatorOnline && runningAttendances.returnOperatorAttendances(findAttendance.CODIGO_OPERADOR);
-
             } else {
                 const avaliableOperator: number | undefined = await services.attendances.getOperator(findCustomer.OPERADOR);
 
@@ -146,8 +145,7 @@ WhatsappWeb.on("message", async (message) => {
                             RAZAO: findCustomer.RAZAO
                         });
 
-                        runningAttendances.returnOperatorAttendances(avaliableOperator);
-                    
+                        runningAttendances.returnOperatorAttendances(avaliableOperator);                    
                     } else {
                         message.reply("Desculpe, não estamos atendendo neste momento.");
                     };
@@ -236,7 +234,7 @@ WebSocket.on('connection', (socket: Socket) => {
         // buscar campanha...
         await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, 0);
         const s = Sessions.find(s => s.socketId === socket.id);
-        s && runningAttendances.returnOperatorAttendances(s.userId);  
+        s && runningAttendances.returnOperatorAttendances(s.userId);
     });
 
     socket.on("start-attendance", async(data: { cliente: number, numero: number, wpp: string, pfp: string }) => {
