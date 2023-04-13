@@ -20,7 +20,8 @@ export async function updateAttendanceStatus(): Promise<void> {
 
     currentSchedule.forEach(async(attendance) => { 
         const number = await services.wnumbers.getById(attendance.CODIGO_NUMERO);
-        const avatar = number && await WhatsappWeb.getProfilePicUrl(`${number.NUMERO}@c.us`)
+        const client = await services.customers.getOneById(attendance.CODIGO_CLIENTE);
+        const avatar = number && await WhatsappWeb.getProfilePicUrl(`${number.NUMERO}@c.us`);
 
         number && runningAttendances.create({
             CODIGO_ATENDIMENTO: attendance.CODIGO,
@@ -31,7 +32,10 @@ export async function updateAttendanceStatus(): Promise<void> {
             MENSAGENS: [],
             WPP_NUMERO: number.NUMERO,
             AVATAR: avatar || "",
-            URGENCIA: attendance.URGENCIA
+            URGENCIA: attendance.URGENCIA,
+            NOME: number.NOME,
+            CPF_CNPJ: client.CPF_CNPJ,
+            RAZAO: client.RAZAO
         });
 
         runningAttendances.returnOperatorAttendances(attendance.CODIGO_OPERADOR);

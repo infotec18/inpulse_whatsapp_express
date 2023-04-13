@@ -13,14 +13,17 @@ export interface RunningAttendance {
     MENSAGENS: RetrieveMessage[];
     AVATAR?: string;
     DATA_INICIO: Date;
-    URGENCIA: "URGENTE" | "ALTA" | "NORMAL";
+    URGENCIA: Urgency;
+    NOME: string;
+    CPF_CNPJ: string;
+    RAZAO: string;
 };
 
 export interface CustomerRegistrationData {
     CPF_CNPJ?: string;
     RAZAO?: string;
     FANTASIA?: string;
-    PESSOA?: "FIS" | "JUR";
+    PESSOA?: PersonType;
 };
 
 export interface RunningRegistration {
@@ -51,9 +54,12 @@ export interface ScheduleInformation {
     NOME: string;
     EMPRESA: string;
     CPF_CNPJ: string;
-    PESSOA: "FIS" | "JUR";
+    PESSOA: PersonType;
     CODIGO_ATENDIMENTO: number;
-    URGENCIA: "URGENTE" | "ALTA" | "NORMAL";
+    URGENCIA: Urgency;
     DATA_FIM_ULTIMO_ATENDIMENTO: Date | null;
     DATA_AGENDAMENTO: Date;
 };
+
+export type Urgency = "URGENTE" | "ALTA" | "NORMAL";
+export type PersonType = "FIS" | "JUR";

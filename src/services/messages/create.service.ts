@@ -25,6 +25,8 @@ export async function createMessageService(message: WhatsappMessage, cod_a: numb
         messageText = unemojify(msg._data.caption).replace(regexEmoji, ":emoji-desconhecido:");;
     };
 
+    if(messageText.length > 5000) messageText = messageText.slice(0, 5000);
+
     let newMessageB: Message = messagesRepository.create({
         CODIGO_ATENDIMENTO: cod_a,
         TIPO: message._data.type,

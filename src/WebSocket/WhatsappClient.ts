@@ -39,6 +39,7 @@ export async function getRunningAttendances () {
     attendances.forEach(async(a) => {
         const findMessages = await services.messages.getAllByAttendance(a.CODIGO);
         const WPP = await services.wnumbers.getById(a.CODIGO_NUMERO);
+        const client = await services.customers.getOneById(a.CODIGO_CLIENTE);
 
         if(WPP) {
             const PFP = await WhatsappWeb.getProfilePicUrl(WPP.NUMERO + "@c.us");
@@ -52,7 +53,10 @@ export async function getRunningAttendances () {
                 WPP_NUMERO: WPP.NUMERO,
                 AVATAR: PFP,
                 DATA_INICIO: a.DATA_INICIO,
-                URGENCIA: a.URGENCIA
+                URGENCIA: a.URGENCIA,
+                CPF_CNPJ: client.CPF_CNPJ,
+                NOME: WPP.NOME,
+                RAZAO: client.RAZAO
             };
 
             runningAttendances.create(newRA);
@@ -66,6 +70,7 @@ WhatsappWeb.on("authenticated", (data) => { WebSocket.emit("authenticated", data
 WhatsappWeb.on("message", async (message) => {
 
     if((await message.getChat()).isGroup) return;
+    if(message.body.length > 2000) return;
 
     const str: string = message.from;
     const number: string = str.slice(0, str.length - 5);
@@ -103,7 +108,10 @@ WhatsappWeb.on("message", async (message) => {
                     MENSAGENS: [newMessage],
                     AVATAR: PFP,
                     DATA_INICIO: findAttendance.DATA_INICIO,
-                    URGENCIA: findAttendance.URGENCIA
+                    URGENCIA: findAttendance.URGENCIA,
+                    CPF_CNPJ: findCustomer.CPF_CNPJ,
+                    NOME: findNumber.NOME,
+                    RAZAO: findCustomer.RAZAO
                 };
 
                 runningAttendances.create(newRA);
@@ -133,7 +141,10 @@ WhatsappWeb.on("message", async (message) => {
                             WPP_NUMERO: number,
                             MENSAGENS: [newMessage],
                             AVATAR: PFP,
-                            DATA_INICIO: newAttendance.DATA_INICIO
+                            DATA_INICIO: newAttendance.DATA_INICIO,
+                            CPF_CNPJ: findCustomer.CPF_CNPJ,
+                            NOME: findNumber.NOME,
+                            RAZAO: findCustomer.RAZAO
                         });
 
                         runningAttendances.returnOperatorAttendances(avaliableOperator);
@@ -233,7 +244,10 @@ WebSocket.on('connection', (socket: Socket) => {
         console.log(data);
         const operator = Sessions.find(s => s.socketId === socket.id);
 
-        if(operator){
+        const client = await services.customers.getOneById(data.cliente);
+        const number = await services.wnumbers.getById(data.numero);
+
+        if(operator && client && number){
             const newAttendance: Attendance = await services.attendances.create({
                 CODIGO_OPERADOR: operator.userId,
                 CODIGO_CLIENTE: data.cliente,
@@ -252,11 +266,20 @@ WebSocket.on('connection', (socket: Socket) => {
                 MENSAGENS: [],
                 AVATAR: data.pfp,
                 DATA_INICIO: newAttendance.DATA_INICIO,
-                URGENCIA: newAttendance.URGENCIA
+                URGENCIA: newAttendance.URGENCIA,
+                NOME: number.NOME,
+                RAZAO: client.RAZAO,
+                CPF_CNPJ: client.CPF_CNPJ
             });
 
             runningAttendances.returnOperatorAttendances(operator.userId);
         };
+    });
+
+    socket.on("schedule-attendance", async(data: { CODIGO_ATENDIMENTO: number, DATA_AGENDAMENTO: Date }) => {
+        await services.attendances.updateSchedulesDate(data.CODIGO_ATENDIMENTO, data.DATA_AGENDAMENTO);
+        const s = Sessions.find(s => s.socketId === socket.id);
+        s && runningAttendances.returnOperatorAttendances(s.userId); 
     });
 });
 

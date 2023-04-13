@@ -22,9 +22,9 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
             CAMPANHA: CAMPANHA,
             CLIENTE: findAttendance.CODIGO_CLIENTE,
             CONCLUIDO: "SIM",
-            DT_AGENDAMENTO: new Date(), /* findAttendance.DATA_AGENDAMENTO */
+            DT_AGENDAMENTO: new Date(),
             DT_RESULTADO: new Date(),
-            DATA_HORA_LIG: new Date(), /* findAttendance.DATA_INICIO */
+            DATA_HORA_LIG: new Date(),
             DATA_HORA_FIM: new Date(),
             RESULTADO: COD_RESULTADO,
             OPERADOR: findAttendance.CODIGO_OPERADOR
