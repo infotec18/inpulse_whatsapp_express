@@ -204,9 +204,7 @@ WebSocket.on('connection', (socket: Socket) => {
     }); 
 
     socket.on("send-ready-message", async (data: any) => {
-        console.log(data)
         const getMessage = await services.readyMessages.getOneById(data.messageId);
-        console.log(getMessage)
 
         data.listaDeNumeros.forEach( async (number: string) => {
             const numero = number.replace(/\+/g, '');
@@ -230,7 +228,6 @@ WebSocket.on('connection', (socket: Socket) => {
     });
 
     socket.on("finish-attendance", async(data: FinishAttendanceProps) => {
-        console.log(data);
         // buscar campanha...
         await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, 0);
         const s = Sessions.find(s => s.socketId === socket.id);
@@ -274,7 +271,8 @@ WebSocket.on('connection', (socket: Socket) => {
     });
 
     socket.on("schedule-attendance", async(data: { CODIGO_ATENDIMENTO: number, DATA_AGENDAMENTO: Date }) => {
-        console.log(data.CODIGO_ATENDIMENTO, data.DATA_AGENDAMENTO);
+        console.log("aqui")
+        console.log(data);
         await services.attendances.updateSchedulesDate(data.CODIGO_ATENDIMENTO, data.DATA_AGENDAMENTO);
         const s = Sessions.find(s => s.socketId === socket.id);
         s && runningAttendances.returnOperatorAttendances(s.userId); 
