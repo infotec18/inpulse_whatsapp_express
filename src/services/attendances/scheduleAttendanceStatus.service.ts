@@ -13,12 +13,12 @@ export async function updateAttendanceStatus(): Promise<void> {
         .where("attendance.DATA_AGENDAMENTO IS NOT NULL")
         .getMany();
 
-    const agora = Date.now();
-    const agendamento = (date: Date) => date.getTime();
+    const currentTime = Date.now(); 
+    const scheduleTime = (date: Date) => date.getTime() - 300000;
     
-    const result = scheduledAttendances.filter(item => item.DATA_AGENDAMENTO && agendamento(item.DATA_AGENDAMENTO) <= agora );
+    const currentSchedule = scheduledAttendances.filter(a => a.DATA_AGENDAMENTO && scheduleTime(a.DATA_AGENDAMENTO) <= currentTime );
 
-    result.forEach(async(attendance) => { 
+    currentSchedule.forEach(async(attendance) => { 
         const number = await services.wnumbers.getById(attendance.CODIGO_NUMERO);
         const avatar = number && await WhatsappWeb.getProfilePicUrl(`${number.NUMERO}@c.us`)
 

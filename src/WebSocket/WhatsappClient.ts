@@ -12,6 +12,7 @@ import { Socket } from "socket.io";
 import { RunningAttendances } from "./RunningAttendances";
 import path from "path";
 import * as fs from 'fs';
+import { RunningRegistrations } from "./RunningRegistrations";
 
 const WhatsappWeb = new Client({
     authStrategy: new LocalAuth(),
@@ -29,9 +30,8 @@ const WhatsappWeb = new Client({
     }
 });
 
-export let runningAttendances = new RunningAttendances([]);
-
-let RunningRegistrations: Array<RunningRegistration> = [];
+export const runningAttendances = new RunningAttendances([]);
+export const runningRegistrations = new RunningRegistrations([]);
 
 export async function getRunningAttendances () {
     const attendances = await services.attendances.getAllRunning();
@@ -51,7 +51,8 @@ export async function getRunningAttendances () {
                 MENSAGENS: findMessages ,
                 WPP_NUMERO: WPP.NUMERO,
                 AVATAR: PFP,
-                DATA_INICIO: a.DATA_INICIO
+                DATA_INICIO: a.DATA_INICIO,
+                URGENCIA: a.URGENCIA
             };
 
             runningAttendances.create(newRA);
@@ -63,15 +64,16 @@ WhatsappWeb.on("qr", (qr: string) => { WebSocket.emit("qr", qr) });
 WhatsappWeb.on("authenticated", (data) => { WebSocket.emit("authenticated", data) });
 
 WhatsappWeb.on("message", async (message) => {
+
+    if((await message.getChat()).isGroup) return;
+
     const str: string = message.from;
     const number: string = str.slice(0, str.length - 5);
 
-    const registrating: RunningRegistration | undefined = RunningRegistrations.find(rr => rr.WPP_NUMERO === number && !rr.CONCLUIDO);
+    const registrating: RunningRegistration | undefined = runningRegistrations.find({ WPP_NUMERO: number });
     const attending: RunningAttendance | undefined = runningAttendances.find({ WPP_NUMERO: number });
     const PFP = await WhatsappWeb.getProfilePicUrl(message.from);
 
-    if((await message.getChat()).isGroup) return;
-    
     if (attending) {
         const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, attending.CODIGO_ATENDIMENTO);
         runningAttendances.update(attending.CODIGO_ATENDIMENTO, { MENSAGENS: [...attending.MENSAGENS, newMessage]});
@@ -80,12 +82,7 @@ WhatsappWeb.on("message", async (message) => {
     } else if(registrating) {
         const { registration, reply } = await registrationBot(registrating, message.body);
         reply && message.reply(reply);
-
-        let index = RunningRegistrations.findIndex(r => r.WPP_NUMERO === number);
-        RunningRegistrations[index] = registration;
-
-        if(registration.CONCLUIDO) RunningRegistrations = RunningRegistrations.filter(r => !r.CONCLUIDO);
-
+        runningRegistrations.update(number, registration);
     } else {
         const findNumber: Wnumber | null = await services.wnumbers.find(number);
 
@@ -105,7 +102,8 @@ WhatsappWeb.on("message", async (message) => {
                     WPP_NUMERO: number,
                     MENSAGENS: [newMessage],
                     AVATAR: PFP,
-                    DATA_INICIO: findAttendance.DATA_INICIO
+                    DATA_INICIO: findAttendance.DATA_INICIO,
+                    URGENCIA: findAttendance.URGENCIA
                 };
 
                 runningAttendances.create(newRA);
@@ -131,6 +129,7 @@ WhatsappWeb.on("message", async (message) => {
                             CODIGO_CLIENTE: newAttendance.CODIGO_CLIENTE,
                             CODIGO_OPERADOR: newAttendance.CODIGO_OPERADOR,
                             CODIGO_NUMERO: newAttendance.CODIGO_NUMERO,
+                            URGENCIA: newAttendance.URGENCIA,
                             WPP_NUMERO: number,
                             MENSAGENS: [newMessage],
                             AVATAR: PFP,
@@ -144,14 +143,13 @@ WhatsappWeb.on("message", async (message) => {
                     };
             };  
             
-        } /* else {
+        } else {
             const newRegistration = { WPP_NUMERO: number, ETAPA: 1, DADOS: {}, CONCLUIDO: false};
-            RunningRegistrations.push(newRegistration);
+            runningRegistrations.create(newRegistration);
             const { registration, reply } = await registrationBot(newRegistration, message.body);
             reply && message.reply(reply);
-            let index = RunningRegistrations.findIndex(r => r.WPP_NUMERO === number);
-            RunningRegistrations[index] = registration;
-        }; */
+            runningRegistrations.update(number, registration);
+        };
     };
 });
 
@@ -253,7 +251,8 @@ WebSocket.on('connection', (socket: Socket) => {
                 WPP_NUMERO: data.wpp,
                 MENSAGENS: [],
                 AVATAR: data.pfp,
-                DATA_INICIO: newAttendance.DATA_INICIO
+                DATA_INICIO: newAttendance.DATA_INICIO,
+                URGENCIA: newAttendance.URGENCIA
             });
 
             runningAttendances.returnOperatorAttendances(operator.userId);

@@ -13,6 +13,7 @@ export interface RunningAttendance {
     MENSAGENS: RetrieveMessage[];
     AVATAR?: string;
     DATA_INICIO: Date;
+    URGENCIA: "URGENTE" | "ALTA" | "NORMAL";
 };
 
 export interface CustomerRegistrationData {
@@ -43,4 +44,16 @@ export interface Session {
 export interface FinishAttendanceProps {
     CODIGO_ATENDIMENTO: number;
     CODIGO_RESULTADO: number;
+};
+
+export interface ScheduleInformation {
+    AVATAR: string;
+    NOME: string;
+    EMPRESA: string;
+    CPF_CNPJ: string;
+    PESSOA: "FIS" | "JUR";
+    CODIGO_ATENDIMENTO: number;
+    URGENCIA: "URGENTE" | "ALTA" | "NORMAL";
+    DATA_FIM_ULTIMO_ATENDIMENTO: Date | null;
+    DATA_AGENDAMENTO: Date;
 };

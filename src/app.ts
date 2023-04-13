@@ -10,14 +10,12 @@ import { wnumbersRoutes } from './routes/wnumbers.routes';
 import { readyMessageFileRoutes } from './routes/readyMessageFile.routes';
 import { readyMessagesRoutes } from './routes/readyMessages.routes';
 import { resultsRoutes } from './routes/results.routes';
-
+import { schedulesRoutes } from './routes/schedules.routes';
 
 const app: Application = express();
 app.use(express.json({ limit: '20mb' }));
 app.use(cors());
 
-
-// Routes:
 app.use(userRoutes);
 app.use(avatarRoutes);
 app.use(customerRoutes);
@@ -26,9 +24,8 @@ app.use(wnumbersRoutes);
 app.use(readyMessageFileRoutes);
 app.use(readyMessagesRoutes)
 app.use(resultsRoutes);
-
+app.use(schedulesRoutes);
 
 app.use(errorHandler);
 
-
-export default app
+export default app;
