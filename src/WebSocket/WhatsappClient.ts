@@ -208,7 +208,7 @@ WebSocket.on('connection', (socket: Socket) => {
 
             if(contact){
                 if(getMessage.ARQUIVO) {
-                    const filePath = path.join(__dirname, '../../files', getMessage.ARQUIVO.ARQUIVO);
+                    const filePath = path.join(__dirname, '../../localFiles/readyMessages/', getMessage.ARQUIVO.ARQUIVO);
 
                     const media = new MessageMedia(getMessage.ARQUIVO.TIPO, fs.readFileSync(filePath).toString('base64'), getMessage.TITULO);
 

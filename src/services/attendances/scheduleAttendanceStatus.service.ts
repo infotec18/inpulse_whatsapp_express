@@ -30,7 +30,8 @@ export async function updateAttendanceStatus(): Promise<void> {
             DATA_INICIO: new Date(),
             MENSAGENS: [],
             WPP_NUMERO: number.NUMERO,
-            AVATAR: avatar || ""
+            AVATAR: avatar || "",
+            URGENCIA: attendance.URGENCIA
         });
 
         runningAttendances.returnOperatorAttendances(attendance.CODIGO_OPERADOR);
