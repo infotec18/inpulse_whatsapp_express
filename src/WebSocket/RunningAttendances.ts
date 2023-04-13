@@ -11,10 +11,12 @@ export class RunningAttendances {
     update(COD_ATENDIMENTO: number, PARAMS: Partial<RunningAttendance>) {
         const index = this.value.findIndex((a) => a.CODIGO_ATENDIMENTO === COD_ATENDIMENTO);
         if(index > -1) this.value[index] = { ...this.value[index], ...PARAMS };
+        this.emitUpdate()
     };
 
     create(NEW_RA: RunningAttendance) {
         this.value.push(NEW_RA);
+        this.emitUpdate()
     };
 
     find(PARAMS: Partial<RunningAttendance>) {
@@ -33,10 +35,15 @@ export class RunningAttendances {
 
     remove(COD_ATENDIMENTO: number) {
         this.value = this.value.filter(ra => ra.CODIGO_ATENDIMENTO !== COD_ATENDIMENTO);
+        this.emitUpdate()
     };
 
     returnOperatorAttendances(COD_OPERADOR: number) {
         const operatorAttendances = this.value.filter(a => a.CODIGO_OPERADOR === COD_OPERADOR);
         WebSocket.to(`room_operator_${COD_OPERADOR}`).emit("load-attendances", operatorAttendances);
     };
+
+    emitUpdate() {
+        WebSocket.to("attendanceRoom").emit("updateRunningAttendances", this.value);
+    }
 };

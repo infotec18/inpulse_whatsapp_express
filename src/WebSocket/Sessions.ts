@@ -55,4 +55,9 @@ WebSocket.on('connection', (socket: Socket) => {
             socket.leave(`room_operator_${id}`);
         });
     });
+
+    socket.on("joinAttendanceRoom", () => {
+        socket.join("attendanceRoom")
+        runningAttendances.emitUpdate()
+    })
 });
