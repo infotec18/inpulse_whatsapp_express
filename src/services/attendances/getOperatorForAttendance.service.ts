@@ -2,12 +2,12 @@ import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
 import { Attendance } from "../../entities/attendance.entity";
 import { Session } from "../../interfaces/attendances.interfaces";
-import { Sessions } from "../../WebSocket/Sessions";
+import { PausedUsers, Sessions } from "../../WebSocket/Sessions";
 
 export async function getOperatorForAttendance(cod_o: number): Promise<number | undefined> {
     const AttendancesRepository: Repository<Attendance> = AppDataSource.getRepository(Attendance);
     const findOperatorSession: Session | undefined = Sessions.find(s => s.userId === cod_o);
-    const usersIdSet = new Set(Sessions.map(s => s.userId));
+    const usersIdSet = new Set(Sessions.map(s => s.userId).filter(id => !PausedUsers.includes(id)));
 
     if(!findOperatorSession) {
         let arr: Array<{ userId: number, count: number }> = []

@@ -34,7 +34,7 @@ export class Attendance {
     DATA_AGENDAMENTO: Date;
 
     @Column({ type: 'enum', enum: ['URGENTE', 'ALTA', 'NORMAL'], default: 'NORMAL' })
-    URGENCIA: string;
+    URGENCIA: "URGENTE" | "ALTA" | "NORMAL";
 
     @OneToMany(() => Message, message => message.ATENDIMENTO)
     MENSAGENS: Message[];
