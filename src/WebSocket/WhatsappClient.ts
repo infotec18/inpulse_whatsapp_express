@@ -108,7 +108,7 @@ WhatsappWeb.on("message", async (message) => {
 
                 runningAttendances.create(newRA);
                 isOperatorOnline && runningAttendances.returnOperatorAttendances(findAttendance.CODIGO_OPERADOR);
-
+                runningAttendances.emitUpdate()
             } else {
                 const avaliableOperator: number | undefined = await services.attendances.getOperator(findCustomer.OPERADOR);
 
@@ -137,7 +137,7 @@ WhatsappWeb.on("message", async (message) => {
                         });
 
                         runningAttendances.returnOperatorAttendances(avaliableOperator);
-                    
+                        runningAttendances.emitUpdate()
                     } else {
                         message.reply("Desculpe, não estamos atendendo neste momento.");
                     };
@@ -149,6 +149,7 @@ WhatsappWeb.on("message", async (message) => {
             const { registration, reply } = await registrationBot(newRegistration, message.body);
             reply && message.reply(reply);
             runningRegistrations.update(number, registration);
+            runningAttendances.emitUpdate()
         };
     };
 });
@@ -226,7 +227,8 @@ WebSocket.on('connection', (socket: Socket) => {
         // buscar campanha...
         await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, 0);
         const s = Sessions.find(s => s.socketId === socket.id);
-        s && runningAttendances.returnOperatorAttendances(s.userId);  
+        s && runningAttendances.returnOperatorAttendances(s.userId);
+        runningAttendances.emitUpdate()
     });
 
     socket.on("start-attendance", async(data: { cliente: number, numero: number, wpp: string, pfp: string }) => {
@@ -256,8 +258,13 @@ WebSocket.on('connection', (socket: Socket) => {
             });
 
             runningAttendances.returnOperatorAttendances(operator.userId);
+            runningAttendances.emitUpdate()
         };
     });
+
+    socket.on("joinAttendanceRoom", () => {
+        socket.join("attendanceRoom");
+    })
 });
 
 export default WhatsappWeb;
