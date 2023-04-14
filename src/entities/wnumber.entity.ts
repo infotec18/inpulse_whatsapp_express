@@ -12,7 +12,7 @@ export class Wnumber {
     @PrimaryGeneratedColumn()
     CODIGO: number;
 
-    @Column({ type: 'int',  unique: true, nullable: false})
+    @Column({ type: 'int', nullable: false})
     CODIGO_CLIENTE: number;
 
     @Column({ type: 'varchar', length: 30 })
