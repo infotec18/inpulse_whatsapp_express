@@ -24,6 +24,7 @@ async function initialize () {
     
     await WhatsappWeb.initialize().then(_ => console.log("Whatsapp Initialized"));
     getRunningAttendances();
+    console.log("Job started.", new Date().toLocaleString())
     cronJob
 };
 

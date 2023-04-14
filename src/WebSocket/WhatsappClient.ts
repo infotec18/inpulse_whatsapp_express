@@ -68,8 +68,6 @@ WhatsappWeb.on("qr", (qr: string) => { WebSocket.emit("qr", qr) });
 WhatsappWeb.on("authenticated", (data) => { WebSocket.emit("authenticated", data) });
 
 WhatsappWeb.on("message", async (message) => {
-    console.log(message);
-
     if((await message.getChat()).isGroup) return;
 
     const str: string = message.from;
@@ -236,7 +234,6 @@ WebSocket.on('connection', (socket: Socket) => {
     });
 
     socket.on("start-attendance", async(data: { cliente: number, numero: number, wpp: string, pfp: string }) => {
-        console.log(data);
         const operator = Sessions.find(s => s.socketId === socket.id);
 
         const client = await services.customers.getOneById(data.cliente);
@@ -272,8 +269,6 @@ WebSocket.on('connection', (socket: Socket) => {
     });
 
     socket.on("schedule-attendance", async(data: { CODIGO_ATENDIMENTO: number, DATA_AGENDAMENTO: Date }) => {
-        console.log("aqui")
-        console.log(data);
         await services.attendances.updateSchedulesDate(data.CODIGO_ATENDIMENTO, data.DATA_AGENDAMENTO);
         const s = Sessions.find(s => s.socketId === socket.id);
         s && runningAttendances.returnOperatorAttendances(s.userId); 
