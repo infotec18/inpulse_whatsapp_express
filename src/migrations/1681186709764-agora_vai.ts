@@ -25,7 +25,6 @@ export class agoraVai1681186709764 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE \`mensagens\` DROP FOREIGN KEY \`FK_bfc61a855f72382f855dab49f8b\``);
         await queryRunner.query(`ALTER TABLE \`atendimentos_historico\` DROP FOREIGN KEY \`FK_abd3ff1160eb1148d7d39723239\``);
         await queryRunner.query(`DROP INDEX \`IDX_7e24a7cb9bed4ed6f96fa22978\` ON \`clientes_numeros\``);
-        await queryRunner.query(`DROP INDEX \`IDX_68d2b0bd18f11ff5d41049e266\` ON \`clientes_numeros\``);
         await queryRunner.query(`DROP TABLE \`clientes_numeros\``);
         await queryRunner.query(`DROP INDEX \`REL_a6f425743dacb3a7a7f0780985\` ON \`mensagensprontas_arquivos\``);
         await queryRunner.query(`DROP TABLE \`mensagensprontas_arquivos\``);
