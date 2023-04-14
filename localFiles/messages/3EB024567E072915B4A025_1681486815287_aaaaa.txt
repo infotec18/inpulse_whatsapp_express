@@ -1,0 +1,15 @@
+import { Repository } from "typeorm";
+import { AppDataSource } from "../../data-source";
+import { Attendance } from "../../entities/attendance.entity";
+
+export async function getAllScheduledAttendancesService(): Promise<Array<Attendance>> {
+
+    const attendanceRepository: Repository<Attendance> = AppDataSource.getRepository(Attendance);
+
+    const scheduledAttendances: Attendance[] = await attendanceRepository
+        .createQueryBuilder("attendance")
+        .where("attendance.DATA_AGENDAMENTO IS NOT NULL")
+        .getMany();
+
+    return scheduledAttendances;
+}
