@@ -40,23 +40,20 @@ Responda "cadastrar" para prosseguir.
     const validate = await validateCPF_CNPJBot(msg);
 
     if(RR.ETAPA === 3 && validate.result === "already registered" && validate.value instanceof Customer ) {
-        RR.ETAPA += 2;
-        const CODIGO_CLIENTE = validate.value.CODIGO;
-        await services.wnumbers.create({ CODIGO_CLIENTE, NOME: "TESTE", NUMERO: RR.WPP_NUMERO});
-        reply = `Seu número foi cadastrado com sucesso. ${validate.value.RAZAO}`;
-        return { registration: RR, reply };
-    };
+        RR.ETAPA += 3;
+        RR.CADASTRO_CLIENTE = validate.value;
 
-    if(RR.ETAPA === 3 && validate.result === "valid") {
+        reply = "Estamos quase lá, por favor diga o nome do responsável que atende este número: ";
+
+        return { registration: RR, reply };
+    } else if(RR.ETAPA === 3 && validate.result === "valid") {
         const substr = validate.value === "CPF" ? "o seu NOME" : "a RAZÃO SOCIAL da sua empresa"
         reply = `Seu ${validate.value} é válido. para prosseguir com o cadastro, digite ${substr}:`;
         RR.DADOS.CPF_CNPJ = msg.replace(/\D/g, "");
         RR.DADOS.PESSOA = validate.value === "CNPJ" ? "JUR" : "FIS";
         RR.ETAPA ++;
         return { registration: RR, reply };
-    };
-
-    if(RR.ETAPA === 3) {
+    }else if(RR.ETAPA === 3) {
         reply = validate.value as string;
         return { registration: RR, reply };
     };
@@ -84,9 +81,7 @@ Digite "sim" para continuar ou "reiniciar" para recomeçar.
         reply = "Que legal, você foi cadastrado com sucesso! Envie qualquer mensagem, se quiser começar um novo atendimento.";
 
         return { registration: RR, reply };
-    };
-
-    if(RR.ETAPA === 5 && msg.toUpperCase() === "SIM" && RR.DADOS.PESSOA === "JUR") {
+    } else if(RR.ETAPA === 5 && msg.toUpperCase() === "SIM" && RR.DADOS.PESSOA === "JUR") {
         const newCustomer = await services.customers.directCreate(RR.DADOS);
 
         RR.CADASTRO_CLIENTE = newCustomer;
@@ -95,9 +90,7 @@ Digite "sim" para continuar ou "reiniciar" para recomeçar.
         reply = "Estamos quase lá, por favor diga o nome do responsável que atende este número: ";
 
         return { registration: RR, reply };
-    };
-
-    if(RR.ETAPA === 5) {
+    } else if(RR.ETAPA === 5) {
         reply = `Não entendi, por favor digite "sim" ou "reiniciar"`;
         return { registration: RR, reply };
     };
