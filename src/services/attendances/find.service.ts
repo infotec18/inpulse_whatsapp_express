@@ -10,5 +10,18 @@ export async function findAttendanceService(COD: number): Promise<Attendance | n
         CODIGO_CLIENTE: COD, CONCLUIDO: 0
     });
 
+    if(findAttendance) {
+        const findScheduledAttendance: Attendance | null = await AttendanceRepository 
+            .createQueryBuilder("attendance")
+            .where("attendance.DATA_AGENDAMENTO IS NOT NULL")
+            .andWhere(`attendance.CODIGO_CLIENTE = ${COD}`)
+            .getOne();
+
+        if(findScheduledAttendance) {
+            const scheduledAttendance = await AttendanceRepository.save({ ...findScheduledAttendance, CONCLUIDO: 0, DATA_AGENDAMENTO: "" })
+            return scheduledAttendance;
+        };
+    };
+
     return findAttendance;
 };

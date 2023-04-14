@@ -4,7 +4,7 @@ import { Wnumber } from "../entities/wnumber.entity";
 import services from "../services";
 import { Sessions } from "./Sessions";
 import { Attendance } from "../entities/attendance.entity";
-import { FinishAttendanceProps, RetrieveMessage, RunningAttendance, RunningRegistration, Session } from "../interfaces/attendances.interfaces";
+import { FinishAttendanceProps, RetrieveMessage, RunningAttendance, RunningRegistration } from "../interfaces/attendances.interfaces";
 import { registrationBot } from "../bots/registration.bot";
 import { SendMessageData, WhatsappMessage } from "../interfaces/messages.interfaces";
 import { Customer } from "../entities/customer";
@@ -68,6 +68,7 @@ WhatsappWeb.on("qr", (qr: string) => { WebSocket.emit("qr", qr) });
 WhatsappWeb.on("authenticated", (data) => { WebSocket.emit("authenticated", data) });
 
 WhatsappWeb.on("message", async (message) => {
+    console.log(message);
 
     if((await message.getChat()).isGroup) return;
 
