@@ -8,16 +8,20 @@ export async function getAttendancesByType(req: Request): Promise<Attendance[]> 
 
     const tipo = req.query.tipo;
 
-    let attendances: Attendance[];
+    let attendances;
 
     if (tipo == 'finalizados') {
-        attendances = await AttendanceRepository.find({
-            where: { CONCLUIDO: 1, DATA_AGENDAMENTO: IsNull() }
-        });
+        attendances = AttendanceRepository.createQueryBuilder('atendimentos')
+            .where("atendimentos.CONCLUIDO = 1")
+            .andWhere("atendimentos.DATA_AGENDAMENTO IS NULL")
+            .leftJoinAndSelect("atendimentos.MENSAGENS", "message")
+            .getMany()
+
     } else if (tipo == 'agendamentos') {
-        attendances = await AttendanceRepository.find({
-            where: { DATA_AGENDAMENTO: Not(IsNull()) },
-        });
+        attendances = AttendanceRepository.createQueryBuilder('atendimentos')
+            .andWhere("atendimentos.DATA_AGENDAMENTO IS NOT NULL")
+            .leftJoinAndSelect("atendimentos.MENSAGENS", "message")
+            .getMany()
     } else {
         throw new Error('Tipo inválido');
     }

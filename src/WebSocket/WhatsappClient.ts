@@ -278,10 +278,16 @@ WebSocket.on('connection', (socket: Socket) => {
     });
 
     socket.on("update-operator", async(data: { CODIGO_ATENDIMENTO: number, CODIGO_OPERADOR: number }) => {
-        console.log('oi')
         await services.attendances.updateOp(data.CODIGO_ATENDIMENTO, data.CODIGO_OPERADOR);
         const s = Sessions.find(s => s.socketId === socket.id);
         s && runningAttendances.returnOperatorAttendances(s.userId); 
+    });
+
+    socket.on("update-urgencia", async(data: { CODIGO_ATENDIMENTO: number, URGENCIA: "URGENTE" | "ALTA" | "NORMAL" }) => {
+        await services.attendances.updateUrgencia(data.CODIGO_ATENDIMENTO, data.URGENCIA);
+        const s = Sessions.find(s => s.socketId === socket.id);
+        s && runningAttendances.returnOperatorAttendances(s.userId); 
+        runningAttendances.emitUpdate()
     });
 });
 
