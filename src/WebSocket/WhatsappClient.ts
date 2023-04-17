@@ -272,9 +272,14 @@ WebSocket.on('connection', (socket: Socket) => {
     });
 
     socket.on("schedule-attendance", async(data: { CODIGO_ATENDIMENTO: number, DATA_AGENDAMENTO: Date }) => {
-        console.log("aqui")
-        console.log(data);
         await services.attendances.updateSchedulesDate(data.CODIGO_ATENDIMENTO, data.DATA_AGENDAMENTO);
+        const s = Sessions.find(s => s.socketId === socket.id);
+        s && runningAttendances.returnOperatorAttendances(s.userId); 
+    });
+
+    socket.on("update-operator", async(data: { CODIGO_ATENDIMENTO: number, CODIGO_OPERADOR: number }) => {
+        console.log('oi')
+        await services.attendances.updateOp(data.CODIGO_ATENDIMENTO, data.CODIGO_OPERADOR);
         const s = Sessions.find(s => s.socketId === socket.id);
         s && runningAttendances.returnOperatorAttendances(s.userId); 
     });

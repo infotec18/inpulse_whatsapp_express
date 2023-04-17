@@ -6,6 +6,8 @@ import { getAllRunningAttendancesService } from "./getAllRunningAttendances.serv
 import { finishAttendanceService } from "./finish.service";
 import { getSchedulesByUserIdService } from "./getSchedulesByUserId.service";
 import { updateSchedulingDate } from "./updateAttendance.service";
+import { getAttendancesByType } from "./getAttendancesByType.service";
+import { updateOperator } from "./updateOperator.service";
 
 export const find = findAttendanceService;
 export const create = createAttendanceService;
@@ -15,3 +17,5 @@ export const getAllRunning = getAllRunningAttendancesService;
 export const finish = finishAttendanceService;
 export const getUserSchedules = getSchedulesByUserIdService;
 export const updateSchedulesDate = updateSchedulingDate;
+export const getAllByStatus = getAttendancesByType;
+export const updateOp = updateOperator;
