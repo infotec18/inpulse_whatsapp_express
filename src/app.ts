@@ -11,6 +11,7 @@ import { readyMessageFileRoutes } from './routes/readyMessageFile.routes';
 import { readyMessagesRoutes } from './routes/readyMessages.routes';
 import { resultsRoutes } from './routes/results.routes';
 import { schedulesRoutes } from './routes/schedules.routes';
+import { attendancesRoute } from './routes/attendances.routes';
 
 const app: Application = express();
 app.use(express.json({ limit: '20mb' }));
@@ -25,6 +26,7 @@ app.use(readyMessageFileRoutes);
 app.use(readyMessagesRoutes)
 app.use(resultsRoutes);
 app.use(schedulesRoutes);
+app.use(attendancesRoute);
 
 app.use(errorHandler);
 

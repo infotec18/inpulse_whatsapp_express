@@ -19,7 +19,7 @@ declare global {
             findCustomer: Customer,
             findNumber: Wnumber,
             findReadyMessage: ReadyMessages,
-            findArchive: ReadyMessageFile
+            findArchive: ReadyMessageFile,
         }
     }
 }

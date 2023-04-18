@@ -7,9 +7,10 @@ import * as readyMessages from "./readyMessages";
 import * as results from "./results";
 import * as readyMessageFile from "./readyMessagesFile";
 import * as schedules from "./schedules";
+import * as attendances from "./attendances";
 
 const controllers = {
-    users, avatars, customers, files, wnumbers, readyMessages, results, readyMessageFile, schedules
+    users, avatars, customers, files, wnumbers, readyMessages, results, readyMessageFile, schedules, attendances
 };
 
 export default controllers;
