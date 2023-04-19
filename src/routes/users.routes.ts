@@ -39,3 +39,7 @@ userRoutes.patch("/api/users/:userId",
 userRoutes.get("/api/users/lastid",
     controllers.users.getLastId
 );
+
+userRoutes.get("/api/users/specified",
+    controllers.users.getSpecified
+)
