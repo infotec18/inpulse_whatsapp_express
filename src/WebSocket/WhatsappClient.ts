@@ -209,20 +209,34 @@ WebSocket.on('connection', (socket: Socket) => {
             const numero = number.replace(/\+/g, '');
 
             const numberPhone = `${numero}@c.us`;
-            const contact = await WhatsappWeb.getContactById(numberPhone);
+            
+            if(getMessage.ARQUIVO) {
+                const filePath = path.join(__dirname, '../../localFiles/readyMessages/', getMessage.ARQUIVO.ARQUIVO);
 
-            if(contact){
-                if(getMessage.ARQUIVO) {
-                    const filePath = path.join(__dirname, '../../localFiles/readyMessages/', getMessage.ARQUIVO.ARQUIVO);
+                const media = new MessageMedia(getMessage.ARQUIVO.TIPO, fs.readFileSync(filePath).toString('base64'), getMessage.TITULO);
 
-                    const media = new MessageMedia(getMessage.ARQUIVO.TIPO, fs.readFileSync(filePath).toString('base64'), getMessage.TITULO);
+                const msg = await WhatsappWeb.sendMessage(numberPhone, media, { caption: getMessage.TEXTO_MENSAGEM});
+                handleMessage(msg);
+            } else {
+                const msg = await WhatsappWeb.sendMessage(numberPhone, getMessage.TEXTO_MENSAGEM);
+                handleMessage(msg);
+            };
+            
 
-                    await WhatsappWeb.sendMessage(numberPhone, media);
-                    await WhatsappWeb.sendMessage(numberPhone, getMessage.TEXTO_MENSAGEM);
-                } else {
-                    await WhatsappWeb.sendMessage(numberPhone, getMessage.TEXTO_MENSAGEM);
-                }
-            }
+            async function handleMessage(message: WAWebJS.Message) {
+                const str: string = message.to;
+                const number: string = str.slice(0, str.length - 5);
+    
+                const ra: RunningAttendance | undefined = runningAttendances.find({ WPP_NUMERO: number });
+    
+                if(ra) {
+                    const newMessage = await services.messages.create(message as unknown as WhatsappMessage, ra.CODIGO_ATENDIMENTO);
+    
+                    runningAttendances.update(ra.CODIGO_ATENDIMENTO, { MENSAGENS: [...ra.MENSAGENS, newMessage] }); 
+                    WebSocket.to(socket.id).emit("new-message", newMessage); 
+                };
+    
+            };
         } )   
     });
 
@@ -284,7 +298,6 @@ WebSocket.on('connection', (socket: Socket) => {
         await services.attendances.updateUrgencia(data.CODIGO_ATENDIMENTO, data.URGENCIA);
         const s = Sessions.find(s => s.socketId === socket.id);
         s && runningAttendances.returnOperatorAttendances(s.userId); 
-        runningAttendances.emitUpdate()
     });
 });
 

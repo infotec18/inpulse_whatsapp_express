@@ -1,6 +1,7 @@
 import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
 import { Attendance } from "../../entities/attendance.entity";
+import { runningAttendances } from "../../WebSocket/WhatsappClient";
 
 export async function updateOperator(cod: number, operator: number): Promise<void> {
     const AttendancesRepository: Repository<Attendance> = AppDataSource.getRepository(Attendance);
@@ -8,8 +9,7 @@ export async function updateOperator(cod: number, operator: number): Promise<voi
 
     if(findAttendance) {
         findAttendance.CODIGO_OPERADOR = operator;
-
         await AttendancesRepository.save(findAttendance);
-        console.log(cod, operator)
-    }
+        runningAttendances.update(cod, { CODIGO_OPERADOR: operator });
+    };
 };
