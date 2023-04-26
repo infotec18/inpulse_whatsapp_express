@@ -36,14 +36,14 @@ export const runningRegistrations = new RunningRegistrations([]);
 export async function getRunningAttendances () {
     const attendances = await services.attendances.getAllRunning();
     
-    attendances.forEach(async(a) => {
+    for (const a of attendances) {
         const findMessages = await services.messages.getAllByAttendance(a.CODIGO);
         const WPP = await services.wnumbers.getById(a.CODIGO_NUMERO);
         const client = await services.customers.getOneById(a.CODIGO_CLIENTE);
 
         if(WPP) {
             const PFP = await WhatsappWeb.getProfilePicUrl(WPP.NUMERO + "@c.us");
-            
+
             let newRA: RunningAttendance = {
                 CODIGO_ATENDIMENTO: a.CODIGO,
                 CODIGO_CLIENTE: a.CODIGO_CLIENTE,
@@ -61,7 +61,7 @@ export async function getRunningAttendances () {
 
             runningAttendances.create(newRA);
         };
-    });
+    };
 };
 
 WhatsappWeb.on("qr", (qr: string) => { WebSocket.emit("qr", qr) });
@@ -78,11 +78,11 @@ WhatsappWeb.on("message", async (message) => {
     const PFP = await WhatsappWeb.getProfilePicUrl(message.from);
 
     if (attending) {
-        const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, attending.CODIGO_ATENDIMENTO);
-        runningAttendances.update(attending.CODIGO_ATENDIMENTO, { MENSAGENS: [...attending.MENSAGENS, newMessage]});
-        WebSocket.to(`room_operator_${attending.CODIGO_OPERADOR}`).emit("new-message", newMessage)
+        const newMessage = await services.messages.create(message as unknown as WhatsappMessage, attending.CODIGO_ATENDIMENTO);
+        newMessage && runningAttendances.update(attending.CODIGO_ATENDIMENTO, { MENSAGENS: [...attending.MENSAGENS, newMessage]});
+        newMessage && WebSocket.to(`room_operator_${attending.CODIGO_OPERADOR}`).emit("new-message", newMessage);
         
-    } else if(registrating) {
+    } else if(registrating && process.env.REGISTRATION_BOT === "TRUE") {
         const { registration, reply } = await registrationBot(registrating, message.body);
         reply && message.reply(reply);
         runningRegistrations.update(number, registration);
@@ -94,26 +94,29 @@ WhatsappWeb.on("message", async (message) => {
             const findAttendance: Attendance | null = await services.attendances.find(findNumber.CODIGO_CLIENTE);
 
             if(findAttendance) {
-                const isOperatorOnline: boolean = !!Sessions.find(s => s.userId === findAttendance.CODIGO_OPERADOR);
+                const operatorSession = await Sessions.getOperatorSession(findAttendance.CODIGO_OPERADOR) 
+                const isOperatorOnline: boolean = operatorSession ? operatorSession.status === "online" : false;
+                const newMessage = await services.messages.create(message as unknown as WhatsappMessage, findAttendance.CODIGO);
 
-                const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, findAttendance.CODIGO);
-                const newRA: RunningAttendance = {
-                    CODIGO_ATENDIMENTO: findAttendance.CODIGO,
-                    CODIGO_CLIENTE: findAttendance.CODIGO_CLIENTE,
-                    CODIGO_OPERADOR: findAttendance.CODIGO_OPERADOR,
-                    CODIGO_NUMERO: findNumber.CODIGO,
-                    WPP_NUMERO: number,
-                    MENSAGENS: [newMessage],
-                    AVATAR: PFP,
-                    DATA_INICIO: findAttendance.DATA_INICIO,
-                    URGENCIA: findAttendance.URGENCIA,
-                    CPF_CNPJ: findCustomer.CPF_CNPJ,
-                    NOME: findNumber.NOME,
-                    RAZAO: findCustomer.RAZAO
+                if(newMessage) {
+                    const newRA: RunningAttendance = {
+                        CODIGO_ATENDIMENTO: findAttendance.CODIGO,
+                        CODIGO_CLIENTE: findAttendance.CODIGO_CLIENTE,
+                        CODIGO_OPERADOR: findAttendance.CODIGO_OPERADOR,
+                        CODIGO_NUMERO: findNumber.CODIGO,
+                        WPP_NUMERO: number,
+                        MENSAGENS: [newMessage],
+                        AVATAR: PFP,
+                        DATA_INICIO: findAttendance.DATA_INICIO,
+                        URGENCIA: findAttendance.URGENCIA,
+                        CPF_CNPJ: findCustomer.CPF_CNPJ,
+                        NOME: findNumber.NOME,
+                        RAZAO: findCustomer.RAZAO
+                    };
+    
+                    runningAttendances.create(newRA);
+                    isOperatorOnline && runningAttendances.returnOperatorAttendances(findAttendance.CODIGO_OPERADOR);
                 };
-
-                runningAttendances.create(newRA);
-                isOperatorOnline && runningAttendances.returnOperatorAttendances(findAttendance.CODIGO_OPERADOR);
             } else {
                 const avaliableOperator: number | undefined = await services.attendances.getOperator(findCustomer.OPERADOR);
 
@@ -127,9 +130,9 @@ WhatsappWeb.on("message", async (message) => {
                             DATA_FIM: null
                         }); 
 
-                        const newMessage: RetrieveMessage = await services.messages.create(message as unknown as WhatsappMessage, newAttendance.CODIGO);
+                        const newMessage = await services.messages.create(message as unknown as WhatsappMessage, newAttendance.CODIGO);
     
-                        runningAttendances.create({
+                        newMessage && runningAttendances.create({
                             CODIGO_ATENDIMENTO: newAttendance.CODIGO,
                             CODIGO_CLIENTE: newAttendance.CODIGO_CLIENTE,
                             CODIGO_OPERADOR: newAttendance.CODIGO_OPERADOR,
@@ -144,18 +147,20 @@ WhatsappWeb.on("message", async (message) => {
                             RAZAO: findCustomer.RAZAO
                         });
 
-                        runningAttendances.returnOperatorAttendances(avaliableOperator);                    
+                        newMessage && runningAttendances.returnOperatorAttendances(avaliableOperator);                    
                     } else {
                         message.reply("Desculpe, não estamos atendendo neste momento.");
                     };
             };  
             
         } else {
-            const newRegistration = { WPP_NUMERO: number, ETAPA: 1, DADOS: {}, CONCLUIDO: false};
-            runningRegistrations.create(newRegistration);
-            const { registration, reply } = await registrationBot(newRegistration, message.body);
-            reply && message.reply(reply);
-            runningRegistrations.update(number, registration);
+            if(process.env.REGISTRATION_BOT === "TRUE") {
+                const newRegistration = { WPP_NUMERO: number, ETAPA: 1, DADOS: {}, CONCLUIDO: false};
+                runningRegistrations.create(newRegistration);
+                const { registration, reply } = await registrationBot(newRegistration, message.body);
+                reply && message.reply(reply);
+                runningRegistrations.update(number, registration);
+            }
         };
     };
 });
@@ -195,8 +200,8 @@ WebSocket.on('connection', (socket: Socket) => {
             if(ra) {
                 const newMessage = await services.messages.create(message as unknown as WhatsappMessage, ra.CODIGO_ATENDIMENTO);
 
-                runningAttendances.update(ra.CODIGO_ATENDIMENTO, { MENSAGENS: [...ra.MENSAGENS, newMessage] }); 
-                WebSocket.to(socket.id).emit("new-message", newMessage); 
+                newMessage && runningAttendances.update(ra.CODIGO_ATENDIMENTO, { MENSAGENS: [...ra.MENSAGENS, newMessage] }); 
+                newMessage && WebSocket.to(socket.id).emit("new-message", newMessage); 
             };
 
         };
@@ -232,8 +237,8 @@ WebSocket.on('connection', (socket: Socket) => {
                 if(ra) {
                     const newMessage = await services.messages.create(message as unknown as WhatsappMessage, ra.CODIGO_ATENDIMENTO);
     
-                    runningAttendances.update(ra.CODIGO_ATENDIMENTO, { MENSAGENS: [...ra.MENSAGENS, newMessage] }); 
-                    WebSocket.to(socket.id).emit("new-message", newMessage); 
+                    newMessage && runningAttendances.update(ra.CODIGO_ATENDIMENTO, { MENSAGENS: [...ra.MENSAGENS, newMessage] }); 
+                    newMessage && WebSocket.to(socket.id).emit("new-message", newMessage); 
                 };
     
             };
@@ -243,15 +248,15 @@ WebSocket.on('connection', (socket: Socket) => {
     socket.on("finish-attendance", async(data: FinishAttendanceProps) => {
         // buscar campanha...
         await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, 0);
-        const s = Sessions.find(s => s.socketId === socket.id);
-        s && runningAttendances.returnOperatorAttendances(s.userId);
     });
 
     socket.on("start-attendance", async(data: { cliente: number, numero: number, wpp: string, pfp: string }) => {
-        const operator = Sessions.find(s => s.socketId === socket.id);
+        const operator = Sessions.value.find(s => s.sessions.includes(socket.id));
 
         const client = await services.customers.getOneById(data.cliente);
         const number = await services.wnumbers.getById(data.numero);
+
+        console.log(operator)
 
         if(operator && client && number){
             const newAttendance: Attendance = await services.attendances.create({
@@ -279,25 +284,24 @@ WebSocket.on('connection', (socket: Socket) => {
             });
 
             runningAttendances.returnOperatorAttendances(operator.userId);
+
+            const session = await Sessions.getOperatorSession(operator.userId);
+            if(session) {
+                Sessions.updateOperatorRunningAttendances(session.userId, session.attendances + 1)
+            };
         };
     });
 
     socket.on("schedule-attendance", async(data: { CODIGO_ATENDIMENTO: number, DATA_AGENDAMENTO: Date }) => {
         await services.attendances.updateSchedulesDate(data.CODIGO_ATENDIMENTO, data.DATA_AGENDAMENTO);
-        const s = Sessions.find(s => s.socketId === socket.id);
-        s && runningAttendances.returnOperatorAttendances(s.userId); 
     });
 
     socket.on("update-operator", async(data: { CODIGO_ATENDIMENTO: number, CODIGO_OPERADOR: number }) => {
-        await services.attendances.updateOp(data.CODIGO_ATENDIMENTO, data.CODIGO_OPERADOR);
-        const s = Sessions.find(s => s.socketId === socket.id);
-        s && runningAttendances.returnOperatorAttendances(s.userId); 
+        services.attendances.updateOp(data.CODIGO_ATENDIMENTO, data.CODIGO_OPERADOR);
     });
 
-    socket.on("update-urgencia", async(data: { CODIGO_ATENDIMENTO: number, URGENCIA: "URGENTE" | "ALTA" | "NORMAL" }) => {
-        await services.attendances.updateUrgencia(data.CODIGO_ATENDIMENTO, data.URGENCIA);
-        const s = Sessions.find(s => s.socketId === socket.id);
-        s && runningAttendances.returnOperatorAttendances(s.userId); 
+    socket.on("update-urgencia", (data: { CODIGO_ATENDIMENTO: number, URGENCIA: "URGENTE" | "ALTA" | "NORMAL" }) => {
+        services.attendances.updateUrgencia(data.CODIGO_ATENDIMENTO, data.URGENCIA);
     });
 });
 

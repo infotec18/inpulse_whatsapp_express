@@ -8,8 +8,10 @@ export async function updateOperator(cod: number, operator: number): Promise<voi
     let findAttendance = await AttendancesRepository.findOneBy({ CODIGO: cod });
 
     if(findAttendance) {
+        runningAttendances.returnOperatorAttendances(findAttendance.CODIGO_OPERADOR); 
         findAttendance.CODIGO_OPERADOR = operator;
         await AttendancesRepository.save(findAttendance);
         runningAttendances.update(cod, { CODIGO_OPERADOR: operator });
+        runningAttendances.returnOperatorAttendances(findAttendance.CODIGO_OPERADOR); 
     };
 };

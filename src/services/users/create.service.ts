@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
 import { User } from "../../entities/user.entity";
+import { Sessions } from "../../WebSocket/Sessions";
 
 export async function createUserService(req: Request): Promise<User> {
 
@@ -14,5 +15,7 @@ export async function createUserService(req: Request): Promise<User> {
 
     const newUser = await usersRepository.save({ ...req.body, SENHA: hashedPassword});
 
-    return newUser
+    Sessions.addSession(newUser.COD_OPERADOR, null);
+    
+    return newUser;
 };
