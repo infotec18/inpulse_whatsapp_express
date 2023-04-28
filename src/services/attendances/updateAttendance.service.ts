@@ -14,5 +14,6 @@ export async function updateSchedulingDate(cod: number, date: Date): Promise<voi
 
         await AttendancesRepository.save(findAttendance);
         runningAttendances.remove(cod);
-    }
+        runningAttendances.returnOperatorAttendances(findAttendance.CODIGO_OPERADOR);
+    };
 };

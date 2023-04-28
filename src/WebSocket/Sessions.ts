@@ -1,51 +1,22 @@
 import { Socket } from 'socket.io';
 import WebSocket from './WebSocket';
-import { Session } from '../interfaces/attendances.interfaces';
 import { runningAttendances } from './WhatsappClient';
+import { UsersSessions } from './UsersSessions';
 
-export let Sessions: Array<Session> = [];
-export let PausedUsers: Array<number> = [];
+export const Sessions = new UsersSessions();
 
 WebSocket.on('connection', (socket: Socket) => {
     console.log('Socket connected.', socket.id);
 
-    socket.on("disconnect", () => {
-        const findSession = Sessions.find(u => u.socketId === socket.id);
-        Sessions = Sessions.filter(s => s.socketId !== socket.id);
-        console.log(`${socket.id} disconnected. user: ${findSession && findSession.userId}`);
-    });
+    socket.on("disconnect", () => Sessions.removeSession(socket.id));
 
-    socket.on("session-connect", async(id: number) => {
-        const isPaused: boolean = PausedUsers.includes(id);
-        Sessions.push({ socketId: socket.id, userId: id });
+    socket.on("session-connect", (id: number) => Sessions.addSession(id, socket.id));
 
-        if(isPaused) socket.emit("paused");
-        else socket.emit("resumed");
+    socket.on("session-disconnect", () => Sessions.removeSession(socket.id));
 
-        console.log(`${socket.id} connected. user: ${id}`)
-    });
+    socket.on("pause-attendances", () => Sessions.pauseSession(socket.id));
 
-    socket.on("session-disconnect", () => {
-        const findUser = Sessions.find(u => u.socketId === socket.id);
-        Sessions = Sessions.filter(s => s.socketId !== socket.id);
-        console.log(`${socket.id} disconnected. user: ${findUser && findUser.userId}`);
-    });
-
-    socket.on("pause-attendances", () => {
-        const findUser = Sessions.find(s => s.socketId === socket.id);
-        if(findUser && findUser.userId) {
-            PausedUsers.push(findUser.userId);
-            socket.emit("paused");
-        };
-    });
-
-    socket.on("resume-attendances", () => {
-        const findUser = Sessions.find(s => s.socketId === socket.id);
-        if(findUser && findUser.userId) {
-            PausedUsers = PausedUsers.filter(id => id !== findUser.userId);
-            socket.emit("resumed");
-        };
-    });
+    socket.on("resume-attendances", () => Sessions.resumeSession(socket.id));
 
     socket.on("join-room", (id: number) => {
         socket.join(`room_operator_${id}`);
@@ -57,7 +28,12 @@ WebSocket.on('connection', (socket: Socket) => {
     });
 
     socket.on("joinAttendanceRoom", () => {
-        socket.join("attendanceRoom")
-        runningAttendances.emitUpdate()
-    })
+        socket.join("attendanceRoom");
+        runningAttendances.emitUpdate();
+    });
+
+    socket.on("join-monitoria-operadores", () => {
+        socket.join("monitoria-operadores");
+        Sessions.emitUpdate();
+    });
 });

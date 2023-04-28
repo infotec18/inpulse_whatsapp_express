@@ -3,6 +3,7 @@ import { AppDataSource } from "../../data-source";
 import { Attendance } from "../../entities/attendance.entity";
 import { runningAttendances } from "../../WebSocket/WhatsappClient";
 import { ClientCampaign } from "../../entities/clientCampaign.entity";
+import { Sessions } from "../../WebSocket/Sessions";
 
 export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESULTADO: number, CAMPANHA: number): Promise<void>  {
 
@@ -31,6 +32,12 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
         });
 
         runningAttendances.remove(COD_ATENDIMENTO);
+        runningAttendances.returnOperatorAttendances(findAttendance.CODIGO_OPERADOR);
+
+        const session = await Sessions.getOperatorSession(findAttendance.CODIGO_OPERADOR);
+        if(session) {
+            Sessions.updateOperatorRunningAttendances(session.userId, session.attendances - 1);
+        };
     };
 
     return;
