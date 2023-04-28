@@ -4,8 +4,10 @@ import {
     BeforeUpdate,
     Column, 
     Entity, 
+    OneToMany, 
     PrimaryColumn, 
 } from "typeorm";
+import { Message } from "./message.entity";
 
 @Entity('operadores')
 export class User {
@@ -44,4 +46,7 @@ export class User {
 
     @Column({ type: 'datetime' })
     DATACAD: Date;
+
+    @OneToMany(() => Message, msg => msg.OPERADOR)
+    MENSAGENS: Message[];
 };

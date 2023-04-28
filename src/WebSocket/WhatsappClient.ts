@@ -78,7 +78,7 @@ WhatsappWeb.on("message", async (message) => {
     const PFP = await WhatsappWeb.getProfilePicUrl(message.from);
 
     if (attending) {
-        const newMessage = await services.messages.create(message as unknown as WhatsappMessage, attending.CODIGO_ATENDIMENTO);
+        const newMessage = await services.messages.create(message as unknown as WhatsappMessage, attending.CODIGO_ATENDIMENTO, attending.CODIGO_OPERADOR);
         newMessage && runningAttendances.update(attending.CODIGO_ATENDIMENTO, { MENSAGENS: [...attending.MENSAGENS, newMessage]});
         newMessage && WebSocket.to(`room_operator_${attending.CODIGO_OPERADOR}`).emit("new-message", newMessage);
         
@@ -96,7 +96,7 @@ WhatsappWeb.on("message", async (message) => {
             if(findAttendance) {
                 const operatorSession = await Sessions.getOperatorSession(findAttendance.CODIGO_OPERADOR) 
                 const isOperatorOnline: boolean = operatorSession ? operatorSession.status === "online" : false;
-                const newMessage = await services.messages.create(message as unknown as WhatsappMessage, findAttendance.CODIGO);
+                const newMessage = await services.messages.create(message as unknown as WhatsappMessage, findAttendance.CODIGO, findAttendance.CODIGO_OPERADOR);
 
                 if(newMessage) {
                     const newRA: RunningAttendance = {
@@ -130,7 +130,7 @@ WhatsappWeb.on("message", async (message) => {
                             DATA_FIM: null
                         }); 
 
-                        const newMessage = await services.messages.create(message as unknown as WhatsappMessage, newAttendance.CODIGO);
+                        const newMessage = await services.messages.create(message as unknown as WhatsappMessage, newAttendance.CODIGO, newAttendance.CODIGO_OPERADOR);
     
                         newMessage && runningAttendances.create({
                             CODIGO_ATENDIMENTO: newAttendance.CODIGO,
@@ -198,7 +198,7 @@ WebSocket.on('connection', (socket: Socket) => {
             const ra: RunningAttendance | undefined = runningAttendances.find({ WPP_NUMERO: number });
 
             if(ra) {
-                const newMessage = await services.messages.create(message as unknown as WhatsappMessage, ra.CODIGO_ATENDIMENTO);
+                const newMessage = await services.messages.create(message as unknown as WhatsappMessage, ra.CODIGO_ATENDIMENTO, ra.CODIGO_OPERADOR);
 
                 newMessage && runningAttendances.update(ra.CODIGO_ATENDIMENTO, { MENSAGENS: [...ra.MENSAGENS, newMessage] }); 
                 newMessage && WebSocket.to(socket.id).emit("new-message", newMessage); 
@@ -235,7 +235,7 @@ WebSocket.on('connection', (socket: Socket) => {
                 const ra: RunningAttendance | undefined = runningAttendances.find({ WPP_NUMERO: number });
     
                 if(ra) {
-                    const newMessage = await services.messages.create(message as unknown as WhatsappMessage, ra.CODIGO_ATENDIMENTO);
+                    const newMessage = await services.messages.create(message as unknown as WhatsappMessage, ra.CODIGO_ATENDIMENTO, ra.CODIGO_OPERADOR);
     
                     newMessage && runningAttendances.update(ra.CODIGO_ATENDIMENTO, { MENSAGENS: [...ra.MENSAGENS, newMessage] }); 
                     newMessage && WebSocket.to(socket.id).emit("new-message", newMessage); 
