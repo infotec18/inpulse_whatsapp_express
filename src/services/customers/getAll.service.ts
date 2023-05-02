@@ -13,10 +13,10 @@ export async function getAllCustomersService(limite: number, pagina: number, sea
         .take(limite)
         
     if(search){
-        customersQuery.where('clientes.CPF_CNPJ LIKE :search', {search: `%${search}%`})
+        customersQuery.where('clientes.RAZAO LIKE :search', {search: `%${search}%`})
     }
 
     const [dados, total] = await customersQuery.getManyAndCount();
 
     return { dados, total };
-}
+};

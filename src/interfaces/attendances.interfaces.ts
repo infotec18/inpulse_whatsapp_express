@@ -29,6 +29,7 @@ export interface CustomerRegistrationData {
 export interface RunningRegistration {
     WPP_NUMERO: string;
     ETAPA: number;
+    ETAPA_COUNT: number;
     DADOS: CustomerRegistrationData;
     CONCLUIDO: boolean;
     CADASTRO_CLIENTE?: Customer;
@@ -36,6 +37,21 @@ export interface RunningRegistration {
 
 export interface RegistrationReply {
     registration: RunningRegistration,
+    reply: string | null
+};
+
+export interface RunningSurvey {
+    WPP_NUMERO: string;
+    COD_ATENDIMENTO: number;
+    ETAPA: number;
+    ETAPA_COUNT: number;
+    CONCLUIDO: boolean;
+    NOTA?: number;
+    COMENTARIO?: string;
+};
+
+export interface BotReply<T> {
+    registration: T,
     reply: string | null
 };
 
