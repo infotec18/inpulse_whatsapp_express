@@ -1,4 +1,3 @@
-import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
 import { runningAttendances } from "../../WebSocket/WhatsappClient";
 import services from "..";
@@ -6,7 +5,7 @@ import WhatsappWeb from "../../WebSocket/WhatsappClient";
 import { Attendance } from "../../entities/attendance.entity";
 
 export async function updateAttendanceStatus(): Promise<void> {
-    const attendanceRepository: Repository<Attendance> = AppDataSource.getRepository(Attendance);
+    const attendanceRepository= AppDataSource.getRepository(Attendance);
 
     const scheduledAttendances: Attendance[] = await attendanceRepository
         .createQueryBuilder("attendance")

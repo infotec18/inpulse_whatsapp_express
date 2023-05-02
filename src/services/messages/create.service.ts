@@ -37,7 +37,7 @@ export async function createMessageService(message: WhatsappMessage, cod_a: numb
             CODIGO_ATENDIMENTO: cod_a,
             CODIGO_OPERADOR: cod_o,
             TIPO: message._data.type,
-            MENSAGEM: `[${operatorName}]: ${messageText}`,
+            MENSAGEM: message._data.id.fromMe ? `[${operatorName}]: ${messageText}` : messageText,
             DATA_HORA: new Date(Number(`${message._data.t}000`)),
             TIMESTAMP: Date.now(),
             FROM_ME: message._data.id.fromMe,

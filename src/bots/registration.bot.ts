@@ -1,9 +1,9 @@
 import { Customer } from "../entities/customer";
-import { RegistrationReply, RunningRegistration } from "../interfaces/attendances.interfaces";
+import { BotReply, RunningRegistration } from "../interfaces/attendances.interfaces";
 import services from "../services";
 import { validateCPF_CNPJBot } from "./validateCPF_CNPJ.bot";
 
-export async function registrationBot(RR: RunningRegistration, msg: string): Promise<RegistrationReply> {
+export async function registrationBot(RR: RunningRegistration, msg: string): Promise<BotReply<RunningRegistration>> {
     let reply: string | null = null;
 
     if(msg === "voltar etapa") {
@@ -17,8 +17,10 @@ export async function registrationBot(RR: RunningRegistration, msg: string): Pro
         return await registrationBot(RR, "cadastrar");
     };
 
-    if(RR.ETAPA === 1) {
+    if(RR.ETAPA === 1 && RR.ETAPA_COUNT === 0) {
+        console.log(RR.ETAPA_COUNT)
         RR.ETAPA++;
+        RR.ETAPA_COUNT = RR.ETAPA_COUNT + 1;
         reply = `Olá, não encontramos seu número no nosso sistema... 
 Deseja cadastrar este número?
 Responda "cadastrar" para prosseguir. 
@@ -29,11 +31,6 @@ Responda "cadastrar" para prosseguir.
     if(RR.ETAPA === 2  && msg.toUpperCase() === "CADASTRAR") {
         reply = "Ok, por favor digite seu CPF ou CNPJ para continuarmos: ";
         RR.ETAPA++;
-        return { registration: RR, reply };
-    };
-
-    if(RR.ETAPA === 2) {
-        reply =  `Digite "cadastrar" para prosseguir seu atendimento...`
         return { registration: RR, reply };
     };
 

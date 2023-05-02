@@ -4,7 +4,7 @@ import { Wnumber } from "../entities/wnumber.entity";
 import services from "../services";
 import { Sessions } from "./Sessions";
 import { Attendance } from "../entities/attendance.entity";
-import { FinishAttendanceProps, RetrieveMessage, RunningAttendance, RunningRegistration } from "../interfaces/attendances.interfaces";
+import { FinishAttendanceProps, RunningAttendance, RunningRegistration, RunningSurvey } from "../interfaces/attendances.interfaces";
 import { registrationBot } from "../bots/registration.bot";
 import { SendMessageData, WhatsappMessage } from "../interfaces/messages.interfaces";
 import { Customer } from "../entities/customer";
@@ -13,6 +13,9 @@ import { RunningAttendances } from "./RunningAttendances";
 import path from "path";
 import * as fs from 'fs';
 import { RunningRegistrations } from "./RunningRegistrations";
+import { RunningSurveys } from "./RunningSurveys";
+import { surveyBot } from "../bots/surveyBot";
+import { getSpecificAttendance } from "../services/attendances/getSpecificAttendance.service";
 
 const WhatsappWeb = new Client({
     authStrategy: new LocalAuth(),
@@ -32,6 +35,7 @@ const WhatsappWeb = new Client({
 
 export const runningAttendances = new RunningAttendances([]);
 export const runningRegistrations = new RunningRegistrations([]);
+export const runningSurveys = new RunningSurveys([]);
 
 export async function getRunningAttendances () {
     const attendances = await services.attendances.getAllRunning();
@@ -74,18 +78,24 @@ WhatsappWeb.on("message", async (message) => {
     const number: string = str.slice(0, str.length - 5);
 
     const registrating: RunningRegistration | undefined = runningRegistrations.find({ WPP_NUMERO: number });
+    const survey: RunningSurvey | undefined = runningSurveys.find(number);
     const attending: RunningAttendance | undefined = runningAttendances.find({ WPP_NUMERO: number });
     const PFP = await WhatsappWeb.getProfilePicUrl(message.from);
+
+    console.log(runningSurveys.value, console.log(number))
 
     if (attending) {
         const newMessage = await services.messages.create(message as unknown as WhatsappMessage, attending.CODIGO_ATENDIMENTO, attending.CODIGO_OPERADOR);
         newMessage && runningAttendances.update(attending.CODIGO_ATENDIMENTO, { MENSAGENS: [...attending.MENSAGENS, newMessage]});
-        newMessage && WebSocket.to(`room_operator_${attending.CODIGO_OPERADOR}`).emit("new-message", newMessage);
-        
-    } else if(registrating && process.env.REGISTRATION_BOT === "TRUE") {
+        newMessage && WebSocket.to(`room_operator_${attending.CODIGO_OPERADOR}`).emit("new-message", newMessage);     
+    } else if(registrating) {
         const { registration, reply } = await registrationBot(registrating, message.body);
         reply && message.reply(reply);
         runningRegistrations.update(number, registration);
+    } else if(survey) {
+        const { registration, reply } = await surveyBot(survey, message.body);
+        reply && message.reply(reply);
+        runningSurveys.update(number, registration);
     } else {
         const findNumber: Wnumber | null = await services.wnumbers.find(number);
 
@@ -154,13 +164,16 @@ WhatsappWeb.on("message", async (message) => {
             };  
             
         } else {
-            if(process.env.REGISTRATION_BOT === "TRUE") {
-                const newRegistration = { WPP_NUMERO: number, ETAPA: 1, DADOS: {}, CONCLUIDO: false};
+            const msgTimestamp = Number(`${message.timestamp}000`);
+            const isMessageFromNow = (msgTimestamp + 60000) >= Date.now();
+
+            if(isMessageFromNow) {
+                const newRegistration = { WPP_NUMERO: number, ETAPA: 1, ETAPA_COUNT: 0, DADOS: {}, CONCLUIDO: false};
                 runningRegistrations.create(newRegistration);
                 const { registration, reply } = await registrationBot(newRegistration, message.body);
                 reply && message.reply(reply);
                 runningRegistrations.update(number, registration);
-            }
+            };
         };
     };
 });
@@ -221,33 +234,25 @@ WebSocket.on('connection', (socket: Socket) => {
                 const media = new MessageMedia(getMessage.ARQUIVO.TIPO, fs.readFileSync(filePath).toString('base64'), getMessage.TITULO);
 
                 const msg = await WhatsappWeb.sendMessage(numberPhone, media, { caption: getMessage.TEXTO_MENSAGEM});
-                handleMessage(msg);
             } else {
                 const msg = await WhatsappWeb.sendMessage(numberPhone, getMessage.TEXTO_MENSAGEM);
-                handleMessage(msg);
             };
-            
-
-            async function handleMessage(message: WAWebJS.Message) {
-                const str: string = message.to;
-                const number: string = str.slice(0, str.length - 5);
-    
-                const ra: RunningAttendance | undefined = runningAttendances.find({ WPP_NUMERO: number });
-    
-                if(ra) {
-                    const newMessage = await services.messages.create(message as unknown as WhatsappMessage, ra.CODIGO_ATENDIMENTO, ra.CODIGO_OPERADOR);
-    
-                    newMessage && runningAttendances.update(ra.CODIGO_ATENDIMENTO, { MENSAGENS: [...ra.MENSAGENS, newMessage] }); 
-                    newMessage && WebSocket.to(socket.id).emit("new-message", newMessage); 
-                };
-    
-            };
-        } )   
+        });   
     });
 
     socket.on("finish-attendance", async(data: FinishAttendanceProps) => {
-        // buscar campanha...
-        await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, 0);
+        const survey = await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, 0);
+        if(survey) {
+            const { registration, reply } = await surveyBot(survey, "");
+            try {
+                const attendance = await getSpecificAttendance(data.CODIGO_ATENDIMENTO);
+                const number = attendance && await services.wnumbers.getById(attendance.CODIGO_NUMERO);
+                number && reply && WhatsappWeb.sendMessage(`${number.NUMERO}@c.us`, reply);
+                runningSurveys.update(survey.WPP_NUMERO, registration);
+            } catch (err) {
+                console.log("error on survey:", err);
+            };
+        }
     });
 
     socket.on("start-attendance", async(data: { cliente: number, numero: number, wpp: string, pfp: string }) => {
@@ -255,8 +260,6 @@ WebSocket.on('connection', (socket: Socket) => {
 
         const client = await services.customers.getOneById(data.cliente);
         const number = await services.wnumbers.getById(data.numero);
-
-        console.log(operator)
 
         if(operator && client && number){
             const newAttendance: Attendance = await services.attendances.create({
