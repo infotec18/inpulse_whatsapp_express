@@ -86,8 +86,7 @@ export async function createMessageService(message: WhatsappMessage, cod_a: numb
             ...newMessage,
         };
     } catch (err) {
-        console.log(`Saving message error: `, new Date());
-        console.log(err);
+        console.log(new Date().toLocaleString(), `: Saving message error: `, err);
         return null
     };
 };

@@ -18,7 +18,6 @@ export async function registrationBot(RR: RunningRegistration, msg: string): Pro
     };
 
     if(RR.ETAPA === 1 && RR.ETAPA_COUNT === 0) {
-        console.log(RR.ETAPA_COUNT)
         RR.ETAPA++;
         RR.ETAPA_COUNT = RR.ETAPA_COUNT + 1;
         reply = `Olá, não encontramos seu número no nosso sistema... 

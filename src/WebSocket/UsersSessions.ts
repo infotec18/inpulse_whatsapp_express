@@ -24,7 +24,7 @@ export class UsersSessions {
             const sessions = new Set([...findSessions.sessions, socketId]);
             this.value[findSessionsIndex].sessions = Array.from(sessions);
             this.value[findSessionsIndex].status = "online"; 
-            console.log(`User ID: ${this.value[findSessionsIndex].userId} is online in ${Array.from(sessions).length} sessions.`);
+            console.log(new Date().toLocaleString(), `: User ID: ${this.value[findSessionsIndex].userId} is online in ${Array.from(sessions).length} sessions.`);
 
             const isPaused: boolean = this.value[findSessionsIndex].status === "paused";
             if(isPaused) WebSocket.to(`room_operator_${findUser.CODIGO}`).emit("paused");
@@ -40,7 +40,7 @@ export class UsersSessions {
                 sessions: socketId ? [socketId] : [],
                 attendances: 0
             });
-            socketId && console.log(`User ID: ${findUser.CODIGO} is online.`);
+            socketId && console.log(new Date().toLocaleString(), `: User ID: ${findUser.CODIGO} is online.`);
             this.emitUpdate();
             
 
@@ -56,7 +56,7 @@ export class UsersSessions {
 
             if(!this.value[findSessionsIndex].sessions.length) {
                 this.value[findSessionsIndex].status = "offline";
-                console.log(`User ID: ${this.value[findSessionsIndex].userId} is offline.`);
+                console.log(new Date().toLocaleString(), `: User ID: ${this.value[findSessionsIndex].userId} is offline.`);
                 this.emitUpdate();
             };
         };
@@ -68,7 +68,7 @@ export class UsersSessions {
         if(!!~findSessionsIndex) {
             this.value[findSessionsIndex].status = "paused";
             this.emitUpdate();
-            console.log(`User ID: ${this.value[findSessionsIndex].userId} is paused.`);
+            console.log(new Date().toLocaleString(), `: User ID: ${this.value[findSessionsIndex].userId} is paused.`);
 
             WebSocket.to(`room_operator_${this.value[findSessionsIndex].userId}`).emit("paused");
 
@@ -81,7 +81,7 @@ export class UsersSessions {
         if(!!~findSessionsIndex) {
             this.value[findSessionsIndex].status = "online";
             this.emitUpdate();
-            console.log(`User ID: ${this.value[findSessionsIndex].userId} is online`);
+            console.log(new Date().toLocaleString(), `: User ID: ${this.value[findSessionsIndex].userId} is online`);
 
             WebSocket.to(`room_operator_${this.value[findSessionsIndex].userId}`).emit("resumed");
         };
@@ -89,7 +89,6 @@ export class UsersSessions {
 
     async updateOperatorRunningAttendances(userId: number, attendances: number) {
          const findSessionIndex: number = this.value.findIndex(s => s.userId === userId);
-         console.log(findSessionIndex)
          if(findSessionIndex >= 0) {
             this.value[findSessionIndex].attendances = attendances;
          } else {

@@ -82,8 +82,6 @@ WhatsappWeb.on("message", async (message) => {
     const attending: RunningAttendance | undefined = runningAttendances.find({ WPP_NUMERO: number });
     const PFP = await WhatsappWeb.getProfilePicUrl(message.from);
 
-    console.log(runningSurveys.value, console.log(number))
-
     if (attending) {
         const newMessage = await services.messages.create(message as unknown as WhatsappMessage, attending.CODIGO_ATENDIMENTO, attending.CODIGO_OPERADOR);
         newMessage && runningAttendances.update(attending.CODIGO_ATENDIMENTO, { MENSAGENS: [...attending.MENSAGENS, newMessage]});
@@ -130,7 +128,8 @@ WhatsappWeb.on("message", async (message) => {
             } else {
                 const avaliableOperator: number | undefined = await services.attendances.getOperator(findCustomer.OPERADOR);
 
-                    if(avaliableOperator) {
+                    if(typeof avaliableOperator === "number") {
+                        console.log(new Date().toLocaleString(), ": Novo atendimento para operador de ID", avaliableOperator, " | cliente de ID ", findCustomer.CODIGO);
                         const newAttendance: Attendance = await services.attendances.create({
                             CODIGO_OPERADOR: avaliableOperator,
                             CODIGO_CLIENTE: findNumber.CODIGO_CLIENTE,
@@ -159,7 +158,9 @@ WhatsappWeb.on("message", async (message) => {
 
                         newMessage && runningAttendances.returnOperatorAttendances(avaliableOperator);                    
                     } else {
-                        message.reply("Desculpe, não estamos atendendo neste momento.");
+            
+                        console.log(new Date().toLocaleString(), `: Sem operador online para atender: Cliente de ID ${findNumber.CODIGO_CLIENTE} | WPP: ${number}`);
+                        console.log(new Date().toLocaleString(), ": Mensagem: ", message.body);
                     };
             };  
             
@@ -250,7 +251,7 @@ WebSocket.on('connection', (socket: Socket) => {
                 number && reply && WhatsappWeb.sendMessage(`${number.NUMERO}@c.us`, reply);
                 runningSurveys.update(survey.WPP_NUMERO, registration);
             } catch (err) {
-                console.log("error on survey:", err);
+                console.log(new Date().toLocaleString(), ": error on survey: ", err);
             };
         }
     });

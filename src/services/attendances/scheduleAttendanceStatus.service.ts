@@ -17,8 +17,8 @@ export async function updateAttendanceStatus(): Promise<void> {
     
     const currentSchedule = scheduledAttendances.filter(a => scheduleTime(a.DATA_AGENDAMENTO) <= currentTime);
 
-    console.log("Total de agendamentos: ", scheduledAttendances.length);
-    console.log("Agendamentos encontrados para agora: ", currentSchedule.length);
+    console.log(new Date().toLocaleString(), ": Total de agendamentos: ", scheduledAttendances.length);
+    console.log(new Date().toLocaleString(), ": Agendamentos encontrados para agora: ", currentSchedule.length);
 
     currentSchedule.forEach(async(attendance) => { 
         const number = await services.wnumbers.getById(attendance.CODIGO_NUMERO);

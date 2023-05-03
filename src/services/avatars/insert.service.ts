@@ -25,7 +25,7 @@ export async function insertUserAvatarService(userId: number, data: string): Pro
 
     if(alreadyExists) {
         unlink(path.join(__dirname, `../../../localFiles/avatars`, alreadyExists.ARQUIVO), (err) => {
-            console.log(err);
+            console.log(new Date().toLocaleString(), ": ", err);
         });
 
         const insertedAvatar: Avatar | null = await avatarsRepository.save({

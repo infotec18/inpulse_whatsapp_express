@@ -6,7 +6,7 @@ import { UsersSessions } from './UsersSessions';
 export const Sessions = new UsersSessions();
 
 WebSocket.on('connection', (socket: Socket) => {
-    console.log('Socket connected.', socket.id);
+    console.log(new Date().toLocaleString(), ': Socket connected.', socket.id);
 
     socket.on("disconnect", () => Sessions.removeSession(socket.id));
 

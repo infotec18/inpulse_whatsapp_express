@@ -6,14 +6,15 @@ export async function getOperatorForAttendance(cod_o: number): Promise<number | 
 
     if(!findOperatorSession) {
         const allSessions = Sessions.value;
-        const countArr: number[] = allSessions.map(s => s.attendances);
-        const minCount: number = Math.min(...countArr);
-        const findMin = allSessions.find((s) => s.attendances === minCount);
+        const onlineSessions = allSessions.filter(s => s.status === "online");
+
+        const findMin = onlineSessions.length > 0 ? onlineSessions.reduce((prev, current) => {
+            return prev.attendances < current.attendances ? prev : current;
+          }) : null;
 
         if(findMin) {
             return findMin.userId;
-        };
-        
+        }
     } else { 
         return findOperatorSession.userId;
     };
