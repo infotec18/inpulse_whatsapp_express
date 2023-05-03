@@ -3,6 +3,6 @@ import controllers from "../controllers";
 
 export const oficialApiRoutes = Router();
 
-oficialApiRoutes.get("/api/whatsapp/",
+oficialApiRoutes.post("/api/whatsapp/",
     controllers.whatsapp.receiveMessage
 );
