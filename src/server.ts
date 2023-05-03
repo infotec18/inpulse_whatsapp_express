@@ -2,10 +2,9 @@ import app from "./app";
 import { AppDataSource } from "./data-source";
 import { cronJob } from "./job/updateAttendanceStatus.job";
 import services from "./services";
-import { getContactsWithCompanyDetailsService } from "./services/wnumbers/getContacts.service";
 import { Sessions } from "./WebSocket/Sessions";
 import WebSocket from "./WebSocket/WebSocket";
-import WhatsappWeb, { getRunningAttendances, runningAttendances } from "./WebSocket/WhatsappClient";
+import WhatsappWeb, { getRunningAttendances, runningAttendances, startUnoficialWebsocketMessages} from "./WebSocket/WhatsappClient";
 
 const PORT: number = Number(process.env.PORT) || 8000;
 const SOCKET_PORT: number = Number(process.env.SOCKET_PORT) || 5000;
@@ -28,10 +27,14 @@ async function initialize () {
     const useOficialApi = process.env.OFICIAL_WHATSAPP === "true";
 
     if(!useOficialApi) {
+        console.log(new Date().toLocaleString(), ": Utilizando biblioteca Whatsapp Web JS.");
         await WhatsappWeb.initialize().then(_ => console.log(new Date().toLocaleString(), ": Whatsapp Initialized"));
+        startUnoficialWebsocketMessages;
+    } else {
+        console.log(new Date().toLocaleString(), ": Utilizando API Oficial do Whatsapp.");
     }
 
-    await getRunningAttendances()
+    await getRunningAttendances();
 
     const allOperators = await services.users.getAll(9999, 1, "");
 
