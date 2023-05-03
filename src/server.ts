@@ -2,6 +2,7 @@ import app from "./app";
 import { AppDataSource } from "./data-source";
 import { cronJob } from "./job/updateAttendanceStatus.job";
 import services from "./services";
+import { getContactsWithCompanyDetailsService } from "./services/wnumbers/getContacts.service";
 import { Sessions } from "./WebSocket/Sessions";
 import WebSocket from "./WebSocket/WebSocket";
 import WhatsappWeb, { getRunningAttendances, runningAttendances } from "./WebSocket/WhatsappClient";

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import controllers from "../controllers";
 import middlewares from "../middlewares";
+import { getAllContactsController } from "../controllers/Wnumbers/getContacts.controler";
 
 export const wnumbersRoutes = Router();
 
@@ -25,4 +26,8 @@ wnumbersRoutes.put('/api/wnumber/:numberId/update',
 wnumbersRoutes.delete('/api/wnumber/:numberId/delete',
     middlewares.wnumbers.ensureParamNumberIdExists,
     controllers.wnumbers.erase
+);
+
+wnumbersRoutes.get('/api/contacts/',
+    getAllContactsController
 );

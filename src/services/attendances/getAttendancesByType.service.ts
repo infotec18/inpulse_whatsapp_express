@@ -2,6 +2,7 @@ import { Repository, Not, IsNull, And } from 'typeorm';
 import { Attendance } from '../../entities/attendance.entity';
 import { AppDataSource } from '../../data-source';
 import { Request } from 'express';
+import { AppError } from '../../errors';
 
 export async function getAttendancesByType(req: Request): Promise<Attendance[]> {
     const AttendanceRepository: Repository<Attendance> = AppDataSource.getRepository(Attendance);
@@ -23,8 +24,8 @@ export async function getAttendancesByType(req: Request): Promise<Attendance[]> 
             .leftJoinAndSelect("atendimentos.MENSAGENS", "message")
             .getMany()
     } else {
-        throw new Error('Tipo inválido');
-    }
+        throw new AppError('Tipo inválido', 404);
+    };
 
     return attendances;
 }
