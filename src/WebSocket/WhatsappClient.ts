@@ -99,7 +99,7 @@ WhatsappWeb.on("message", async (message) => {
 
         if(findNumber) {
             const findCustomer: Customer | null = await services.customers.getOneById(findNumber.CODIGO_CLIENTE);
-            const findAttendance: Attendance | null = await services.attendances.find(findNumber.CODIGO_CLIENTE);
+            const findAttendance: Attendance | null = await services.attendances.find(findNumber.CODIGO);
 
             if(findAttendance) {
                 const operatorSession = await Sessions.getOperatorSession(findAttendance.CODIGO_OPERADOR) 

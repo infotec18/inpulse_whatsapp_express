@@ -7,7 +7,7 @@ export async function findAttendanceService(COD: number): Promise<Attendance | n
     const AttendanceRepository: Repository<Attendance> = AppDataSource.getRepository(Attendance);
 
     const findAttendance: Attendance | null = await AttendanceRepository.findOneBy({
-        CODIGO_CLIENTE: COD, CONCLUIDO: 0
+        CODIGO_NUMERO: COD, CONCLUIDO: 0
     });
 
     if(findAttendance) {
