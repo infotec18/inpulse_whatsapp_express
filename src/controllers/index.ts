@@ -8,9 +8,10 @@ import * as results from "./results";
 import * as readyMessageFile from "./readyMessagesFile";
 import * as schedules from "./schedules";
 import * as attendances from "./attendances";
+import * as whatsapp from "./whatsapp";
 
 const controllers = {
-    users, avatars, customers, files, wnumbers, readyMessages, results, readyMessageFile, schedules, attendances
+    users, avatars, customers, files, wnumbers, readyMessages, results, readyMessageFile, schedules, attendances, whatsapp
 };
 
 export default controllers;

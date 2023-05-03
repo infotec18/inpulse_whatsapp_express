@@ -4,5 +4,5 @@ import controllers from "../controllers";
 export const oficialApiRoutes = Router();
 
 oficialApiRoutes.get("/api/whatsapp/",
-    controllers.users.getAll
+    controllers.whatsapp.receiveMessage
 );
