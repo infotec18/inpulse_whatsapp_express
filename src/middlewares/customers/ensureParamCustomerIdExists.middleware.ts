@@ -8,7 +8,9 @@ export async function ensureParamCustomerIdExists (req: Request, res: Response, 
 
     if(isNaN(userId)) throw new AppError("Invalid user id.", 400);
 
-    const findCustomer: Customer = await getOneCustomersService(userId);
+    const findCustomer: Customer | null = await getOneCustomersService(userId);
+
+    if(!findCustomer) throw new AppError("Customer not found", 404);
 
     req.findCustomer = findCustomer;
 

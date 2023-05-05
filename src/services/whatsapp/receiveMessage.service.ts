@@ -9,9 +9,10 @@ import { Sessions } from "../../WebSocket/Sessions";
 import { RunningAttendance } from "../../interfaces/attendances.interfaces";
 
 export async function receiveWhatsappMessageService (data: any) {
+    
     const number = data.entry[0].changes[0].value.messages[0].from; 
     const message = data.entry[0].changes[0].value.messages[0] as OficialWhatsappMessage;
-
+    console.log(message);
     const registrating = runningRegistrations.find({ WPP_NUMERO: number });
     const survey = runningSurveys.find(number);
     const attending = runningAttendances.find({ WPP_NUMERO: number });
@@ -36,7 +37,7 @@ export async function receiveWhatsappMessageService (data: any) {
             const findCustomer = await services.customers.getOneById(findNumber.CODIGO_CLIENTE);
             const findAttendance = await services.attendances.find(findNumber.CODIGO);
 
-            if(findAttendance) {
+            if(findAttendance && findCustomer) {
                 const operatorSession = await Sessions.getOperatorSession(findAttendance.CODIGO_OPERADOR) 
                 const isOperatorOnline: boolean = operatorSession ? operatorSession.status === "online" : false;
                 const newMessage = await services.messages.createOficial(message, findAttendance.CODIGO, findAttendance.CODIGO_OPERADOR);
@@ -60,7 +61,7 @@ export async function receiveWhatsappMessageService (data: any) {
                     runningAttendances.create(newRA);
                     isOperatorOnline && runningAttendances.returnOperatorAttendances(findAttendance.CODIGO_OPERADOR);
                 };
-            } else {
+            } else if(findCustomer) {
                 const avaliableOperator = await services.attendances.getOperator(findCustomer.OPERADOR);
 
                     if(typeof avaliableOperator === "number") {

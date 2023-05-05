@@ -21,7 +21,7 @@ export async function getRunningAttendances () {
         const WPP = await services.wnumbers.getById(a.CODIGO_NUMERO);
         const client = await services.customers.getOneById(a.CODIGO_CLIENTE);
 
-        if(WPP) {
+        if(WPP && client) {
             let newRA: RunningAttendance = {
                 CODIGO_ATENDIMENTO: a.CODIGO,
                 CODIGO_CLIENTE: a.CODIGO_CLIENTE,
@@ -216,8 +216,6 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
 
         data.listaDeNumeros.forEach( async (number: string) => {
             const numero = number.replace(/\+/g, '');
-
-            const numberPhone = `${numero}@c.us`;
             
             if(getMessage.ARQUIVO) {
                 const filePath = path.join(__dirname, '../../localFiles/readyMessages/', getMessage.ARQUIVO.ARQUIVO);

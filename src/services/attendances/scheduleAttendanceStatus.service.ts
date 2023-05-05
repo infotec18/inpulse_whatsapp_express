@@ -25,7 +25,7 @@ export async function updateAttendanceStatus(): Promise<void> {
         const client = await services.customers.getOneById(attendance.CODIGO_CLIENTE);
         const avatar = number && await WhatsappWeb.getProfilePicUrl(`${number.NUMERO}@c.us`);
 
-        number && runningAttendances.create({
+        number && client && runningAttendances.create({
             CODIGO_ATENDIMENTO: attendance.CODIGO,
             CODIGO_CLIENTE: attendance.CODIGO_CLIENTE,
             CODIGO_NUMERO: attendance.CODIGO_NUMERO,

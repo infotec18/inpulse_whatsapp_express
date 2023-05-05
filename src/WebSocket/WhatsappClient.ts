@@ -45,7 +45,7 @@ export async function getRunningAttendances () {
         const WPP = await services.wnumbers.getById(a.CODIGO_NUMERO);
         const client = await services.customers.getOneById(a.CODIGO_CLIENTE);
 
-        if(WPP) {
+        if(WPP && client) {
             async function PFP () {
                 if(process.env.OFICIAL_WHATSAPP === "false" && WPP) {
                     return await WhatsappWeb.getProfilePicUrl(WPP.NUMERO + "@c.us");
@@ -107,7 +107,7 @@ WhatsappWeb.on("message", async (message) => {
             const findCustomer: Customer | null = await services.customers.getOneById(findNumber.CODIGO_CLIENTE);
             const findAttendance: Attendance | null = await services.attendances.find(findNumber.CODIGO);
 
-            if(findAttendance) {
+            if(findAttendance && findCustomer) {
                 const operatorSession = await Sessions.getOperatorSession(findAttendance.CODIGO_OPERADOR) 
                 const isOperatorOnline: boolean = operatorSession ? operatorSession.status === "online" : false;
                 const newMessage = await services.messages.create(message as unknown as WhatsappMessage, findAttendance.CODIGO, findAttendance.CODIGO_OPERADOR);
@@ -131,7 +131,8 @@ WhatsappWeb.on("message", async (message) => {
                     runningAttendances.create(newRA);
                     isOperatorOnline && runningAttendances.returnOperatorAttendances(findAttendance.CODIGO_OPERADOR);
                 };
-            } else {
+            } else if(findCustomer){
+
                 const avaliableOperator: number | undefined = await services.attendances.getOperator(findCustomer.OPERADOR);
 
                     if(typeof avaliableOperator === "number") {
