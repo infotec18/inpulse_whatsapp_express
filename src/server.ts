@@ -2,9 +2,10 @@ import app from "./app";
 import { AppDataSource } from "./data-source";
 import { cronJob } from "./job/updateAttendanceStatus.job";
 import services from "./services";
+import { oficialApiFlow } from "./WebSocket/OficialApi";
 import { Sessions } from "./WebSocket/Sessions";
 import WebSocket from "./WebSocket/WebSocket";
-import WhatsappWeb, { getRunningAttendances, runningAttendances, startUnoficialWebsocketMessages} from "./WebSocket/WhatsappClient";
+import WhatsappWeb, { getRunningAttendances, runningAttendances } from "./WebSocket/WhatsappClient";
 
 const PORT: number = Number(process.env.PORT) || 8000;
 const SOCKET_PORT: number = Number(process.env.SOCKET_PORT) || 5000;
@@ -16,7 +17,7 @@ async function initialize () {
     WebSocket.listen(SOCKET_PORT, { cors: {
         origin: "*",
         methods: ["GET", "POST"]
-    } });
+    }});
 
     console.log(new Date().toLocaleString(), `: Socket.io server is running on http://localhost:${SOCKET_PORT}`);
 
@@ -29,8 +30,9 @@ async function initialize () {
     if(!useOficialApi) {
         console.log(new Date().toLocaleString(), ": Utilizando biblioteca Whatsapp Web JS.");
         await WhatsappWeb.initialize().then(_ => console.log(new Date().toLocaleString(), ": Whatsapp Initialized"));
-        startUnoficialWebsocketMessages;
+
     } else {
+        oficialApiFlow
         console.log(new Date().toLocaleString(), ": Utilizando API Oficial do Whatsapp.");
     }
 

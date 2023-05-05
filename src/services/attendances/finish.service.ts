@@ -42,7 +42,7 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
             Sessions.updateOperatorRunningAttendances(session.userId, session.attendances - 1);
         };
 
-        if(ra) {
+        /* if(ra) {
             const newRs = {
                 WPP_NUMERO: ra.WPP_NUMERO,
                 COD_ATENDIMENTO: ra.CODIGO_ATENDIMENTO,
@@ -52,7 +52,7 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
             };
             ra && runningSurveys.create(newRs);
             return newRs;
-        };
+        }; */
     };
 
     return;

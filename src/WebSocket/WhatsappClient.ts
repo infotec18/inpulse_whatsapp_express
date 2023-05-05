@@ -184,8 +184,8 @@ WhatsappWeb.on("message", async (message) => {
         };
     };
 });
-
-export const startUnoficialWebsocketMessages = WebSocket.on('connection', (socket: Socket) => {
+if(process.env.OFICIAL_WHATSAPP === "false") {
+    WebSocket.on('connection', (socket: Socket) => {
         socket.on("send-message", async(data: SendMessageData) => {
             const options = data.referenceId ? { quotedMessageId: data.referenceId } : { };
     
@@ -198,10 +198,9 @@ export const startUnoficialWebsocketMessages = WebSocket.on('connection', (socke
                 handleMessage(message);
     
             } else if(data.type === "media" && !!data.file){
-                const base64 = data.file.base64.split(",")[1];
-                const { type, name } = data.file;
+                const { type, name, buffer} = data.file;
     
-                const media = new MessageMedia(type, base64, name);
+                const media = new MessageMedia(type, Buffer.from(buffer).toString('base64'), name);
                 const message = await WhatsappWeb.sendMessage(data.chatId, data.text, { ...options, media: media });
     
                 handleMessage(message);
@@ -254,7 +253,11 @@ export const startUnoficialWebsocketMessages = WebSocket.on('connection', (socke
                 try {
                     const attendance = await getSpecificAttendance(data.CODIGO_ATENDIMENTO);
                     const number = attendance && await services.wnumbers.getById(attendance.CODIGO_NUMERO);
-                    number && reply && WhatsappWeb.sendMessage(`${number.NUMERO}@c.us`, reply);
+
+                    if(process.env.OFICIAL_WHATSAPP === "false") {
+                        number && reply && WhatsappWeb.sendMessage(`${number.NUMERO}@c.us`, reply);
+                    }
+                    
                     runningSurveys.update(survey.WPP_NUMERO, registration);
                 } catch (err) {
                     console.log(new Date().toLocaleString(), ": error on survey: ", err);
@@ -314,5 +317,7 @@ export const startUnoficialWebsocketMessages = WebSocket.on('connection', (socke
             services.attendances.updateUrgencia(data.CODIGO_ATENDIMENTO, data.URGENCIA);
         });
     });
+};
+
 
 export default WhatsappWeb;

@@ -1,10 +1,10 @@
 import { SendFileData } from "../../interfaces/messages.interfaces";
-import { readFileSync, unlinkSync, writeFile, writeFileSync } from "fs";
+import { ReadStream, createReadStream, readFileSync, unlinkSync, writeFile, writeFileSync } from "fs";
 import path from "path";
 import ffmpeg from 'fluent-ffmpeg';
 
-export function saveAndConvertAudioService(file: SendFileData): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
+export function saveAndConvertAudioServiceOficial(file: SendFileData): Promise<ReadStream> {
+    return new Promise<ReadStream>((resolve, reject) => {
         const fileContent = Buffer.from(file.buffer);
 
         const i = file.type.split("").findIndex(e => e === "/");
@@ -29,19 +29,10 @@ export function saveAndConvertAudioService(file: SendFileData): Promise<string> 
             .outputOptions('-application', 'voip')
             .output(newPath)
             .on('end', () => {
-                // Lê o arquivo de saída em formato ogg
-                const oggBuffer = readFileSync(newPath);
+                const stream = createReadStream(newPath);
 
-                // Codifica o arquivo em Base64
-                const base64Ogg = oggBuffer.toString('base64');
-
-                unlinkSync(savePath);
-                unlinkSync(newPath);
-                
-                // Aqui você pode fazer o que quiser com o arquivo em formato ogg codificado em Base64
-                resolve(base64Ogg);
-
- 
+                unlinkSync(savePath);                
+                resolve(stream);
         })
         .on('error', (err: any) => {
             reject(err);

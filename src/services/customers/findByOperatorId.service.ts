@@ -27,7 +27,7 @@ export async function findByOperatorIdService(CODIGO_OPERADOR: number) {
         for (const n of findNumbers) {
             const findCustomer = await customersRepository.findOne({ where: { CODIGO: n.CODIGO_CLIENTE } });
             if (findCustomer) {
-                const PFP = await WhatsappWeb.getProfilePicUrl(`${n.NUMERO}@c.us`);
+                const PFP = process.env.OFICIAL_WHATSAPP === "false" && await WhatsappWeb.getProfilePicUrl(`${n.NUMERO}@c.us`);
                 returnArr.push({
                     CODIGO_CLIENTE: n.CODIGO_CLIENTE,
                     CODIGO_NUMERO: n.CODIGO,
