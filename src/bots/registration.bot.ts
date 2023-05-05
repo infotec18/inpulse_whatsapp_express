@@ -6,6 +6,8 @@ import { validateCPF_CNPJBot } from "./validateCPF_CNPJ.bot";
 export async function registrationBot(RR: RunningRegistration, msg: string): Promise<BotReply<RunningRegistration>> {
     let reply: string | null = null;
 
+    console.log(new Date().toLocaleString(), ": Mensagem de ", RR.WPP_NUMERO, "caiu para o bot...");
+
     if(msg === "voltar etapa") {
         RR.ETAPA--;
         return { registration: RR, reply: `Voltando a etapa ${RR.ETAPA}` };
@@ -24,12 +26,14 @@ export async function registrationBot(RR: RunningRegistration, msg: string): Pro
 Deseja cadastrar este número?
 Responda "cadastrar" para prosseguir. 
         `;
+        console.log(new Date().toLocaleString(), ": Bot respondeu: ", reply);
         return { registration: RR, reply };
     };
 
     if(RR.ETAPA === 2  && msg.toUpperCase() === "CADASTRAR") {
         reply = "Ok, por favor digite seu CPF ou CNPJ para continuarmos: ";
         RR.ETAPA++;
+        console.log(new Date().toLocaleString(), ": Bot respondeu: ", reply);
         return { registration: RR, reply };
     };
 
@@ -41,22 +45,34 @@ Responda "cadastrar" para prosseguir.
 
         reply = "Estamos quase lá, por favor diga o nome do responsável que atende este número: ";
 
+        console.log(new Date().toLocaleString(), ": Bot respondeu: ", reply);
+
         return { registration: RR, reply };
+
     } else if(RR.ETAPA === 3 && validate.result === "valid") {
-        const substr = validate.value === "CPF" ? "o seu NOME" : "a RAZÃO SOCIAL da sua empresa"
+        const substr = validate.value === "CPF" ? "o seu NOME" : "a RAZÃO SOCIAL da sua empresa";
+
         reply = `Seu ${validate.value} é válido. para prosseguir com o cadastro, digite ${substr}:`;
         RR.DADOS.CPF_CNPJ = msg.replace(/\D/g, "");
         RR.DADOS.PESSOA = validate.value === "CNPJ" ? "JUR" : "FIS";
         RR.ETAPA ++;
+        console.log(new Date().toLocaleString(), ": Bot respondeu: ", reply);
+
         return { registration: RR, reply };
     }else if(RR.ETAPA === 3) {
+
         reply = validate.value as string;
+
+        console.log(new Date().toLocaleString(), ": Bot respondeu: ", reply);
+
         return { registration: RR, reply };
     };
 
     if(RR.ETAPA === 4) {
         RR.DADOS.RAZAO = msg;
+
         const substr = RR.DADOS.PESSOA === "FIS" ? "NOME" : "RAZÃO SOCIAl";
+
         reply = `Verifique se os dados estão corretos:
 - CPF/CNPJ: ${RR.DADOS.CPF_CNPJ}
 - ${substr}: ${RR.DADOS.RAZAO}
@@ -64,6 +80,9 @@ Responda "cadastrar" para prosseguir.
 
 Digite "sim" para continuar ou "reiniciar" para recomeçar.
         `;
+
+        console.log(new Date().toLocaleString(), ": Bot respondeu: ", reply);
+
         RR.ETAPA++;
         return { registration: RR, reply };
     };
@@ -74,7 +93,10 @@ Digite "sim" para continuar ou "reiniciar" para recomeçar.
         await services.wnumbers.create(newNumber);
 
         RR.CONCLUIDO = true;
+
         reply = "Que legal, você foi cadastrado com sucesso! Envie qualquer mensagem, se quiser começar um novo atendimento.";
+
+        console.log(new Date().toLocaleString(), ": Bot respondeu: ", reply);
 
         return { registration: RR, reply };
     } else if(RR.ETAPA === 5 && msg.toUpperCase() === "SIM" && RR.DADOS.PESSOA === "JUR") {
@@ -85,9 +107,14 @@ Digite "sim" para continuar ou "reiniciar" para recomeçar.
 
         reply = "Estamos quase lá, por favor diga o nome do responsável que atende este número: ";
 
+        console.log(new Date().toLocaleString(), ": Bot respondeu: ", reply);
+
         return { registration: RR, reply };
     } else if(RR.ETAPA === 5) {
+
         reply = `Não entendi, por favor digite "sim" ou "reiniciar"`;
+
+        console.log(new Date().toLocaleString(), ": Bot respondeu: ", reply);
         return { registration: RR, reply };
     };
 
@@ -95,7 +122,9 @@ Digite "sim" para continuar ou "reiniciar" para recomeçar.
         const newNumber = { CODIGO_CLIENTE: RR.CADASTRO_CLIENTE!.CODIGO, NOME: msg, NUMERO: RR.WPP_NUMERO };
         await services.wnumbers.create(newNumber);
         RR.CONCLUIDO = true;
+
         reply = "Que legal, você foi cadastrado com sucesso! Envie qualquer mensagem, se quiser começar um novo atendimento.";
+        console.log(new Date().toLocaleString(), ": Bot respondeu: ", reply);
 
         return { registration: RR, reply };
     };
