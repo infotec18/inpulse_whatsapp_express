@@ -4,7 +4,7 @@ export async function getOperatorForAttendance(cod_o: number): Promise<number | 
 
     const findOperatorSession = await Sessions.getOperatorSession(cod_o);
 
-    if(!findOperatorSession) {
+    if(!findOperatorSession || findOperatorSession.status !== "online") {
         const allSessions = Sessions.value;
         const onlineSessions = allSessions.filter(s => s.status === "online");
 
@@ -15,7 +15,7 @@ export async function getOperatorForAttendance(cod_o: number): Promise<number | 
         if(findMin) {
             return findMin.userId;
         }
-    } else { 
+    } else if(findOperatorSession && findOperatorSession.status === "online") { 
         return findOperatorSession.userId;
     };
 };

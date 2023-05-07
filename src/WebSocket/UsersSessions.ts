@@ -114,5 +114,4 @@ export class UsersSessions {
         WebSocket.to("monitoria-operadores").emit("operators-status", this.value);
     };
 
-
 };

@@ -8,6 +8,7 @@ import { updateCustomerService } from "./update.service";
 import { findByCPFCNPJService } from "./findByCPF.service";
 import { directCreateCustomerService } from "./directCreate.service";
 import { findByOperatorIdService } from "./findByOperatorId.service";
+import { findOperatorService } from "./findOperator.service";
 
 export const directCreate = directCreateCustomerService;
 export const create = createCustomerService;
@@ -19,3 +20,4 @@ export const update = updateCustomerService;
 export const getLastId = getLastCustomerIdService;
 export const findByCPFCNPJ = findByCPFCNPJService;
 export const findByOperatorId = findByOperatorIdService;
+export const findOperator = findOperatorService;

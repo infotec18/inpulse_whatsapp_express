@@ -132,8 +132,8 @@ WhatsappWeb.on("message", async (message) => {
                     isOperatorOnline && runningAttendances.returnOperatorAttendances(findAttendance.CODIGO_OPERADOR);
                 };
             } else if(findCustomer){
-
-                const avaliableOperator: number | undefined = await services.attendances.getOperator(findCustomer.OPERADOR);
+                const findOperator = await services.customers.findOperator(findCustomer.CODIGO);
+                const avaliableOperator = await services.attendances.getOperator(findOperator);
 
                     if(typeof avaliableOperator === "number") {
                         console.log(new Date().toLocaleString(), ": Novo atendimento para operador de ID", avaliableOperator, " | cliente de ID ", findCustomer.CODIGO);
