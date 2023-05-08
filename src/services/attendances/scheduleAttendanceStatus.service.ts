@@ -23,7 +23,7 @@ export async function updateAttendanceStatus(): Promise<void> {
     currentSchedule.forEach(async(attendance) => { 
         const number = await services.wnumbers.getById(attendance.CODIGO_NUMERO);
         const client = await services.customers.getOneById(attendance.CODIGO_CLIENTE);
-        const avatar = number && await WhatsappWeb.getProfilePicUrl(`${number.NUMERO}@c.us`);
+        const avatar = process.env.OFICIAL_WHATSAPP === "false" ? (number && await WhatsappWeb.getProfilePicUrl(`${number.NUMERO}@c.us`)) : null;
 
         number && client && runningAttendances.create({
             CODIGO_ATENDIMENTO: attendance.CODIGO,

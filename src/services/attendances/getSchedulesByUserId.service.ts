@@ -21,11 +21,11 @@ export async function getSchedulesByUserIdService (userId: number): Promise<Arra
         scheduledAttendances.forEach(async(a) => {
             const client = await services.customers.getOneById(a.CODIGO_CLIENTE);
             const employee = await services.wnumbers.getById(a.CODIGO_NUMERO);
-            const avatar = employee ? await WhatsappWeb.getProfilePicUrl(`${employee.NUMERO}@c.us`) : "";
+            const avatar = process.env.OFICIAL_WHATSAPP === "false" ? (employee && await WhatsappWeb.getProfilePicUrl(`${employee.NUMERO}@c.us`)) : null;
 
             if(client && employee) {
                 arrayWithAllData.push({
-                    AVATAR: avatar,
+                    AVATAR: avatar || "",
                     NOME: employee.NOME,
                     EMPRESA: client.RAZAO,
                     CPF_CNPJ: client.CPF_CNPJ,

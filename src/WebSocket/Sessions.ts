@@ -36,4 +36,8 @@ WebSocket.on('connection', (socket: Socket) => {
         socket.join("monitoria-operadores");
         Sessions.emitUpdate();
     });
+
+    const oficialMode = process.env.OFICIAL_WHATSAPP === "true" ? true: false;
+
+    socket.emit("oficial-mode", oficialMode);
 });

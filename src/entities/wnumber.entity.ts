@@ -21,7 +21,7 @@ export class Wnumber {
     @Column({ type: 'varchar', length: 20, unique: true })
     NUMERO: string;
 
-    @ManyToOne(() => Customer, client => client.TELEFONES)
+    @ManyToOne(() => Customer, client => client.TELEFONES, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'CODIGO_CLIENTE' })
     CLIENTE: Customer;
 };

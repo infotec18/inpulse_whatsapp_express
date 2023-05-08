@@ -90,3 +90,28 @@ export interface FileResponse {
     id: string,
     messaging_product: string
 };
+
+export interface OficialWhatsappMessageTemplate {
+    name: string;
+    components: Array<OficialWhatsappMessageTemplateComponent>;
+    language: string;
+    status: string;
+    categody: string;
+    id: string;
+};
+
+export interface OficialWhatsappMessageTemplateComponent {
+    type: "HEADER" | "BODY" | "FOOTER";
+    format: "TEXT";
+    text: string;
+};
+
+export interface RecoverTemplatesResponse {
+    data: OficialWhatsappMessageTemplate[];
+    paging: {
+        cursors: {
+            before: string;
+            after: string;
+        };
+    };
+};

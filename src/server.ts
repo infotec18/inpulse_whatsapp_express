@@ -39,8 +39,9 @@ async function initialize () {
     await getRunningAttendances();
 
     const allOperators = await services.users.getAll(9999, 1, "");
+    const filteredOperators = allOperators.dados.filter(o => o.NIVEL !== "ADMIN" && o.CODIGO > 0);
 
-    for(const op of allOperators.dados) {
+    for(const op of filteredOperators) {
         await Sessions.addSession(op.CODIGO, null);
     };
 

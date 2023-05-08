@@ -11,7 +11,7 @@ import axios from "axios";
 import path from "path";
 
 
-export async function createOficialMessageService(message: OficialWhatsappMessage, cod_a: number, cod_o: number, fromMe?: boolean): Promise<RetrieveMessage | null> {
+export async function createOficialMessageService(message: OficialWhatsappMessage, cod_a: number, cod_o: number, referenceId: string | null | undefined, fromMe?: boolean, fromBot?: boolean): Promise<RetrieveMessage | null> {
     try {
         const allowedTypes = ["text", "image", "audio", "video", "document"];
         const isVideo = message.type === "video";
@@ -45,15 +45,15 @@ export async function createOficialMessageService(message: OficialWhatsappMessag
             CODIGO_ATENDIMENTO: cod_a,
             CODIGO_OPERADOR: cod_o,
             TIPO: message.type,
-            MENSAGEM: fromMe ? `[${operatorName}]: ${messageText}` : messageText,
+            MENSAGEM: fromMe ? `[${fromBot ? "BOT" : operatorName}]: ${messageText}` : messageText,
             DATA_HORA: new Date(),
             TIMESTAMP: Date.now(),
             FROM_ME: fromMe ? fromMe : false,
-            ID: message.id
+            ID: message.id,
         }); 
 
-        if(message.context) {
-            newMessageB.ID_REFERENCIA = message.context.id
+        if(referenceId) {
+            newMessageB.ID_REFERENCIA = referenceId
         };
 
         let newMessage = await messagesRepository.save(newMessageB);

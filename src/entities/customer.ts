@@ -41,6 +41,6 @@ export class Customer {
     @Column({ type: 'int' })
     OPERADOR: number;
 
-    @OneToMany(() => Wnumber, wnumber => wnumber.CLIENTE)
+    @OneToMany(() => Wnumber, wnumber => wnumber.CLIENTE, { cascade: true })
     TELEFONES: Wnumber[];
 };
