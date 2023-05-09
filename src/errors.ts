@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
+import { writeFile } from 'fs';
 import { ZodError } from 'zod';
+import path from 'path';
 
 export class AppError extends Error {
     message: string;
@@ -12,6 +14,15 @@ export class AppError extends Error {
     };
 };
 
+export class ReqError extends Error {
+    req: Request;
+
+    constructor(req: Request) {
+        super();
+        this.req = req;
+    };
+};
+
 export function errorHandler(error: Error, req: Request, res: Response, _: NextFunction): Response {
     if (error instanceof AppError) {
         return res.status(error.statusCode).json({ message: error.message });
@@ -21,6 +32,12 @@ export function errorHandler(error: Error, req: Request, res: Response, _: NextF
         return res.status(400).json({ message: error.flatten().fieldErrors });
     };
 
+    if (error instanceof ReqError) {
+        const date = new Date().toUTCString();
+        const filePath = path.join(__dirname, `../../../localFiles/errors`, `${date}_error.txt`);
+        writeFile('log.txt', JSON.stringify(error.req) , (err) => {
+        });
+    }
     console.error(error);
 
     return res

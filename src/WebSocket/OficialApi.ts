@@ -13,6 +13,9 @@ import axios from "axios";
 import { saveAndConvertAudioServiceOficial } from "../services/files/saveAndConvertAudioOficial.service";
 import { runningAttendances, runningSurveys } from "./WhatsappClient";
 import { saveAndReadFile } from "../services/files/saveAndReadFile.service";
+import { OficialMessageMedia } from "../classes/OficialMessageMedia.class";
+import { createReadStream } from "fs";
+import { sendWhatsappMessageService } from "../services/whatsapp/sendMessage.service";
 
 export async function getRunningAttendances () {
     const attendances = await services.attendances.getAllRunning();
@@ -243,6 +246,22 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
 
             });   
         });
+
+        socket.on("send-ready-message", async (data: any) => {
+            const getMessage = await services.readyMessages.getOneById(data.messageId);
+            const whatsappNumber = data.listaDeNumeros[0].replace(/\+/g, '');
+                
+            if(getMessage.ARQUIVO) {
+                const filePath = path.join(__dirname, '../../localFiles/readyMessages/', getMessage.ARQUIVO.ARQUIVO); 
+                const media = new OficialMessageMedia(createReadStream(filePath), getMessage.ARQUIVO.TIPO);
+                const x = getMessage.ARQUIVO.TIPO.split("/")[0];
+                const mediaType = x === "image" ? x : x === "video" ? x : x === "audio" ? x : "document"; 
+                const mediaId = await media.getMediaId()
+                mediaId && sendWhatsappMessageService(whatsappNumber, mediaType, "", mediaId, getMessage.TEXTO_MENSAGEM);
+            } else {
+                sendWhatsappMessageService(whatsappNumber, "text", getMessage.TEXTO_MENSAGEM);
+            };
+        });
     
         socket.on("finish-attendance", async(data: FinishAttendanceProps) => {
             const survey = await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, 0);
@@ -302,7 +321,7 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
                         timestamp: `${Date.now()}`,
                         type: "text",
                         text: {
-                            body: `Template enviado: ${data.template.name}`
+                            body: `Template "${data.template.name}" enviado com sucesso!`
                         }
                     };
 

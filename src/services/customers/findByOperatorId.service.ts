@@ -3,7 +3,7 @@ import { AppDataSource } from "../../data-source";
 import { Customer } from "../../entities/customer";
 import { ClientCampaign } from "../../entities/clientCampaign.entity";
 import { Wnumber } from "../../entities/wnumber.entity";
-import WhatsappWeb from "../../WebSocket/WhatsappClient";
+import WhatsappWeb, { runningAttendances } from "../../WebSocket/WhatsappClient";
 
 export async function findByOperatorIdService(CODIGO_OPERADOR: number) {
     const customersRepository: Repository<Customer> = AppDataSource.getRepository(Customer);
@@ -21,7 +21,7 @@ export async function findByOperatorIdService(CODIGO_OPERADOR: number) {
         .where("CODIGO_CLIENTE in (:...ids)", { ids: clientIds })
         .getMany(); 
 
-    const returnArr = [];
+    let returnArr = [];
     
     if(findNumbers.length) {
         for (const n of findNumbers) {
@@ -41,6 +41,14 @@ export async function findByOperatorIdService(CODIGO_OPERADOR: number) {
             };
         };
     };
+
+    console.log(returnArr)
+    returnArr = returnArr.filter(a => {
+        const find = runningAttendances.find({ CODIGO_NUMERO: a.CODIGO_NUMERO });
+        console.log("find ?", a.CODIGO_NUMERO)
+        if(!find) return a
+    });
     
+    console.table(returnArr);
     return returnArr;
 };
