@@ -66,6 +66,7 @@ export interface Session {
 export interface FinishAttendanceProps {
     CODIGO_ATENDIMENTO: number;
     CODIGO_RESULTADO: number;
+    DATA_AGENDAMENTO?: Date;
 };
 
 export interface ScheduleInformation {

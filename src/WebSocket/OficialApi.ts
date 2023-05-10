@@ -265,7 +265,7 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
         });
     
         socket.on("finish-attendance", async(data: FinishAttendanceProps) => {
-            const survey = await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, 0);
+            const survey = await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO);
             if(survey) {
                 //const { registration, reply } = await surveyBot(survey, "");
                 try {
@@ -323,7 +323,8 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
                         client: client,
                         number: number,
                         operator: operator,
-                        messages: []
+                        messages: [],
+                        ativoRecep: "ATIVO"
                     });
                     
                     if(newAttendance) {

@@ -118,6 +118,7 @@ WhatsappWeb.on("message", async (message) => {
                         client: findCustomer,
                         number: findNumber,
                         operator: operatorSession,
+                        ativoRecep: "RECEP",
                         avatar: PFP,
                         messages: [newMessage]
                     });
@@ -132,7 +133,8 @@ WhatsappWeb.on("message", async (message) => {
                         client: findCustomer,
                         number: findNumber,
                         operator: operator,
-                        avatar: PFP
+                        avatar: PFP,
+                        ativoRecep: "RECEP"
                     });
 
                     const newMessage = newAttendance && await services.messages.create(message as unknown as WhatsappMessage, newAttendance.CODIGO, newAttendance.CODIGO_OPERADOR);
@@ -193,7 +195,6 @@ if(process.env.OFICIAL_WHATSAPP === "false") {
                     const newMessage = await services.messages.create(message as unknown as WhatsappMessage, ra.CODIGO_ATENDIMENTO, ra.CODIGO_OPERADOR);
     
                     newMessage && runningAttendances.update(ra.CODIGO_ATENDIMENTO, { MENSAGENS: [...ra.MENSAGENS, newMessage] }); 
-                    newMessage && WebSocket.to(socket.id).emit("new-message", newMessage); 
                 };
     
             };
@@ -219,7 +220,7 @@ if(process.env.OFICIAL_WHATSAPP === "false") {
         });
     
         socket.on("finish-attendance", async(data: FinishAttendanceProps) => {
-            const survey = await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, 0);
+            const survey = await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, data.DATA_AGENDAMENTO);
             if(survey) {
                 const { registration, reply } = await surveyBot(survey, "");
                 try {
@@ -247,7 +248,8 @@ if(process.env.OFICIAL_WHATSAPP === "false") {
                 services.attendances.startNew({
                     client: client,
                     number: number,
-                    operator: operator
+                    operator: operator,
+                    ativoRecep: "ATIVO"
                 });
             };
         });

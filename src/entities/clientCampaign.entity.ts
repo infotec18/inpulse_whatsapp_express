@@ -16,6 +16,9 @@ export class ClientCampaign {
     OPERADOR: number;
 
     @Column({ type: 'int', nullable: true, default: 0 })
+    OPERADOR_LIGACAO: number;
+
+    @Column({ type: 'int', nullable: true, default: 0 })
     CAMPANHA: number;
 
     @Column({ type: 'date', nullable: true, default: '0000-00-00' })
@@ -35,6 +38,12 @@ export class ClientCampaign {
 
     @Column({ type: 'enum', enum: ['SIM', 'NAO'], nullable: true, default: null })
     CONCLUIDO: "SIM" | "NAO";
+
+    @Column({ type: 'varchar', length: 12 })
+    TELEFONE_LIGADO: string;
+
+    @Column({ type: 'char', length: 1, nullable: true})
+    FIDELIZA: string;
 
     @Column({ type: 'varchar', length: 12, nullable: true, default: ''})
     FONE1: string;

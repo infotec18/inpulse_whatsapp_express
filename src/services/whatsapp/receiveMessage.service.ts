@@ -42,7 +42,8 @@ export async function receiveWhatsappMessageService(data: any) {
                         client: findCustomer,
                         number: findNumber,
                         operator: operatorSession,
-                        messages: [newMessage]
+                        messages: [newMessage],
+                        ativoRecep: "RECEP"
                     });
                 };
             } else if (findCustomer) {
@@ -56,6 +57,7 @@ export async function receiveWhatsappMessageService(data: any) {
                         client: findCustomer,
                         number: findNumber,
                         operator: operator,
+                        ativoRecep: "RECEP"
                     });
 
                     if (newAttendance) {

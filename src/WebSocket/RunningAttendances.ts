@@ -1,4 +1,5 @@
 import { RetrieveMessage, RunningAttendance } from "../interfaces/attendances.interfaces";
+import { Sessions } from "./Sessions";
 import WebSocket from "./WebSocket";
 
 export class RunningAttendances {
@@ -66,11 +67,15 @@ export class RunningAttendances {
         return find;
     };
 
-    remove(COD_ATENDIMENTO: number) {
+    async remove(COD_ATENDIMENTO: number) {
         const operator = this.value.find(a => a.CODIGO_ATENDIMENTO === COD_ATENDIMENTO)?.CODIGO_OPERADOR;
         this.value = this.value.filter(ra => ra.CODIGO_ATENDIMENTO !== COD_ATENDIMENTO);
         this.emitUpdate()
         operator && this.retrieveOperatorAttendances(operator);
+        const session = operator && await Sessions.getOperatorSession(operator);
+        if(session) {
+            Sessions.updateOperatorRunningAttendances(session.userId, session.attendances - 1);
+        };
     };
 
     retrieveOperatorAttendances(COD_OPERADOR: number) {

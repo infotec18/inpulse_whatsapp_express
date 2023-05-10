@@ -46,7 +46,8 @@ export async function directCreateCustomerService(params: CustomerRegistrationDa
         DATACAD, 
         DESC_FONE1: "WHATSAPP", 
         ATIVO: "SIM", 
-        ORIGEM
+        ORIGEM,
+        COD_ERP: null
     });
 
     return newCustomer;

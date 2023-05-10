@@ -14,6 +14,7 @@ interface Props {
     operator: UserSessions;
     client: Customer;
     number: Wnumber;
+    ativoRecep: "ATIVO" | "RECEP";
     messages?: RetrieveMessage[];
     avatar?: string;
 };
@@ -40,7 +41,8 @@ export async function startNewAttendanceService(props: Props) {
             DATA_FIM: null,
             CODIGO_OPERADOR_ANTERIOR: findNotFinishedCC?.OPERADOR || 0,
             DATA_AGENDAMENTO: null,
-            URGENCIA_OPERADOR: "NORMAL"
+            URGENCIA_OPERADOR: "NORMAL",
+            ATIVO_RECEP: props.ativoRecep
         });
     
         if(findNotFinishedCC) {

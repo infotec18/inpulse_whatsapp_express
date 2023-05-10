@@ -13,6 +13,9 @@ export class Attendance {
     @PrimaryGeneratedColumn()
     CODIGO: number;
 
+    @Column({ enum: ['ATIVO', 'RECEP']})
+    ATIVO_RECEP: 'ATIVO' | 'RECEP';
+
     @Column({ type: 'int' })
     CODIGO_OPERADOR: number;
 
