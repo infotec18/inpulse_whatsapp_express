@@ -6,7 +6,7 @@ import {
 } from "typeorm";
 import { Message } from "./message.entity";
 import { Tabulation } from "./tabulation.entity";
-import { Urgency } from "../interfaces/attendances.interfaces";
+import { OperatorUrgency, ScheduleUrgency, SupervisorUrgency } from "../interfaces/attendances.interfaces";
 
 @Entity('atendimentos')
 export class Attendance {
@@ -37,8 +37,14 @@ export class Attendance {
     @Column({ type: 'datetime', nullable: true })
     DATA_AGENDAMENTO: Date | null;
 
-    @Column({ type: 'enum', enum: ['URGENTE', 'MUITO_ALTA', 'ALTA', 'MEDIA', 'NORMAL'], default: 'NORMAL' })
-    URGENCIA: Urgency;
+    @Column({ type: 'enum', enum: ['URGENTE', 'MUITO_ALTA', 'ALTA', 'MEDIA', 'NORMAL'], default: null, nullable: true })
+    URGENCIA_SUPERVISOR: SupervisorUrgency;
+
+    @Column({ type: 'enum', enum: ['MUITO_ALTA', 'ALTA', 'MEDIA', 'NORMAL'], default: null, nullable: true })
+    URGENCIA_AGENDAMENTO: ScheduleUrgency;
+
+    @Column({ type: 'enum', enum: ['ALTA', 'MEDIA', 'NORMAL'], default: 'NORMAL' })
+    URGENCIA_OPERADOR: OperatorUrgency;
 
     @OneToMany(() => Message, message => message.ATENDIMENTO)
     MENSAGENS: Message[];

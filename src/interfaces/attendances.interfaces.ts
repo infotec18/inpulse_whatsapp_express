@@ -14,7 +14,9 @@ export interface RunningAttendance {
     MENSAGENS: RetrieveMessage[];
     AVATAR?: string;
     DATA_INICIO: Date;
-    URGENCIA: Urgency;
+    URGENCIA_OPERADOR: OperatorUrgency;
+    URGENCIA_AGENDAMENTO: ScheduleUrgency;
+    URGENCIA_SUPERVISOR: SupervisorUrgency;
     NOME: string;
     CPF_CNPJ: string;
     RAZAO: string;
@@ -73,10 +75,14 @@ export interface ScheduleInformation {
     CPF_CNPJ: string;
     PESSOA: PersonType;
     CODIGO_ATENDIMENTO: number;
-    URGENCIA: Urgency;
+    URGENCIA_OPERADOR: OperatorUrgency;
+    URGENCIA_AGENDAMENTO: ScheduleUrgency;
+    URGENCIA_SUPERVISOR: SupervisorUrgency;
     DATA_FIM_ULTIMO_ATENDIMENTO: Date | null;
     DATA_AGENDAMENTO: Date;
 };
 
-export type Urgency = "URGENTE" | "MUITO_ALTA"| "ALTA" | "MEDIA" | "NORMAL";
+export type OperatorUrgency = "ALTA" | "MEDIA" | "NORMAL";
+export type ScheduleUrgency = "MUITO_ALTA"| "ALTA" | "MEDIA" | "NORMAL" | null;
+export type SupervisorUrgency = "URGENTE" | "MUITO_ALTA"| "ALTA" | "MEDIA" | "NORMAL" | null;
 export type PersonType = "FIS" | "JUR";

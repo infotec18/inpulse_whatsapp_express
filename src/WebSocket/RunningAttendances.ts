@@ -10,9 +10,11 @@ export class RunningAttendances {
 
     update(COD_ATENDIMENTO: number, PARAMS: Partial<RunningAttendance>) {
         const index = this.value.findIndex((a) => a.CODIGO_ATENDIMENTO === COD_ATENDIMENTO);
-        if (index > -1) this.value[index] = { ...this.value[index], ...PARAMS };
-        this.emitUpdate();
-        this.retrieveOperatorAttendances(this.value[index].CODIGO_OPERADOR);
+        if (~index) {
+            this.value[index] = { ...this.value[index], ...PARAMS };
+            this.emitUpdate();
+            this.retrieveOperatorAttendances(this.value[index].CODIGO_OPERADOR);
+        };
     };
 
     transferOperator(codigoAtendimento: number, novoOperador: number) {

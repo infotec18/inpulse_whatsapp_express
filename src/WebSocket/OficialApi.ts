@@ -2,7 +2,7 @@ import WebSocket from "./WebSocket";
 import services from "../services";
 import { Sessions } from "./Sessions";
 import { Attendance } from "../entities/attendance.entity";
-import { FinishAttendanceProps, RunningAttendance } from "../interfaces/attendances.interfaces";
+import { FinishAttendanceProps, OperatorUrgency, RunningAttendance, ScheduleUrgency, SupervisorUrgency } from "../interfaces/attendances.interfaces";
 import { OficialWhatsappMessage, OficialWhatsappMessageTemplate, SendMessageData, WhatsappMessage } from "../interfaces/messages.interfaces";
 import { Socket } from "socket.io";
 import path from "path";
@@ -336,15 +336,15 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
         });
     
         socket.on("schedule-attendance", async(data: { CODIGO_ATENDIMENTO: number, DATA_AGENDAMENTO: Date }) => {
-            await services.attendances.updateSchedulesDate(data.CODIGO_ATENDIMENTO, data.DATA_AGENDAMENTO);
+            await services.attendances.updateSchedulesDate(data.CODIGO_ATENDIMENTO, data.DATA_AGENDAMENTO, "ALTA");
         });
     
         socket.on("update-operator", async(data: { CODIGO_ATENDIMENTO: number, CODIGO_OPERADOR: number }) => {
             services.attendances.updateOp(data.CODIGO_ATENDIMENTO, data.CODIGO_OPERADOR);
         });
     
-        socket.on("update-urgencia", (data: { CODIGO_ATENDIMENTO: number, URGENCIA: "URGENTE" | "ALTA" | "NORMAL" }) => {
-            services.attendances.updateUrgencia(data.CODIGO_ATENDIMENTO, data.URGENCIA);
+        socket.on("update-urgencia", (data: { CODIGO_ATENDIMENTO: number, URGENCIA: SupervisorUrgency | ScheduleUrgency | OperatorUrgency, mode: "Supervisor" | "Operator"}) => {
+            services.attendances.updateUrgencia(data.CODIGO_ATENDIMENTO, data.URGENCIA, data.mode);
         });
     };
 });

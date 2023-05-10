@@ -41,6 +41,18 @@ export class Customer {
     @Column({ type: 'int' })
     OPERADOR: number;
 
+    @Column({ type: 'int' })
+    ORIGEM: number;
+
+    @Column({ type: 'int' })
+    AREA1: number;
+
+    @Column({ type: 'varchar', length: 12})
+    FONE1: string;
+
+    @Column({ type: 'varchar', length: 30})
+    DESC_FONE1: string;
+
     @OneToMany(() => Wnumber, wnumber => wnumber.CLIENTE, { cascade: true })
     TELEFONES: Wnumber[];
 };

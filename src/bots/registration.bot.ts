@@ -1,3 +1,4 @@
+import { AppDataSource } from "../data-source";
 import { Customer } from "../entities/customer";
 import { BotReply, RunningRegistration } from "../interfaces/attendances.interfaces";
 import services from "../services";
@@ -119,11 +120,26 @@ Digite "sim" para continuar ou "reiniciar" para recomeçar.
     };
 
     if(RR.ETAPA === 6) {
-        const newNumber = { CODIGO_CLIENTE: RR.CADASTRO_CLIENTE!.CODIGO, NOME: msg, NUMERO: RR.WPP_NUMERO };
-        await services.wnumbers.create(newNumber);
+        if(RR.CADASTRO_CLIENTE) {
+            const newNumber = { CODIGO_CLIENTE: RR.CADASTRO_CLIENTE!.CODIGO, NOME: msg, NUMERO: RR.WPP_NUMERO };
+            await services.wnumbers.create(newNumber);
+            const customersRepository = AppDataSource.getRepository(Customer);
+            if(newNumber) {
+                reply = "Que legal, você foi cadastrado com sucesso! Envie qualquer mensagem, se quiser começar um novo atendimento.";
+            };
+
+            const NUMERO = newNumber.NUMERO;
+            const NUMERO_WITHOUT_MINUS = NUMERO.replace("+", "");
+            const AREA1 = NUMERO_WITHOUT_MINUS.slice(2, 4);
+            const FONE1 = NUMERO_WITHOUT_MINUS.slice(4);
+
+            RR.CADASTRO_CLIENTE.AREA1 = Number(AREA1);
+            RR.CADASTRO_CLIENTE.FONE1 = FONE1;
+            customersRepository.save(RR.CADASTRO_CLIENTE);
+        };
+
         RR.CONCLUIDO = true;
 
-        reply = "Que legal, você foi cadastrado com sucesso! Envie qualquer mensagem, se quiser começar um novo atendimento.";
         console.log(new Date().toLocaleString(), ": Bot respondeu: ", reply);
 
         return { registration: RR, reply };

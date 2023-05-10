@@ -7,14 +7,13 @@ import { Attendance } from "../../entities/attendance.entity";
 import { ClientCampaign } from "../../entities/clientCampaign.entity";
 import { Customer } from "../../entities/customer";
 import { Wnumber } from "../../entities/wnumber.entity";
-import { RetrieveMessage, Urgency } from "../../interfaces/attendances.interfaces";
+import { RetrieveMessage } from "../../interfaces/attendances.interfaces";
 import { Sessions } from "../../WebSocket/Sessions";
 
 interface Props {
     operator: UserSessions;
     client: Customer;
     number: Wnumber;
-    urgency?: Urgency;
     messages?: RetrieveMessage[];
     avatar?: string;
 };
@@ -23,9 +22,13 @@ export async function startNewAttendanceService(props: Props) {
     try {
         const CCRepository = AppDataSource.getRepository(ClientCampaign);
 
-        const findCC = await CCRepository.findOneBy({ 
+        const findNotFinishedCC = await CCRepository.findOneBy({ 
             CLIENTE: props.client.CODIGO,
             CONCLUIDO: "NAO"
+        });
+
+        const findAnyCC = await CCRepository.findBy({
+            CLIENTE: props.client.CODIGO
         });
     
         const newAttendance: Attendance = await services.attendances.create({
@@ -35,14 +38,14 @@ export async function startNewAttendanceService(props: Props) {
             CONCLUIDO: 0,
             DATA_INICIO: new Date(),
             DATA_FIM: null,
-            CODIGO_OPERADOR_ANTERIOR: findCC?.OPERADOR || 0,
+            CODIGO_OPERADOR_ANTERIOR: findNotFinishedCC?.OPERADOR || 0,
             DATA_AGENDAMENTO: null,
-            URGENCIA: props.urgency || "NORMAL"
+            URGENCIA_OPERADOR: "NORMAL"
         });
     
-        if(findCC) {
-            findCC.OPERADOR = props.operator.userId;
-            await CCRepository.save(findCC);
+        if(findNotFinishedCC) {
+            findNotFinishedCC.OPERADOR = props.operator.userId;
+            await CCRepository.save(findNotFinishedCC);
         };
 
         let messages: RetrieveMessage[] = [];
@@ -56,7 +59,9 @@ export async function startNewAttendanceService(props: Props) {
             CODIGO_NUMERO: newAttendance.CODIGO_NUMERO,
             CPF_CNPJ: props.client.CPF_CNPJ,
             DATA_INICIO: newAttendance.DATA_INICIO,
-            URGENCIA: newAttendance.URGENCIA,
+            URGENCIA_OPERADOR: "NORMAL",
+            URGENCIA_AGENDAMENTO: null,
+            URGENCIA_SUPERVISOR: null,
             NOME: props.number.NOME,
             RAZAO: props.client.RAZAO,
             WPP_NUMERO: props.number.NUMERO,

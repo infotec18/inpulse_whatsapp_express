@@ -1,7 +1,6 @@
 import { runningAttendances, runningRegistrations, runningSurveys } from "../../WebSocket/WhatsappClient";
 import services from "..";
 import { OficialWhatsappMessage } from "../../interfaces/messages.interfaces";
-import WebSocket from "../../WebSocket/WebSocket";
 import { registrationBot } from "../../bots/registration.bot";
 import { surveyBot } from "../../bots/surveyBot";
 import { Sessions } from "../../WebSocket/Sessions";

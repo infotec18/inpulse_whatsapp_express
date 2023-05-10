@@ -31,7 +31,9 @@ export async function getSchedulesByUserIdService(userId: number): Promise<Array
                     CPF_CNPJ: client.CPF_CNPJ,
                     PESSOA: client.PESSOA,
                     CODIGO_ATENDIMENTO: a.CODIGO,
-                    URGENCIA: a.URGENCIA,
+                    URGENCIA_OPERADOR: a.URGENCIA_OPERADOR,
+                    URGENCIA_AGENDAMENTO: a.URGENCIA_AGENDAMENTO,
+                    URGENCIA_SUPERVISOR: a.URGENCIA_SUPERVISOR,
                     DATA_FIM_ULTIMO_ATENDIMENTO: a.DATA_FIM,
                     DATA_AGENDAMENTO: a.DATA_AGENDAMENTO!,
                 });

@@ -4,7 +4,7 @@ import { Wnumber } from "../entities/wnumber.entity";
 import services from "../services";
 import { Sessions } from "./Sessions";
 import { Attendance } from "../entities/attendance.entity";
-import { FinishAttendanceProps, RunningAttendance, RunningRegistration, RunningSurvey } from "../interfaces/attendances.interfaces";
+import { FinishAttendanceProps, OperatorUrgency, RunningAttendance, RunningRegistration, RunningSurvey, ScheduleUrgency, SupervisorUrgency } from "../interfaces/attendances.interfaces";
 import { registrationBot } from "../bots/registration.bot";
 import { SendMessageData, WhatsappMessage } from "../interfaces/messages.interfaces";
 import { Customer } from "../entities/customer";
@@ -67,7 +67,9 @@ export async function getRunningAttendances () {
                 MENSAGENS: findMessages,
                 NOME: WPP.NOME,
                 RAZAO: client.RAZAO,
-                URGENCIA: a.URGENCIA,
+                URGENCIA_AGENDAMENTO: a.URGENCIA_AGENDAMENTO,
+                URGENCIA_OPERADOR: a.URGENCIA_OPERADOR,
+                URGENCIA_SUPERVISOR: a.URGENCIA_SUPERVISOR,
                 WPP_NUMERO: WPP.NUMERO,
                 AVATAR: await PFP()
             });
@@ -251,15 +253,15 @@ if(process.env.OFICIAL_WHATSAPP === "false") {
         });
     
         socket.on("schedule-attendance", async(data: { CODIGO_ATENDIMENTO: number, DATA_AGENDAMENTO: Date }) => {
-            await services.attendances.updateSchedulesDate(data.CODIGO_ATENDIMENTO, data.DATA_AGENDAMENTO);
+            await services.attendances.updateSchedulesDate(data.CODIGO_ATENDIMENTO, data.DATA_AGENDAMENTO, "ALTA");
         });
     
         socket.on("update-operator", async(data: { CODIGO_ATENDIMENTO: number, CODIGO_OPERADOR: number }) => {
             services.attendances.updateOp(data.CODIGO_ATENDIMENTO, data.CODIGO_OPERADOR);
         });
     
-        socket.on("update-urgencia", (data: { CODIGO_ATENDIMENTO: number, URGENCIA: "URGENTE" | "ALTA" | "NORMAL" }) => {
-            services.attendances.updateUrgencia(data.CODIGO_ATENDIMENTO, data.URGENCIA);
+        socket.on("update-urgencia", (data: { CODIGO_ATENDIMENTO: number, URGENCIA: SupervisorUrgency | ScheduleUrgency | OperatorUrgency, mode: "Supervisor" | "Operator"}) => {
+            services.attendances.updateUrgencia(data.CODIGO_ATENDIMENTO, data.URGENCIA, data.mode);
         });
     });
 };
