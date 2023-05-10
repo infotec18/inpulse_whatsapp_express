@@ -99,7 +99,6 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
                                 }}, ra.CODIGO_ATENDIMENTO, ra.CODIGO_OPERADOR, null, true);
                                 
                             newMessage && runningAttendances.update(ra.CODIGO_ATENDIMENTO, { MENSAGENS: [...ra.MENSAGENS, newMessage] }); 
-                            newMessage && WebSocket.to(socket.id).emit("new-message", newMessage); 
                         }
                     })
                     .catch(err => {
@@ -162,7 +161,7 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
                                     }}, ra.CODIGO_ATENDIMENTO, ra.CODIGO_OPERADOR, null, true);
     
                                 newMessage && runningAttendances.update(ra.CODIGO_ATENDIMENTO, { MENSAGENS: [...ra.MENSAGENS, newMessage] }); 
-                                newMessage && WebSocket.to(socket.id).emit("new-message", newMessage); 
+
                             }
                         }
                     }).catch(err => {
@@ -205,7 +204,6 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
                                 }}, ra.CODIGO_ATENDIMENTO, ra.CODIGO_OPERADOR, reqBody.context?.message_id, true);
                                 
                             newMessage && runningAttendances.update(ra.CODIGO_ATENDIMENTO, { MENSAGENS: [...ra.MENSAGENS, newMessage] }); 
-                            newMessage && WebSocket.to(socket.id).emit("new-message", newMessage); 
                         }
                     })
                     .catch(err => {
