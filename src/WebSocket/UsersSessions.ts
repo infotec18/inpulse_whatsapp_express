@@ -4,7 +4,7 @@ import WebSocket from "./WebSocket";
 
 type userStatus = "online" | "offline" | "paused";
 
-interface UserSessions {
+export interface UserSessions {
     userId: number;
     userData: User;
     sessions: Array<string>;

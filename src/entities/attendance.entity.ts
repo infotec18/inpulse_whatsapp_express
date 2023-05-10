@@ -6,14 +6,21 @@ import {
 } from "typeorm";
 import { Message } from "./message.entity";
 import { Tabulation } from "./tabulation.entity";
+import { OperatorUrgency, ScheduleUrgency, SupervisorUrgency } from "../interfaces/attendances.interfaces";
 
 @Entity('atendimentos')
 export class Attendance {
     @PrimaryGeneratedColumn()
     CODIGO: number;
 
+    @Column({ enum: ['ATIVO', 'RECEP']})
+    ATIVO_RECEP: 'ATIVO' | 'RECEP';
+
     @Column({ type: 'int' })
     CODIGO_OPERADOR: number;
+
+    @Column({ type: 'int' })
+    CODIGO_OPERADOR_ANTERIOR: number;
 
     @Column({ type: 'int', nullable: false })
     CODIGO_CLIENTE: number;
@@ -22,19 +29,25 @@ export class Attendance {
     CODIGO_NUMERO: number;
 
     @Column({ type: 'tinyint', nullable: true, default: 0 })
-    CONCLUIDO: number;
+    CONCLUIDO: number | null;
 
-    @Column({ type: 'datetime', nullable: true })
+    @Column({ type: 'datetime' })
     DATA_INICIO: Date;
 
     @Column({ type: 'datetime', nullable: true })
-    DATA_FIM: Date;
+    DATA_FIM: Date | null;
 
     @Column({ type: 'datetime', nullable: true })
-    DATA_AGENDAMENTO: Date;
+    DATA_AGENDAMENTO: Date | null;
 
-    @Column({ type: 'enum', enum: ['URGENTE', 'ALTA', 'NORMAL'], default: 'NORMAL' })
-    URGENCIA: "URGENTE" | "ALTA" | "NORMAL";
+    @Column({ type: 'enum', enum: ['URGENTE', 'MUITO_ALTA', 'ALTA', 'MEDIA', 'NORMAL'], default: null, nullable: true })
+    URGENCIA_SUPERVISOR: SupervisorUrgency;
+
+    @Column({ type: 'enum', enum: ['MUITO_ALTA', 'ALTA', 'MEDIA', 'NORMAL'], default: null, nullable: true })
+    URGENCIA_AGENDAMENTO: ScheduleUrgency;
+
+    @Column({ type: 'enum', enum: ['ALTA', 'MEDIA', 'NORMAL'], default: 'NORMAL' })
+    URGENCIA_OPERADOR: OperatorUrgency;
 
     @OneToMany(() => Message, message => message.ATENDIMENTO)
     MENSAGENS: Message[];

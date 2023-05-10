@@ -9,9 +9,11 @@ import { updateSchedulingDate } from "./updateAttendance.service";
 import { getAttendancesByType } from "./getAttendancesByType.service";
 import { updateOperator } from "./updateOperator.service";
 import { updateStatus } from "./updateStatus.service";
+import { startNewAttendanceService } from "./startNewAttendance.service";
 
 export const find = findAttendanceService;
 export const create = createAttendanceService;
+export const startNew = startNewAttendanceService;
 export const findByUser = findAttendancesByUserService;
 export const getOperator = getOperatorForAttendance;
 export const getAllRunning = getAllRunningAttendancesService;

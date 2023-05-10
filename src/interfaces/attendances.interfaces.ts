@@ -7,13 +7,16 @@ export type RetrieveMessage = Message | Message & { ARQUIVO: MessageFile }
 export interface RunningAttendance {
     CODIGO_ATENDIMENTO: number;
     CODIGO_OPERADOR: number;
+    CODIGO_OPERADOR_ANTERIOR: number;
     CODIGO_CLIENTE: number;
     CODIGO_NUMERO: number;
     WPP_NUMERO: string;
     MENSAGENS: RetrieveMessage[];
     AVATAR?: string;
     DATA_INICIO: Date;
-    URGENCIA: Urgency;
+    URGENCIA_OPERADOR: OperatorUrgency;
+    URGENCIA_AGENDAMENTO: ScheduleUrgency;
+    URGENCIA_SUPERVISOR: SupervisorUrgency;
     NOME: string;
     CPF_CNPJ: string;
     RAZAO: string;
@@ -63,6 +66,7 @@ export interface Session {
 export interface FinishAttendanceProps {
     CODIGO_ATENDIMENTO: number;
     CODIGO_RESULTADO: number;
+    DATA_AGENDAMENTO?: Date;
 };
 
 export interface ScheduleInformation {
@@ -72,10 +76,14 @@ export interface ScheduleInformation {
     CPF_CNPJ: string;
     PESSOA: PersonType;
     CODIGO_ATENDIMENTO: number;
-    URGENCIA: Urgency;
+    URGENCIA_OPERADOR: OperatorUrgency;
+    URGENCIA_AGENDAMENTO: ScheduleUrgency;
+    URGENCIA_SUPERVISOR: SupervisorUrgency;
     DATA_FIM_ULTIMO_ATENDIMENTO: Date | null;
     DATA_AGENDAMENTO: Date;
 };
 
-export type Urgency = "URGENTE" | "ALTA" | "NORMAL";
+export type OperatorUrgency = "ALTA" | "MEDIA" | "NORMAL";
+export type ScheduleUrgency = "MUITO_ALTA"| "ALTA" | "MEDIA" | "NORMAL" | null;
+export type SupervisorUrgency = "URGENTE" | "MUITO_ALTA"| "ALTA" | "MEDIA" | "NORMAL" | null;
 export type PersonType = "FIS" | "JUR";
