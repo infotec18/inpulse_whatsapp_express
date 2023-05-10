@@ -15,7 +15,7 @@ export async function updateAttendanceStatus(): Promise<void> {
     const currentTime = Date.now(); 
     const scheduleTime = (date: Date) => date.getTime() - 300000;
     
-    const currentSchedule = scheduledAttendances.filter(a => scheduleTime(a.DATA_AGENDAMENTO) <= currentTime);
+    const currentSchedule = scheduledAttendances.filter(a => scheduleTime(a.DATA_AGENDAMENTO!) <= currentTime);
 
     console.log(new Date().toLocaleString(), ": Total de agendamentos: ", scheduledAttendances.length);
     console.log(new Date().toLocaleString(), ": Agendamentos encontrados para agora: ", currentSchedule.length);
@@ -30,6 +30,7 @@ export async function updateAttendanceStatus(): Promise<void> {
             CODIGO_CLIENTE: attendance.CODIGO_CLIENTE,
             CODIGO_NUMERO: attendance.CODIGO_NUMERO,
             CODIGO_OPERADOR: attendance.CODIGO_OPERADOR,
+            CODIGO_OPERADOR_ANTERIOR: attendance.CODIGO_OPERADOR_ANTERIOR,
             DATA_INICIO: new Date(),
             MENSAGENS: [],
             WPP_NUMERO: number.NUMERO,
@@ -37,10 +38,8 @@ export async function updateAttendanceStatus(): Promise<void> {
             URGENCIA: attendance.URGENCIA,
             NOME: number.NOME,
             CPF_CNPJ: client.CPF_CNPJ,
-            RAZAO: client.RAZAO
+            RAZAO: client.RAZAO,
         });
-
-        runningAttendances.returnOperatorAttendances(attendance.CODIGO_OPERADOR);
 
         attendanceRepository.save({ ...attendance, DATA_AGENDAMENTO: "", CONCLUIDO: 0 });
     });

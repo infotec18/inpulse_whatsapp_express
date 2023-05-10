@@ -11,6 +11,5 @@ export async function updateStatus(cod: number, status: "URGENTE" | "ALTA" | "NO
         findAttendance.URGENCIA = status;
         await AttendancesRepository.save(findAttendance);
         runningAttendances.update(cod, { URGENCIA: status });
-        runningAttendances.returnOperatorAttendances(findAttendance.CODIGO_OPERADOR); 
     };
 };

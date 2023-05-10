@@ -34,7 +34,7 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
 
         const ra = runningAttendances.find({ CODIGO_ATENDIMENTO: COD_ATENDIMENTO });
         runningAttendances.remove(COD_ATENDIMENTO)
-        runningAttendances.returnOperatorAttendances(findAttendance.CODIGO_OPERADOR);
+        //runningAttendances.returnOperatorAttendances(findAttendance.CODIGO_OPERADOR);
 
         const session = await Sessions.getOperatorSession(findAttendance.CODIGO_OPERADOR);
 

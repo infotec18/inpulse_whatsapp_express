@@ -17,7 +17,7 @@ import { OficialMessageMedia } from "../classes/OficialMessageMedia.class";
 import { createReadStream } from "fs";
 import { sendWhatsappMessageService } from "../services/whatsapp/sendMessage.service";
 
-export async function getRunningAttendances () {
+/* export async function getRunningAttendances () {
     const attendances = await services.attendances.getAllRunning();
     for (const a of attendances) {
         const findMessages = await services.messages.getAllByAttendance(a.CODIGO);
@@ -30,6 +30,7 @@ export async function getRunningAttendances () {
                 CODIGO_CLIENTE: a.CODIGO_CLIENTE,
                 CODIGO_NUMERO: a.CODIGO_NUMERO,
                 CODIGO_OPERADOR: a.CODIGO_OPERADOR,
+                CODIGO_OPERADOR_ANTERIOR: a.CODIGO_OPERADOR_ANTERIOR,
                 MENSAGENS: findMessages ,
                 WPP_NUMERO: WPP.NUMERO,
                 AVATAR: "",
@@ -42,7 +43,7 @@ export async function getRunningAttendances () {
             runningAttendances.create(newRA);
         };
     };
-};
+}; */
 
 export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
     if(process.env.OFICIAL_WHATSAPP === "true") {
@@ -285,16 +286,7 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
             const number = await services.wnumbers.getById(data.numero);
     
             if(operator && client && number){
-                const newAttendance: Attendance = await services.attendances.create({
-                    CODIGO_OPERADOR: operator.userId,
-                    CODIGO_CLIENTE: data.cliente,
-                    CODIGO_NUMERO: data.numero,
-                    CONCUIDO: 0,
-                    DATA_INICIO: new Date(),
-                    DATA_FIM: null
-                }); 
-
-                await axios.post(
+                axios.post(
                     `https://graph.facebook.com/v16.0/${process.env.WHATSAPP_NUMBER_ID}/messages`,
                     {
                         "messaging_product": "whatsapp",
@@ -317,7 +309,7 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
                 then(async(res) => {
                     const message: OficialWhatsappMessage = {
                         from: "me",
-                        id: "",
+                        id: res.data.messages[0].id,
                         timestamp: `${Date.now()}`,
                         type: "text",
                         text: {
@@ -325,33 +317,21 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
                         }
                     };
 
-                    const createdMessage = await services.messages.createOficial(message, newAttendance.CODIGO, newAttendance.CODIGO_OPERADOR, "", true, false);
-                    
-                    createdMessage && runningAttendances.create({
-                        CODIGO_ATENDIMENTO: newAttendance.CODIGO,
-                        CODIGO_CLIENTE: newAttendance.CODIGO_CLIENTE,
-                        CODIGO_OPERADOR: newAttendance.CODIGO_OPERADOR,
-                        CODIGO_NUMERO: newAttendance.CODIGO_NUMERO,
-                        WPP_NUMERO: data.wpp,
-                        MENSAGENS: [createdMessage],
-                        AVATAR: data.pfp,
-                        DATA_INICIO: newAttendance.DATA_INICIO,
-                        URGENCIA: newAttendance.URGENCIA,
-                        NOME: number.NOME,
-                        RAZAO: client.RAZAO,
-                        CPF_CNPJ: client.CPF_CNPJ
+                    console.log(message);
+
+                    const newAttendance = await services.attendances.startNew({
+                        client: client,
+                        number: number,
+                        operator: operator,
+                        messages: []
                     });
-        
-                    runningAttendances.returnOperatorAttendances(operator.userId);
-        
-                    const session = await Sessions.getOperatorSession(operator.userId);
-                    if(session) {
-                        Sessions.updateOperatorRunningAttendances(session.userId, session.attendances + 1)
+                    
+                    if(newAttendance) {
+                        const newMessage = await services.messages.createOficial(message, newAttendance.CODIGO, newAttendance.CODIGO_OPERADOR, "", true, false);
+                        newAttendance && newMessage && runningAttendances.insertNewMessage(newAttendance.CODIGO, newMessage);
                     };
                 })
                 .catch(err =>  console.error(err));
-
-
             };
         });
     

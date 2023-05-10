@@ -45,7 +45,6 @@ export async function sendWhatsappMessageService(to: string, type: MessageType, 
                 }}, ra.CODIGO_ATENDIMENTO, ra.CODIGO_OPERADOR, null, true);
                 
             newMessage && runningAttendances.update(ra.CODIGO_ATENDIMENTO, { MENSAGENS: [...ra.MENSAGENS, newMessage] }); 
-            newMessage && runningAttendances.returnOperatorAttendances(ra.CODIGO_OPERADOR);
         };
     }).catch(err => {
         throw new ReqError(err.request);

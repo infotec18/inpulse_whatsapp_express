@@ -7,6 +7,7 @@ export type RetrieveMessage = Message | Message & { ARQUIVO: MessageFile }
 export interface RunningAttendance {
     CODIGO_ATENDIMENTO: number;
     CODIGO_OPERADOR: number;
+    CODIGO_OPERADOR_ANTERIOR: number;
     CODIGO_CLIENTE: number;
     CODIGO_NUMERO: number;
     WPP_NUMERO: string;
@@ -77,5 +78,5 @@ export interface ScheduleInformation {
     DATA_AGENDAMENTO: Date;
 };
 
-export type Urgency = "URGENTE" | "ALTA" | "NORMAL";
+export type Urgency = "URGENTE" | "MUITO_ALTA"| "ALTA" | "MEDIA" | "NORMAL";
 export type PersonType = "FIS" | "JUR";

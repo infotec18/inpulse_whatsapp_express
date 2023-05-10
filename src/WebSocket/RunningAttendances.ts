@@ -1,4 +1,4 @@
-import { RunningAttendance } from "../interfaces/attendances.interfaces";
+import { RetrieveMessage, RunningAttendance } from "../interfaces/attendances.interfaces";
 import WebSocket from "./WebSocket";
 
 export class RunningAttendances {
@@ -10,13 +10,44 @@ export class RunningAttendances {
 
     update(COD_ATENDIMENTO: number, PARAMS: Partial<RunningAttendance>) {
         const index = this.value.findIndex((a) => a.CODIGO_ATENDIMENTO === COD_ATENDIMENTO);
-        if(index > -1) this.value[index] = { ...this.value[index], ...PARAMS };
+        if (index > -1) this.value[index] = { ...this.value[index], ...PARAMS };
         this.emitUpdate();
+        this.retrieveOperatorAttendances(this.value[index].CODIGO_OPERADOR);
+    };
+
+    transferOperator(codigoAtendimento: number, novoOperador: number) {
+        const index = this.value.findIndex((a) => a.CODIGO_ATENDIMENTO === codigoAtendimento);
+
+        if (~index) {
+            const operadorAtual = this.value[index].CODIGO_OPERADOR;
+
+            if (operadorAtual !== novoOperador) {
+                this.value[index].CODIGO_OPERADOR = novoOperador;
+                this.retrieveOperatorAttendances(novoOperador);
+                this.retrieveOperatorAttendances(operadorAtual);
+            };
+        };
+    };
+
+    insertNewMessage(COD_ATENDIMENTO: number, NEW_MESSAGE: RetrieveMessage) {
+        const index = this.value.findIndex((a) => a.CODIGO_ATENDIMENTO === COD_ATENDIMENTO);
+
+        if (~index) {
+            const messages = this.value[index].MENSAGENS;
+
+            // Verifica se a mensagem já existe
+            if (!messages.some((m) => m.CODIGO === NEW_MESSAGE.CODIGO)) {
+                messages.push(NEW_MESSAGE);
+                this.value[index].MENSAGENS = messages;
+                this.retrieveOperatorNewMessage(NEW_MESSAGE, this.value[index].CODIGO_OPERADOR);
+            };
+        };
     };
 
     create(NEW_RA: RunningAttendance) {
         this.value.push(NEW_RA);
-        this.emitUpdate()
+        this.retrieveOperatorAttendances(NEW_RA.CODIGO_OPERADOR);
+        this.emitUpdate();
     };
 
     find(PARAMS: Partial<RunningAttendance>) {
@@ -34,18 +65,19 @@ export class RunningAttendances {
     };
 
     remove(COD_ATENDIMENTO: number) {
+        const operator = this.value.find(a => a.CODIGO_ATENDIMENTO === COD_ATENDIMENTO)?.CODIGO_OPERADOR;
         this.value = this.value.filter(ra => ra.CODIGO_ATENDIMENTO !== COD_ATENDIMENTO);
         this.emitUpdate()
+        operator && this.retrieveOperatorAttendances(operator);
     };
 
-    returnOperatorAttendances(COD_OPERADOR: number) {
+    retrieveOperatorAttendances(COD_OPERADOR: number) {
         const operatorAttendances = this.value.filter(a => a.CODIGO_OPERADOR === COD_OPERADOR);
         WebSocket.to(`room_operator_${COD_OPERADOR}`).emit("load-attendances", operatorAttendances);
     };
 
-    getAttendancesNumber(COD_OPERADOR: number) {
-        const operatorAttendances = this.value.filter(a => a.CODIGO_OPERADOR === COD_OPERADOR).length;
-        return operatorAttendances;
+    retrieveOperatorNewMessage(NEW_MESSAGE: RetrieveMessage, COD_OPERADOR: number) {
+        WebSocket.to(`room_operator_${COD_OPERADOR}`).emit("new-message", NEW_MESSAGE);
     };
 
     emitUpdate() {

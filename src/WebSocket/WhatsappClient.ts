@@ -39,37 +39,38 @@ export const runningSurveys = new RunningSurveys([]);
 
 export async function getRunningAttendances () {
     const attendances = await services.attendances.getAllRunning();
-    
+
     for (const a of attendances) {
+        
         const findMessages = await services.messages.getAllByAttendance(a.CODIGO);
         const WPP = await services.wnumbers.getById(a.CODIGO_NUMERO);
         const client = await services.customers.getOneById(a.CODIGO_CLIENTE);
+        const operator = await Sessions.getOperatorSession(a.CODIGO_OPERADOR);
 
-        if(WPP && client) {
+        if(WPP && client && operator) {
             async function PFP () {
                 if(process.env.OFICIAL_WHATSAPP === "false" && WPP) {
                     return await WhatsappWeb.getProfilePicUrl(WPP.NUMERO + "@c.us");
                 } else {
-                    return ""
-                }
+                    return "";
+                };
             };
 
-            let newRA: RunningAttendance = {
+            runningAttendances.create({
                 CODIGO_ATENDIMENTO: a.CODIGO,
-                CODIGO_CLIENTE: a.CODIGO_CLIENTE,
-                CODIGO_NUMERO: a.CODIGO_NUMERO,
+                CODIGO_CLIENTE: client.CODIGO,
+                CODIGO_NUMERO: WPP.CODIGO,
                 CODIGO_OPERADOR: a.CODIGO_OPERADOR,
-                MENSAGENS: findMessages ,
-                WPP_NUMERO: WPP.NUMERO,
-                AVATAR: await PFP(),
-                DATA_INICIO: a.DATA_INICIO,
-                URGENCIA: a.URGENCIA,
+                CODIGO_OPERADOR_ANTERIOR: a.CODIGO_OPERADOR_ANTERIOR,
                 CPF_CNPJ: client.CPF_CNPJ,
+                DATA_INICIO: a.DATA_INICIO,
+                MENSAGENS: findMessages,
                 NOME: WPP.NOME,
-                RAZAO: client.RAZAO
-            };
-
-            runningAttendances.create(newRA);
+                RAZAO: client.RAZAO,
+                URGENCIA: a.URGENCIA,
+                WPP_NUMERO: WPP.NUMERO,
+                AVATAR: await PFP()
+            });
         };
     };
 };
@@ -90,8 +91,7 @@ WhatsappWeb.on("message", async (message) => {
 
     if (attending) {
         const newMessage = await services.messages.create(message as unknown as WhatsappMessage, attending.CODIGO_ATENDIMENTO, attending.CODIGO_OPERADOR);
-        newMessage && runningAttendances.update(attending.CODIGO_ATENDIMENTO, { MENSAGENS: [...attending.MENSAGENS, newMessage]});
-        newMessage && WebSocket.to(`room_operator_${attending.CODIGO_OPERADOR}`).emit("new-message", newMessage);     
+        newMessage && runningAttendances.insertNewMessage(attending.CODIGO_ATENDIMENTO, newMessage);
     } else if(registrating) {
         const { registration, reply } = await registrationBot(registrating, message.body);
         reply && message.reply(reply);
@@ -109,66 +109,36 @@ WhatsappWeb.on("message", async (message) => {
 
             if(findAttendance && findCustomer) {
                 const operatorSession = await Sessions.getOperatorSession(findAttendance.CODIGO_OPERADOR) 
-                const isOperatorOnline: boolean = operatorSession ? operatorSession.status === "online" : false;
                 const newMessage = await services.messages.create(message as unknown as WhatsappMessage, findAttendance.CODIGO, findAttendance.CODIGO_OPERADOR);
 
-                if(newMessage) {
-                    const newRA: RunningAttendance = {
-                        CODIGO_ATENDIMENTO: findAttendance.CODIGO,
-                        CODIGO_CLIENTE: findAttendance.CODIGO_CLIENTE,
-                        CODIGO_OPERADOR: findAttendance.CODIGO_OPERADOR,
-                        CODIGO_NUMERO: findNumber.CODIGO,
-                        WPP_NUMERO: number,
-                        MENSAGENS: [newMessage],
-                        AVATAR: PFP,
-                        DATA_INICIO: findAttendance.DATA_INICIO,
-                        URGENCIA: findAttendance.URGENCIA,
-                        CPF_CNPJ: findCustomer.CPF_CNPJ,
-                        NOME: findNumber.NOME,
-                        RAZAO: findCustomer.RAZAO
-                    };
-    
-                    runningAttendances.create(newRA);
-                    isOperatorOnline && runningAttendances.returnOperatorAttendances(findAttendance.CODIGO_OPERADOR);
+                if(newMessage && operatorSession) {
+                    services.attendances.startNew({
+                        client: findCustomer,
+                        number: findNumber,
+                        operator: operatorSession,
+                        avatar: PFP,
+                        messages: [newMessage]
+                    });
                 };
             } else if(findCustomer){
                 const findOperator = await services.customers.findOperator(findCustomer.CODIGO);
                 const avaliableOperator = await services.attendances.getOperator(findOperator);
+                const operator = avaliableOperator && await Sessions.getOperatorSession(avaliableOperator)
 
-                    if(typeof avaliableOperator === "number") {
-                        console.log(new Date().toLocaleString(), ": Novo atendimento para operador de ID", avaliableOperator, " | cliente de ID ", findCustomer.CODIGO);
-                        const newAttendance: Attendance = await services.attendances.create({
-                            CODIGO_OPERADOR: avaliableOperator,
-                            CODIGO_CLIENTE: findNumber.CODIGO_CLIENTE,
-                            CODIGO_NUMERO: findNumber.CODIGO,
-                            CONCUIDO: null,
-                            DATA_INICIO: new Date(),
-                            DATA_FIM: null
-                        }); 
+                if(operator) {
+                    const newAttendance = await services.attendances.startNew({
+                        client: findCustomer,
+                        number: findNumber,
+                        operator: operator,
+                        avatar: PFP
+                    });
 
-                        const newMessage = await services.messages.create(message as unknown as WhatsappMessage, newAttendance.CODIGO, newAttendance.CODIGO_OPERADOR);
-    
-                        newMessage && runningAttendances.create({
-                            CODIGO_ATENDIMENTO: newAttendance.CODIGO,
-                            CODIGO_CLIENTE: newAttendance.CODIGO_CLIENTE,
-                            CODIGO_OPERADOR: newAttendance.CODIGO_OPERADOR,
-                            CODIGO_NUMERO: newAttendance.CODIGO_NUMERO,
-                            URGENCIA: newAttendance.URGENCIA,
-                            WPP_NUMERO: number,
-                            MENSAGENS: [newMessage],
-                            AVATAR: PFP,
-                            DATA_INICIO: newAttendance.DATA_INICIO,
-                            CPF_CNPJ: findCustomer.CPF_CNPJ,
-                            NOME: findNumber.NOME,
-                            RAZAO: findCustomer.RAZAO
-                        });
-
-                        newMessage && runningAttendances.returnOperatorAttendances(avaliableOperator);                    
-                    } else {
-            
-                        console.log(new Date().toLocaleString(), `: Sem operador online para atender: Cliente de ID ${findNumber.CODIGO_CLIENTE} | WPP: ${number}`);
-                        console.log(new Date().toLocaleString(), ": Mensagem: ", message.body);
-                    };
+                    const newMessage = newAttendance && await services.messages.create(message as unknown as WhatsappMessage, newAttendance.CODIGO, newAttendance.CODIGO_OPERADOR);
+                    newAttendance && newMessage && runningAttendances.insertNewMessage(newAttendance.CODIGO, newMessage);
+                } else {
+                    console.log(new Date().toLocaleString(), `: Sem operador online para atender: Cliente de ID ${findNumber.CODIGO_CLIENTE} | WPP: ${number}`);
+                    console.log(new Date().toLocaleString(), ": Mensagem: ", message.body);
+                };
             };  
             
         } else {
@@ -232,7 +202,6 @@ if(process.env.OFICIAL_WHATSAPP === "false") {
     
             data.listaDeNumeros.forEach( async (number: string) => {
                 const numero = number.replace(/\+/g, '');
-    
                 const numberPhone = `${numero}@c.us`;
                 
                 if(getMessage.ARQUIVO) {
@@ -240,9 +209,9 @@ if(process.env.OFICIAL_WHATSAPP === "false") {
     
                     const media = new MessageMedia(getMessage.ARQUIVO.TIPO, fs.readFileSync(filePath).toString('base64'), getMessage.TITULO);
     
-                    const msg = await WhatsappWeb.sendMessage(numberPhone, media, { caption: getMessage.TEXTO_MENSAGEM});
+                    WhatsappWeb.sendMessage(numberPhone, media, { caption: getMessage.TEXTO_MENSAGEM});
                 } else {
-                    const msg = await WhatsappWeb.sendMessage(numberPhone, getMessage.TEXTO_MENSAGEM);
+                    WhatsappWeb.sendMessage(numberPhone, getMessage.TEXTO_MENSAGEM);
                 };
             });   
         });
@@ -257,13 +226,13 @@ if(process.env.OFICIAL_WHATSAPP === "false") {
 
                     if(process.env.OFICIAL_WHATSAPP === "false") {
                         number && reply && WhatsappWeb.sendMessage(`${number.NUMERO}@c.us`, reply);
-                    }
+                    };
                     
                     runningSurveys.update(survey.WPP_NUMERO, registration);
                 } catch (err) {
                     console.log(new Date().toLocaleString(), ": error on survey: ", err);
                 };
-            }
+            };
         });
     
         socket.on("start-attendance", async(data: { cliente: number, numero: number, wpp: string, pfp: string }) => {
@@ -273,36 +242,11 @@ if(process.env.OFICIAL_WHATSAPP === "false") {
             const number = await services.wnumbers.getById(data.numero);
     
             if(operator && client && number){
-                const newAttendance: Attendance = await services.attendances.create({
-                    CODIGO_OPERADOR: operator.userId,
-                    CODIGO_CLIENTE: data.cliente,
-                    CODIGO_NUMERO: data.numero,
-                    CONCUIDO: 0,
-                    DATA_INICIO: new Date(),
-                    DATA_FIM: null
-                }); 
-    
-                runningAttendances.create({
-                    CODIGO_ATENDIMENTO: newAttendance.CODIGO,
-                    CODIGO_CLIENTE: newAttendance.CODIGO_CLIENTE,
-                    CODIGO_OPERADOR: newAttendance.CODIGO_OPERADOR,
-                    CODIGO_NUMERO: newAttendance.CODIGO_NUMERO,
-                    WPP_NUMERO: data.wpp,
-                    MENSAGENS: [],
-                    AVATAR: data.pfp,
-                    DATA_INICIO: newAttendance.DATA_INICIO,
-                    URGENCIA: newAttendance.URGENCIA,
-                    NOME: number.NOME,
-                    RAZAO: client.RAZAO,
-                    CPF_CNPJ: client.CPF_CNPJ
+                services.attendances.startNew({
+                    client: client,
+                    number: number,
+                    operator: operator
                 });
-    
-                runningAttendances.returnOperatorAttendances(operator.userId);
-    
-                const session = await Sessions.getOperatorSession(operator.userId);
-                if(session) {
-                    Sessions.updateOperatorRunningAttendances(session.userId, session.attendances + 1)
-                };
             };
         });
     
@@ -319,6 +263,5 @@ if(process.env.OFICIAL_WHATSAPP === "false") {
         });
     });
 };
-
 
 export default WhatsappWeb;

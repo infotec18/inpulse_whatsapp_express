@@ -5,7 +5,7 @@ import services from "./services";
 import { oficialApiFlow } from "./WebSocket/OficialApi";
 import { Sessions } from "./WebSocket/Sessions";
 import WebSocket from "./WebSocket/WebSocket";
-import WhatsappWeb, { getRunningAttendances, runningAttendances } from "./WebSocket/WhatsappClient";
+import WhatsappWeb, { getRunningAttendances } from "./WebSocket/WhatsappClient";
 
 const PORT: number = Number(process.env.PORT) || 8000;
 const SOCKET_PORT: number = Number(process.env.SOCKET_PORT) || 5000;
@@ -36,8 +36,6 @@ async function initialize () {
         console.log(new Date().toLocaleString(), ": Utilizando API Oficial do Whatsapp.");
     }
 
-    await getRunningAttendances();
-
     const allOperators = await services.users.getAll(9999, 1, "");
     const filteredOperators = allOperators.dados.filter(o => o.NIVEL !== "ADMIN" && o.CODIGO > 0);
 
@@ -45,13 +43,7 @@ async function initialize () {
         await Sessions.addSession(op.CODIGO, null);
     };
 
-    const operators = Array.from(new Set(runningAttendances.value.map(r => r.CODIGO_OPERADOR)));
-
-    operators.forEach(async(o) => {
-        const attendances = runningAttendances.getAttendancesNumber(o);
-        Sessions.updateOperatorRunningAttendances(o, attendances);
-    });
- 
+    getRunningAttendances();
     cronJob;
 };
 
