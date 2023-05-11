@@ -96,9 +96,7 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
                     }
                 })
                 .then((response) => response.data.id)
-                .catch((error) => {
-                    console.error(error.response.data)
-                });
+                .catch((error) => console.error(error.response.data));
     
                 const x = data.file.type.split("/")[0];
                 const mediaType = x === "image" ? x : x === "video" ? x : x === "audio" ? x : "document";
@@ -256,11 +254,17 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
     
             const client = await services.customers.getOneById(data.cliente);
             const number = await services.wnumbers.getById(data.numero);
-    
-            if(operator && client && number){
+
+            const isClientBeingAttended = number && runningAttendances.find({ CODIGO_NUMERO: number.CODIGO });
+            
+            if(isClientBeingAttended) {
+                socket.emit("toast", "Este contato já está sendo atendido por outro operador...");
+                return;
+            };
+
+            if(operator && client && number && !isClientBeingAttended){
                 sendWhatsappTemplateService({ operator, whatsappNumber: number, template: data.template})
                 .then(async(res) => {
-                    console.log(res)
                     if(res) {
                         const message: OficialWhatsappMessage = {
                             from: "me",
@@ -271,9 +275,7 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
                                 body: `Template "${data.template.name}" enviado com sucesso!`
                             }
                         };
-    
-                        console.log(message);
-    
+        
                         const newAttendance = await services.attendances.startNew({
                             client: client,
                             number: number,

@@ -4,14 +4,12 @@ import { Customer } from "../../entities/customer";
 import { ClientCampaign } from "../../entities/clientCampaign.entity";
 import { Wnumber } from "../../entities/wnumber.entity";
 import WhatsappWeb, { runningAttendances } from "../../WebSocket/WhatsappClient";
-import services from "..";
 import { Attendance } from "../../entities/attendance.entity";
 
 export async function findByOperatorIdService(CODIGO_OPERADOR: number) {
     const customersRepository: Repository<Customer> = AppDataSource.getRepository(Customer);
     const clientsCampaignRepository: Repository<ClientCampaign> = AppDataSource.getRepository(ClientCampaign);
     const clientsNumbersRepository: Repository<Wnumber> = AppDataSource.getRepository(Wnumber);
-    const attendancesRepository: Repository<Attendance> = AppDataSource.getRepository(Attendance);
 
     const findInClientsCampaign = await clientsCampaignRepository.find({
         where: { CONCLUIDO: "NAO", OPERADOR: CODIGO_OPERADOR }
@@ -24,14 +22,14 @@ export async function findByOperatorIdService(CODIGO_OPERADOR: number) {
         .where("CODIGO_CLIENTE in (:...ids)", { ids: clientIds })
         .getMany();
 
-    let returnArr = [];
+    let allOperatorClients = [];
 
     if (findNumbers.length) {
         for (const n of findNumbers) {
             const findCustomer = await customersRepository.findOne({ where: { CODIGO: n.CODIGO_CLIENTE } });
             if (findCustomer) {
                 const PFP = process.env.OFICIAL_WHATSAPP === "false" && await WhatsappWeb.getProfilePicUrl(`${n.NUMERO}@c.us`);
-                returnArr.push({
+                allOperatorClients.push({
                     CODIGO_CLIENTE: n.CODIGO_CLIENTE,
                     CODIGO_NUMERO: n.CODIGO,
                     NOME: n.NOME,
@@ -45,17 +43,7 @@ export async function findByOperatorIdService(CODIGO_OPERADOR: number) {
         };
     };
 
-    const returnArrII = []
+    const clientsWithoutRunningAttendance = allOperatorClients.filter(c => !runningAttendances.find({ CODIGO_NUMERO: c.CODIGO_NUMERO }));
 
-    for (let c of returnArr) {
-        const findInRunning = runningAttendances.find({ CODIGO_NUMERO: c.CODIGO_NUMERO });
-        const findScheduled = await attendancesRepository
-            .createQueryBuilder("attendance")
-            .where("CODIGO_NUMERO = :id", { id: c.CODIGO_NUMERO })
-            .andWhere("attendance.DATA_AGENDAMENTO IS NOT NULL")
-            .getMany();
-        if (!findInRunning && !findScheduled.length) returnArrII.push(c)
-    }
-
-    return returnArrII;
+    return clientsWithoutRunningAttendance;
 };

@@ -10,6 +10,7 @@ import { getAttendancesByType } from "./getAttendancesByType.service";
 import { updateOperator } from "./updateOperator.service";
 import { updateStatus } from "./updateStatus.service";
 import { startNewAttendanceService } from "./startNewAttendance.service";
+import { cancelAttendanceScheduleService } from "./cancelSchedule.service";
 
 export const find = findAttendanceService;
 export const create = createAttendanceService;
@@ -23,3 +24,4 @@ export const updateSchedulesDate = updateSchedulingDate;
 export const getAllByStatus = getAttendancesByType;
 export const updateOp = updateOperator;
 export const updateUrgencia = updateStatus;
+export const cancelSchedule = cancelAttendanceScheduleService;
