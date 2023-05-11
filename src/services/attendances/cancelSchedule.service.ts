@@ -11,6 +11,8 @@ export async function cancelAttendanceScheduleService(CODIGO_ATENDIMENTO: number
     if(!findAttendance.DATA_AGENDAMENTO) throw new AppError("O atendimento não possuí agendamento.", 400);
 
     findAttendance.DATA_AGENDAMENTO = null;
+    findAttendance.DATA_FIM = new Date();
+    
     await attendanceRepository.save(findAttendance);
 
     return "Agendamento cancelado com sucesso!";
