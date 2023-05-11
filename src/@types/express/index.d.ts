@@ -11,7 +11,6 @@ declare global {
             user: {
                 CODIGO: number,
                 isAdmin: boolean,
-                data: User
             },
             customer: {
                 CODIGO: number

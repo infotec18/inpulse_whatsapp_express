@@ -4,20 +4,20 @@ import middlewares from "../middlewares";
 
 export const customerRoutes = Router()
 
-customerRoutes.post("/api/customers/",
+customerRoutes.post("/customers/",
     controllers.customers.create
 );
 
-customerRoutes.get("/api/customers/",
+customerRoutes.get("/customers/",
     controllers.customers.getAllCus
 );
 
-customerRoutes.get("/api/customers/:userId",
+customerRoutes.get("/customers/:userId",
     middlewares.customers.ensureParamCustomerIdExists,
     controllers.customers.getOneById
 );
 
-customerRoutes.delete("/api/customers/:userId",
+customerRoutes.delete("/customers/:userId",
     middlewares.customers.ensureParamCustomerIdExists,
     controllers.customers.softDelete
 );

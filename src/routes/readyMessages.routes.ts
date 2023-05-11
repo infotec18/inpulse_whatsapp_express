@@ -4,25 +4,25 @@ import middlewares from "../middlewares";
 
 export const readyMessagesRoutes = Router()
 
-readyMessagesRoutes.get('/api/ready-messages', 
+readyMessagesRoutes.get('/ready-messages', 
     controllers.readyMessages.getAll
 );
 
-readyMessagesRoutes.get('/api/ready-messages/:messageId', 
+readyMessagesRoutes.get('/ready-messages/:messageId', 
     middlewares.readyMessages.ensureParamReadyMessagesIdExists,
     controllers.readyMessages.getOneById
 );
 
-readyMessagesRoutes.post('/api/ready-messages',
+readyMessagesRoutes.post('/ready-messages',
     controllers.readyMessages.create
 );
 
-readyMessagesRoutes.put('/api/ready-messages/:messageId/update',
+readyMessagesRoutes.put('/ready-messages/:messageId/update',
     middlewares.readyMessages.ensureParamReadyMessagesIdExists,
     controllers.readyMessages.update
 );
 
-readyMessagesRoutes.delete('/api/ready-messages/:messageId/delete', 
+readyMessagesRoutes.delete('/ready-messages/:messageId/delete', 
     middlewares.readyMessages.ensureParamReadyMessagesIdExists,
     controllers.readyMessages.erase
 );

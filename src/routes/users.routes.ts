@@ -4,42 +4,42 @@ import middlewares from "../middlewares";
 
 export const userRoutes = Router();
 
-userRoutes.post("/api/users/",
+userRoutes.post("/users/",
     controllers.users.create
 );
 
-userRoutes.get("/api/users/",
+userRoutes.get("/users/",
     controllers.users.getAll
 );
 
-userRoutes.post("/api/users/login",
+userRoutes.post("/users/login",
     controllers.users.login
 );
 
-userRoutes.get("/api/users/status",
+userRoutes.get("/users/status",
     middlewares.auth.ensureTokenIsValid,
     controllers.users.getOneById
 );
 
-userRoutes.delete("/api/users/:userId",
+userRoutes.delete("/users/:userId",
     middlewares.users.ensureParamUserIdExists,
     controllers.users.softDelete
 );
 
-userRoutes.put("/api/users/:userId/recover",
+userRoutes.put("/users/:userId/recover",
     middlewares.users.ensureParamUserIdExists,
     controllers.users.recover
 );
 
-userRoutes.patch("/api/users/:userId", 
+userRoutes.patch("/users/:userId", 
     middlewares.users.ensureParamUserIdExists,
     controllers.users.update
 );
 
-userRoutes.get("/api/users/lastid",
+userRoutes.get("/users/lastid",
     controllers.users.getLastId
 );
 
-userRoutes.get("/api/users/specified",
+userRoutes.get("/users/specified",
     controllers.users.getSpecified
 )

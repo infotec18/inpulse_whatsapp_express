@@ -5,29 +5,29 @@ import { getAllContactsController } from "../controllers/Wnumbers/getContacts.co
 
 export const wnumbersRoutes = Router();
 
-wnumbersRoutes.get('/api/wnumber',
+wnumbersRoutes.get('/wnumber',
     controllers.wnumbers.getAllWNumbers
 )
 
-wnumbersRoutes.get('/api/wnumber/:numberId',
+wnumbersRoutes.get('/wnumber/:numberId',
     middlewares.wnumbers.ensureParamNumberIdExists,
     controllers.wnumbers.getOneById
 );
 
-wnumbersRoutes.post('/api/wnumber',
+wnumbersRoutes.post('/wnumber',
     controllers.wnumbers.create
 );
 
-wnumbersRoutes.put('/api/wnumber/:numberId/update',
+wnumbersRoutes.put('/wnumber/:numberId/update',
     middlewares.wnumbers.ensureParamNumberIdExists,
     controllers.wnumbers.update
 );
 
-wnumbersRoutes.delete('/api/wnumber/:numberId/delete',
+wnumbersRoutes.delete('/wnumber/:numberId/delete',
     middlewares.wnumbers.ensureParamNumberIdExists,
     controllers.wnumbers.erase
 );
 
-wnumbersRoutes.get('/api/contacts/',
+wnumbersRoutes.get('/contacts/',
     getAllContactsController
 );

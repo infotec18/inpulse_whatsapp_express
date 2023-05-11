@@ -3,10 +3,10 @@ import controllers from "../controllers";
 
 export const attendancesRoute = Router();
 
-attendancesRoute.get('/api/attendances/',
+attendancesRoute.get('/attendances/',
     controllers.attendances.getAllAttendancesByType
 );
 
-attendancesRoute.put('/api/attendances/:attendanceId/schedule',
+attendancesRoute.put('/attendances/:attendanceId/schedule',
     controllers.attendances.cancelSchedule
 );
