@@ -36,6 +36,8 @@ customerRoutes.get("/api/customers/lastid",
     controllers.customers.getLastId
 );
 
-customerRoutes.get("/api/customers/findByOperator/:operatorId",
+customerRoutes.get("/api/customers/findByOperator/:userId",
+    middlewares.auth.ensureTokenIsValid,
+    middlewares.customers.ensureParamCustomerIdExists,
     controllers.customers.getByOperatorId
 );

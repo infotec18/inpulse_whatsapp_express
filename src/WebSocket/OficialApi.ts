@@ -235,7 +235,7 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
     
         socket.on("finish-attendance", async(data: FinishAttendanceProps) => {
             const survey = await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, data.DATA_AGENDAMENTO);
-            if(survey) {
+            /* if(survey) {
                 //const { registration, reply } = await surveyBot(survey, "");
                 try {
                     const attendance = await getSpecificAttendance(data.CODIGO_ATENDIMENTO);
@@ -245,7 +245,7 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
                 } catch (err) {
                     console.log(new Date().toLocaleString(), ": error on survey: ", err);
                 };
-            }
+            } */
         });
     
         socket.on("start-attendance", async(data: { cliente: number, numero: number, wpp: string, pfp: string, template: OficialWhatsappMessageTemplate }) => {
