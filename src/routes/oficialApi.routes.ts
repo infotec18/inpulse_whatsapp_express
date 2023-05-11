@@ -10,6 +10,3 @@ oficialApiRoutes.post("/whatsapp/message",
 oficialApiRoutes.get("/whatsapp/message_templates",
     controllers.whatsapp.recoverMessageTemplates
 );
-oficialApiRoutes.post("/whatsapp/message_templates_variables",
-    controllers.whatsapp.sendTemplateVariables
-);

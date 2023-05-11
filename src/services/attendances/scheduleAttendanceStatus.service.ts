@@ -23,26 +23,34 @@ export async function updateAttendanceStatus(): Promise<void> {
     currentSchedule.forEach(async(attendance) => { 
         const number = await services.wnumbers.getById(attendance.CODIGO_NUMERO);
         const client = await services.customers.getOneById(attendance.CODIGO_CLIENTE);
+
+        const isAttending = runningAttendances.find({ CODIGO_NUMERO: attendance.CODIGO_NUMERO });
+        
         const avatar = process.env.OFICIAL_WHATSAPP === "false" ? (number && await WhatsappWeb.getProfilePicUrl(`${number.NUMERO}@c.us`)) : null;
 
-        number && client && runningAttendances.create({
-            CODIGO_ATENDIMENTO: attendance.CODIGO,
-            CODIGO_CLIENTE: attendance.CODIGO_CLIENTE,
-            CODIGO_NUMERO: attendance.CODIGO_NUMERO,
-            CODIGO_OPERADOR: attendance.CODIGO_OPERADOR,
-            CODIGO_OPERADOR_ANTERIOR: attendance.CODIGO_OPERADOR_ANTERIOR,
-            DATA_INICIO: new Date(),
-            MENSAGENS: [],
-            WPP_NUMERO: number.NUMERO,
-            AVATAR: avatar || "",
-            URGENCIA_SUPERVISOR: attendance.URGENCIA_SUPERVISOR,
-            URGENCIA_AGENDAMENTO: attendance.URGENCIA_AGENDAMENTO, 
-            URGENCIA_OPERADOR: attendance.URGENCIA_OPERADOR,
-            NOME: number.NOME,
-            CPF_CNPJ: client.CPF_CNPJ,
-            RAZAO: client.RAZAO,
-        });
+        if(!isAttending) {
+            number && client && runningAttendances.create({
+                CODIGO_ATENDIMENTO: attendance.CODIGO,
+                CODIGO_CLIENTE: attendance.CODIGO_CLIENTE,
+                CODIGO_NUMERO: attendance.CODIGO_NUMERO,
+                CODIGO_OPERADOR: attendance.CODIGO_OPERADOR,
+                CODIGO_OPERADOR_ANTERIOR: attendance.CODIGO_OPERADOR_ANTERIOR,
+                DATA_INICIO: new Date(),
+                MENSAGENS: [],
+                WPP_NUMERO: number.NUMERO,
+                AVATAR: avatar || "",
+                URGENCIA_SUPERVISOR: attendance.URGENCIA_SUPERVISOR,
+                URGENCIA_AGENDAMENTO: attendance.URGENCIA_AGENDAMENTO, 
+                URGENCIA_OPERADOR: attendance.URGENCIA_OPERADOR,
+                NOME: number.NOME,
+                CPF_CNPJ: client.CPF_CNPJ,
+                RAZAO: client.RAZAO,
+            });
 
-        attendanceRepository.save({ ...attendance, DATA_AGENDAMENTO: "", CONCLUIDO: 0 });
+            attendanceRepository.save({ ...attendance, DATA_AGENDAMENTO: "", CONCLUIDO: 0 });
+            
+        } else {
+            attendanceRepository.save({ ...attendance, DATA_AGENDAMENTO: "" });
+        };
     });
 };

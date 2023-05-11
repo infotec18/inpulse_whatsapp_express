@@ -3,6 +3,7 @@ import {
     Entity, 
     PrimaryColumn, 
 } from "typeorm";
+import { ScheduleUrgency } from "../interfaces/attendances.interfaces";
 
 @Entity('resultados')
 export class Result {
@@ -20,4 +21,13 @@ export class Result {
 
     @Column({ type: 'int', nullable: true, default: 5 })
     QTDE_FIDELIZARCOTACAO: number;
+
+    @Column({ type: 'varchar', length: 50, nullable: true, default: null })
+    WHATS_ACAO: string;
+
+    @Column({ type: 'enum', enum: ['MUITO_ALTA', 'ALTA', 'MEDIA', 'NORMAL'], default: null, nullable: true })
+    WHATS_URGENCIA_AGENDAMENTO: ScheduleUrgency;
+
+    @Column({ type: 'boolean', default: false })
+    WHATS_ALTERAR_AGENDAMENTO: boolean;
 };

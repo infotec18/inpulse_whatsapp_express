@@ -2,7 +2,7 @@ import WebSocket from "./WebSocket";
 import services from "../services";
 import { Sessions } from "./Sessions";
 import { Attendance } from "../entities/attendance.entity";
-import { FinishAttendanceProps, OperatorUrgency, RunningAttendance, ScheduleUrgency, SupervisorUrgency } from "../interfaces/attendances.interfaces";
+import { FinishAttendanceProps, OperatorUrgency, RunningAttendance, ScheduleUrgency, SupervisorUrgency, Urgency } from "../interfaces/attendances.interfaces";
 import { OficialWhatsappMessage, OficialWhatsappMessageTemplate, SendMessageData, WhatsappMessage } from "../interfaces/messages.interfaces";
 import { Socket } from "socket.io";
 import path from "path";
@@ -16,34 +16,7 @@ import { saveAndReadFile } from "../services/files/saveAndReadFile.service";
 import { OficialMessageMedia } from "../classes/OficialMessageMedia.class";
 import { createReadStream } from "fs";
 import { sendWhatsappMessageService } from "../services/whatsapp/sendMessage.service";
-
-/* export async function getRunningAttendances () {
-    const attendances = await services.attendances.getAllRunning();
-    for (const a of attendances) {
-        const findMessages = await services.messages.getAllByAttendance(a.CODIGO);
-        const WPP = await services.wnumbers.getById(a.CODIGO_NUMERO);
-        const client = await services.customers.getOneById(a.CODIGO_CLIENTE);
-
-        if(WPP && client) {
-            let newRA: RunningAttendance = {
-                CODIGO_ATENDIMENTO: a.CODIGO,
-                CODIGO_CLIENTE: a.CODIGO_CLIENTE,
-                CODIGO_NUMERO: a.CODIGO_NUMERO,
-                CODIGO_OPERADOR: a.CODIGO_OPERADOR,
-                CODIGO_OPERADOR_ANTERIOR: a.CODIGO_OPERADOR_ANTERIOR,
-                MENSAGENS: findMessages ,
-                WPP_NUMERO: WPP.NUMERO,
-                AVATAR: "",
-                DATA_INICIO: a.DATA_INICIO,
-                URGENCIA: a.URGENCIA,
-                CPF_CNPJ: client.CPF_CNPJ,
-                NOME: WPP.NOME,
-                RAZAO: client.RAZAO
-            };
-            runningAttendances.create(newRA);
-        };
-    };
-}; */
+import { sendWhatsappTemplateService } from "../services/whatsapp/sendTemplate.service";
 
 export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
     if(process.env.OFICIAL_WHATSAPP === "true") {
@@ -263,7 +236,7 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
         });
     
         socket.on("finish-attendance", async(data: FinishAttendanceProps) => {
-            const survey = await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO);
+            const survey = await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, data.DATA_AGENDAMENTO);
             if(survey) {
                 //const { registration, reply } = await surveyBot(survey, "");
                 try {
@@ -278,57 +251,42 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
         });
     
         socket.on("start-attendance", async(data: { cliente: number, numero: number, wpp: string, pfp: string, template: OficialWhatsappMessageTemplate }) => {
-            const operator = Sessions.value.find(s => s.sessions.includes(socket.id));
+            const session = Sessions.value.find(s => s.sessions.includes(socket.id));
+            const operator = session && await services.users.getOneById(session.userId);
     
             const client = await services.customers.getOneById(data.cliente);
             const number = await services.wnumbers.getById(data.numero);
     
             if(operator && client && number){
-                axios.post(
-                    `https://graph.facebook.com/v16.0/${process.env.WHATSAPP_NUMBER_ID}/messages`,
-                    {
-                        "messaging_product": "whatsapp",
-                        "recipient_type": "individual",
-                        "to": data.wpp,
-                        "type": "template",
-                        "template": {
-                          "name": data.template.name,
-                          "language": {
-                            "code": data.template.language
-                          }
-                        }
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`
-                        }
+                sendWhatsappTemplateService({ operator, whatsappNumber: number, template: data.template})
+                .then(async(res) => {
+                    console.log(res)
+                    if(res) {
+                        const message: OficialWhatsappMessage = {
+                            from: "me",
+                            id: res,
+                            timestamp: `${Date.now()}`,
+                            type: "text",
+                            text: {
+                                body: `Template "${data.template.name}" enviado com sucesso!`
+                            }
+                        };
+    
+                        console.log(message);
+    
+                        const newAttendance = await services.attendances.startNew({
+                            client: client,
+                            number: number,
+                            operator: session,
+                            messages: [],
+                            ativoRecep: "ATIVO"
+                        });
+                        
+                        if(newAttendance) {
+                            const newMessage = await services.messages.createOficial(message, newAttendance.CODIGO, newAttendance.CODIGO_OPERADOR, "", true, false);
+                            newAttendance && newMessage && runningAttendances.insertNewMessage(newAttendance.CODIGO, newMessage);
+                        };
                     }
-                ).
-                then(async(res) => {
-                    const message: OficialWhatsappMessage = {
-                        from: "me",
-                        id: res.data.messages[0].id,
-                        timestamp: `${Date.now()}`,
-                        type: "text",
-                        text: {
-                            body: `Template "${data.template.name}" enviado com sucesso!`
-                        }
-                    };
-
-                    console.log(message);
-
-                    const newAttendance = await services.attendances.startNew({
-                        client: client,
-                        number: number,
-                        operator: operator,
-                        messages: [],
-                        ativoRecep: "ATIVO"
-                    });
-                    
-                    if(newAttendance) {
-                        const newMessage = await services.messages.createOficial(message, newAttendance.CODIGO, newAttendance.CODIGO_OPERADOR, "", true, false);
-                        newAttendance && newMessage && runningAttendances.insertNewMessage(newAttendance.CODIGO, newMessage);
-                    };
                 })
                 .catch(err =>  console.error(err));
             };
@@ -342,7 +300,11 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
             services.attendances.updateOp(data.CODIGO_ATENDIMENTO, data.CODIGO_OPERADOR);
         });
     
-        socket.on("update-urgencia", (data: { CODIGO_ATENDIMENTO: number, URGENCIA: SupervisorUrgency | ScheduleUrgency | OperatorUrgency, mode: "Supervisor" | "Operator"}) => {
+        socket.on("update-urgencia", (data: { 
+            CODIGO_ATENDIMENTO: number, 
+            URGENCIA: Urgency, 
+            mode: "Supervisor" | "Operator"
+        }) => {
             services.attendances.updateUrgencia(data.CODIGO_ATENDIMENTO, data.URGENCIA, data.mode);
         });
     };

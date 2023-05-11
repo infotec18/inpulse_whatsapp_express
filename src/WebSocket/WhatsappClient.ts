@@ -4,7 +4,7 @@ import { Wnumber } from "../entities/wnumber.entity";
 import services from "../services";
 import { Sessions } from "./Sessions";
 import { Attendance } from "../entities/attendance.entity";
-import { FinishAttendanceProps, OperatorUrgency, RunningAttendance, RunningRegistration, RunningSurvey, ScheduleUrgency, SupervisorUrgency } from "../interfaces/attendances.interfaces";
+import { FinishAttendanceProps, OperatorUrgency, RunningAttendance, RunningRegistration, RunningSurvey, ScheduleUrgency, SupervisorUrgency, Urgency } from "../interfaces/attendances.interfaces";
 import { registrationBot } from "../bots/registration.bot";
 import { SendMessageData, WhatsappMessage } from "../interfaces/messages.interfaces";
 import { Customer } from "../entities/customer";
@@ -262,7 +262,7 @@ if(process.env.OFICIAL_WHATSAPP === "false") {
             services.attendances.updateOp(data.CODIGO_ATENDIMENTO, data.CODIGO_OPERADOR);
         });
     
-        socket.on("update-urgencia", (data: { CODIGO_ATENDIMENTO: number, URGENCIA: SupervisorUrgency | ScheduleUrgency | OperatorUrgency, mode: "Supervisor" | "Operator"}) => {
+        socket.on("update-urgencia", (data: { CODIGO_ATENDIMENTO: number, URGENCIA: Urgency, mode: "Supervisor" | "Operator"}) => {
             services.attendances.updateUrgencia(data.CODIGO_ATENDIMENTO, data.URGENCIA, data.mode);
         });
     });

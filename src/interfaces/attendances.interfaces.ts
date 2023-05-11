@@ -86,4 +86,5 @@ export interface ScheduleInformation {
 export type OperatorUrgency = "ALTA" | "MEDIA" | "NORMAL";
 export type ScheduleUrgency = "MUITO_ALTA"| "ALTA" | "MEDIA" | "NORMAL" | null;
 export type SupervisorUrgency = "URGENTE" | "MUITO_ALTA"| "ALTA" | "MEDIA" | "NORMAL" | null;
+export type Urgency = OperatorUrgency | ScheduleUrgency | SupervisorUrgency;
 export type PersonType = "FIS" | "JUR";

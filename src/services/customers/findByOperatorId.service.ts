@@ -4,26 +4,29 @@ import { Customer } from "../../entities/customer";
 import { ClientCampaign } from "../../entities/clientCampaign.entity";
 import { Wnumber } from "../../entities/wnumber.entity";
 import WhatsappWeb, { runningAttendances } from "../../WebSocket/WhatsappClient";
+import services from "..";
+import { Attendance } from "../../entities/attendance.entity";
 
 export async function findByOperatorIdService(CODIGO_OPERADOR: number) {
     const customersRepository: Repository<Customer> = AppDataSource.getRepository(Customer);
     const clientsCampaignRepository: Repository<ClientCampaign> = AppDataSource.getRepository(ClientCampaign);
     const clientsNumbersRepository: Repository<Wnumber> = AppDataSource.getRepository(Wnumber);
+    const attendancesRepository: Repository<Attendance> = AppDataSource.getRepository(Attendance);
 
     const findInClientsCampaign = await clientsCampaignRepository.find({
         where: { CONCLUIDO: "NAO", OPERADOR: CODIGO_OPERADOR }
     });
 
     const clientIds = findInClientsCampaign.map(cc => cc.CLIENTE);
-    if(!clientIds.length) return
+    if (!clientIds.length) return
 
     const findNumbers = await clientsNumbersRepository.createQueryBuilder("clientes_numeros")
         .where("CODIGO_CLIENTE in (:...ids)", { ids: clientIds })
-        .getMany(); 
+        .getMany();
 
     let returnArr = [];
-    
-    if(findNumbers.length) {
+
+    if (findNumbers.length) {
         for (const n of findNumbers) {
             const findCustomer = await customersRepository.findOne({ where: { CODIGO: n.CODIGO_CLIENTE } });
             if (findCustomer) {
@@ -42,13 +45,17 @@ export async function findByOperatorIdService(CODIGO_OPERADOR: number) {
         };
     };
 
-    console.log(returnArr)
-    returnArr = returnArr.filter(a => {
-        const find = runningAttendances.find({ CODIGO_NUMERO: a.CODIGO_NUMERO });
-        console.log("find ?", a.CODIGO_NUMERO)
-        if(!find) return a
-    });
-    
-    console.table(returnArr);
-    return returnArr;
+    const returnArrII = []
+
+    for (let c of returnArr) {
+        const findInRunning = runningAttendances.find({ CODIGO_NUMERO: c.CODIGO_NUMERO });
+        const findScheduled = await attendancesRepository
+            .createQueryBuilder("attendance")
+            .where("CODIGO_NUMERO = :id", { id: c.CODIGO_NUMERO })
+            .andWhere("attendance.DATA_AGENDAMENTO IS NOT NULL")
+            .getMany();
+        if (!findInRunning && !findScheduled.length) returnArrII.push(c)
+    }
+
+    return returnArrII;
 };

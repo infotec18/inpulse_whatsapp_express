@@ -93,16 +93,34 @@ export interface FileResponse {
 
 export interface OficialWhatsappMessageTemplate {
     name: string;
-    components: Array<OficialWhatsappMessageTemplateComponent>;
+    components: Array<TemplateComponents>;
     language: string;
     status: string;
-    categody: string;
+    category: string;
     id: string;
 };
 
-export interface OficialWhatsappMessageTemplateComponent {
-    type: "HEADER" | "BODY" | "FOOTER";
-    format: "TEXT";
+export type TemplateComponents = HeaderComponent | BodyComponent | FooterComponent;
+
+export interface HeaderComponent {
+    type: "HEADER";
+    format: "string";
+    text: string;
+    example?: {
+        header_text?: Array<string>;
+    };
+};
+
+export interface BodyComponent {
+    type: "BODY";
+    text: string;
+    example?: {
+        body_text?: Array<string[]>;
+    };
+};
+
+export interface FooterComponent {
+    type: "FOOTER";
     text: string;
 };
 

@@ -24,8 +24,30 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
     const RESULTADO: Result | null = await TABELA_RESULTADOS.findOneBy({ CODIGO: COD_RESULTADO });
 
     if (ATENDIMENTO && RESULTADO) {
+        console.log("FOI AQUI", RESULTADO.NOME);
+        console.log("DATA", DATA_AGENDAMENTO)
+
         const CONTATO: Wnumber | null = await services.wnumbers.getById(ATENDIMENTO?.CODIGO_NUMERO);
         const OPERADOR: User | null = await TABELA_OPERADORES.findOneBy({ CODIGO: ATENDIMENTO.CODIGO_OPERADOR });
+        const DEVE_FIDELIZAR = RESULTADO.FIDELIZARCOTACAO === "SIM" && ATENDIMENTO.CODIGO_OPERADOR_ANTERIOR <= 0 && !!DATA_AGENDAMENTO;
+
+        if(RESULTADO.WHATS_ACAO === "AGENDAR" && !!DATA_AGENDAMENTO) {
+
+            services.attendances.create({
+                CODIGO_CLIENTE: ATENDIMENTO.CODIGO_CLIENTE,
+                CODIGO_NUMERO: ATENDIMENTO.CODIGO_NUMERO,
+                CODIGO_OPERADOR: DEVE_FIDELIZAR ? ATENDIMENTO.CODIGO_OPERADOR : ATENDIMENTO.CODIGO_OPERADOR_ANTERIOR,
+                CODIGO_OPERADOR_ANTERIOR: ATENDIMENTO.CODIGO_OPERADOR_ANTERIOR,
+                CONCLUIDO: 1,
+                DATA_AGENDAMENTO: DATA_AGENDAMENTO,
+                DATA_INICIO: DATA_AGENDAMENTO,
+                DATA_FIM: null,
+                URGENCIA_AGENDAMENTO: RESULTADO.WHATS_URGENCIA_AGENDAMENTO,
+                URGENCIA_SUPERVISOR: null,
+                URGENCIA_OPERADOR: "ALTA",
+                ATIVO_RECEP: "ATIVO",
+            });
+        };
 
         if (CONTATO && OPERADOR) {
             const CC: ClientCampaign | null = await TABELA_CC.findOneBy({
@@ -42,8 +64,6 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
                     CONCLUIDO: 1,
                     DATA_FIM: new Date(),
                 });
-
-                const DEVE_FIDELIZAR = RESULTADO.FIDELIZARCOTACAO === "SIM" && ATENDIMENTO.CODIGO_OPERADOR_ANTERIOR <= 0 && !!DATA_AGENDAMENTO;
 
                 TABELA_CC.save({
                     CODIGO: CC.CODIGO,
@@ -84,6 +104,8 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
                     });
                 };
             };
+
+            
         };
     };
 
