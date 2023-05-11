@@ -21,16 +21,16 @@ interface Props {
 
 export async function startNewAttendanceService(props: Props) {
     try {
-        const CCRepository = AppDataSource.getRepository(ClientCampaign);
+        //const CCRepository = AppDataSource.getRepository(ClientCampaign);
 
-        const findNotFinishedCC = await CCRepository.findOneBy({ 
+/*         const findNotFinishedCC = await CCRepository.findOneBy({ 
             CLIENTE: props.client.CODIGO,
             CONCLUIDO: "NAO"
-        });
+        }); */
 
-        const findAnyCC = await CCRepository.findBy({
+        /* const findAnyCC = await CCRepository.findBy({
             CLIENTE: props.client.CODIGO
-        });
+        }); */
     
         const newAttendance: Attendance = await services.attendances.create({
             CODIGO_OPERADOR: props.operator.userId,
@@ -39,16 +39,16 @@ export async function startNewAttendanceService(props: Props) {
             CONCLUIDO: 0,
             DATA_INICIO: new Date(),
             DATA_FIM: null,
-            CODIGO_OPERADOR_ANTERIOR: findNotFinishedCC?.OPERADOR || 0,
+            CODIGO_OPERADOR_ANTERIOR: 0,
             DATA_AGENDAMENTO: null,
             URGENCIA_OPERADOR: "NORMAL",
             ATIVO_RECEP: props.ativoRecep
         });
     
-        if(findNotFinishedCC) {
+        /* if(findNotFinishedCC) {
             findNotFinishedCC.OPERADOR = props.operator.userId;
             await CCRepository.save(findNotFinishedCC);
-        };
+        }; */
 
         let messages: RetrieveMessage[] = [];
         if(props.messages) messages = props.messages;
