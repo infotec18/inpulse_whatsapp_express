@@ -4,7 +4,7 @@ import { AppDataSource } from "../../data-source";
 import { Request } from "express";
 import { AppError } from "../../errors";
 
-interface GetAttendancesOptions {
+interface GetAttendancesByTypeOptions {
   limite?: number;
   pagina?: number;
   filters?: {
@@ -20,62 +20,56 @@ interface GetAttendancesOptions {
 
 export async function getAttendancesByType(
   req: Request,
-  { limite = 10, pagina = 1, filters }: GetAttendancesOptions = {}
+  { limite = 10, pagina = 1, filters }: GetAttendancesByTypeOptions = {}
 ): Promise<{ attendance: Attendance[]; total: number }> {
-  const attendanceRepository: Repository<Attendance> =
-    AppDataSource.getRepository(Attendance);
+  const attendanceRepository: Repository<Attendance> = AppDataSource.getRepository(Attendance);
 
-  let query = attendanceRepository
-    .createQueryBuilder("attendance")
-    .leftJoinAndSelect("attendance.MENSAGENS", "message");
+  const tipo = req.query.tipo as string | undefined;
 
-  if (filters) {
-    if (filters.search) {
-      query = query.andWhere("attendance.CONTATO LIKE :search", {
-        search: `%${filters.search}%`,
-      });
-    }
-
-    if (filters.prioridade) {
-      query = query.andWhere("attendance.PRIORIDADE = :prioridade", {
-        prioridade: filters.prioridade,
-      });
-    }
-
-    if (filters.contato) {
-      query = query.andWhere("attendance.CONTATO = :contato", {
-        contato: filters.contato,
-      });
-    }
-
-    if (filters.cliente) {
-      query = query.andWhere("attendance.CLIENTE = :cliente", {
-        cliente: filters.cliente,
-      });
-    }
-
-    if (filters.operador) {
-      query = query.andWhere("attendance.OPERADOR = :operador", {
-        operador: filters.operador,
-      });
-    }
-
-    if (filters.dataInicio) {
-      query = query.andWhere("attendance.DATA_ABERTURA >= :dataInicio", {
-        dataInicio: filters.dataInicio,
-      });
-    }
-
-    if (filters.finalizadoEm) {
-      query = query.andWhere("attendance.DATA_FECHAMENTO <= :finalizadoEm", {
-        finalizadoEm: filters.finalizadoEm,
-      });
-    }
+  if (tipo === undefined) {
+    throw new AppError("Tipo não especificado", 400);
   }
 
-  const [attendance, total] = await query
-    .skip((pagina - 1) * limite)
-    .take(limite)
-    .getManyAndCount();
+  let query = attendanceRepository.createQueryBuilder("attendance").leftJoinAndSelect("attendance.MENSAGENS", "message");
+
+  if (tipo === "finalizados") {
+    query = query.where("attendance.CONCLUIDO = :concluido", { concluido: true }).andWhere("attendance.DATA_AGENDAMENTO IS NULL");
+  } else if (tipo === "agendamentos") {
+    query = query.where("attendance.DATA_AGENDAMENTO IS NOT NULL");
+  } else {
+    throw new AppError("Tipo inválido", 400);
+  }
+
+  if (filters) {
+    Object.entries(filters).forEach(([key, value]) => {
+      switch (key) {
+        case "search":
+          query = query.andWhere("attendance.CONTATO LIKE :search", { search: `%${value}%` });
+          break;
+        case "prioridade":
+          query = query.andWhere("attendance.PRIORIDADE = :prioridade", { prioridade: value });
+          break;
+        case "contato":
+          query = query.andWhere("attendance.CONTATO = :contato", { contato: value });
+          break;
+        case "cliente":
+          query = query.andWhere("attendance.CLIENTE = :cliente", { cliente: value });
+          break;
+        case "operador":
+          query = query.andWhere("attendance.OPERADOR = :operador", { operador: value });
+          break;
+        case "dataInicio":
+          query = query.andWhere("attendance.DATA_ABERTURA >= :dataInicio", { dataInicio: value });
+          break;
+        case "finalizadoEm":
+          query = query.andWhere("attendance.DATA_CONCLUSAO = :finalizadoEm", { finalizadoEm: value });
+          break;
+        default:
+          break;
+      }
+    });
+  }
+
+  const [attendance, total] = await query.skip((pagina - 1) * limite).take(limite).getManyAndCount();
   return { attendance, total };
 }
