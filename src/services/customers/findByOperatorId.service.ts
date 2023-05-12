@@ -43,7 +43,7 @@ export async function findByOperatorIdService(CODIGO_OPERADOR: number) {
         };
     };
 
-    const clientsWithoutRunningAttendance = allOperatorClients.filter(c => !runningAttendances.find({ CODIGO_NUMERO: c.CODIGO_NUMERO }));
+    const clientsWithoutRunningAttendance = allOperatorClients.filter(c => !runningAttendances.find({ CODIGO_CLIENTE: c.CODIGO_CLIENTE }));
 
     return clientsWithoutRunningAttendance;
 };

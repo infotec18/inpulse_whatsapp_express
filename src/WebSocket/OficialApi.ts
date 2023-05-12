@@ -1,13 +1,10 @@
 import WebSocket from "./WebSocket";
 import services from "../services";
 import { Sessions } from "./Sessions";
-import { Attendance } from "../entities/attendance.entity";
-import { FinishAttendanceProps, OperatorUrgency, RunningAttendance, ScheduleUrgency, SupervisorUrgency, Urgency } from "../interfaces/attendances.interfaces";
-import { OficialWhatsappMessage, OficialWhatsappMessageTemplate, SendMessageData, WhatsappMessage } from "../interfaces/messages.interfaces";
+import { FinishAttendanceProps, RunningAttendance, Urgency } from "../interfaces/attendances.interfaces";
+import { OficialWhatsappMessage, OficialWhatsappMessageTemplate, SendMessageData } from "../interfaces/messages.interfaces";
 import { Socket } from "socket.io";
 import path from "path";
-import { surveyBot } from "../bots/surveyBot";
-import { getSpecificAttendance } from "../services/attendances/getSpecificAttendance.service";
 import FormData from "form-data"
 import axios from "axios";
 import { saveAndConvertAudioServiceOficial } from "../services/files/saveAndConvertAudioOficial.service";
@@ -265,7 +262,7 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
             const client = await services.customers.getOneById(data.cliente);
             const number = await services.wnumbers.getById(data.numero);
 
-            const isClientBeingAttended = number && runningAttendances.find({ CODIGO_NUMERO: number.CODIGO });
+            const isClientBeingAttended = client && runningAttendances.find({ CODIGO_CLIENTE: client.CODIGO });
             
             if(isClientBeingAttended) {
                 socket.emit("toast", "Este contato já está sendo atendido por outro operador...");
