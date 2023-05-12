@@ -32,7 +32,7 @@ app.use('/api', attendancesRoute);
 const useOficialApi = process.env.OFICIAL_WHATSAPP === "true";
 
 if(useOficialApi) {
-    app.use(oficialApiRoutes);
+    app.use('/api', oficialApiRoutes);
 };
 
 app.use(errorHandler);
