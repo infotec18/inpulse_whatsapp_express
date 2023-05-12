@@ -14,6 +14,7 @@ import { OficialMessageMedia } from "../classes/OficialMessageMedia.class";
 import { createReadStream } from "fs";
 import { sendWhatsappMessageService } from "../services/whatsapp/sendMessage.service";
 import { sendWhatsappTemplateService } from "../services/whatsapp/sendTemplate.service";
+import { User } from "../entities/user.entity";
 
 export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
     if(process.env.OFICIAL_WHATSAPP === "true") {
@@ -185,7 +186,7 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
             const session = Sessions.value.find(s => s.sessions.includes(socket.id))
 
             const template = data.template as OficialWhatsappMessageTemplate;
-            const user = session && await services.users.getOneById(session.userId);
+            const user = data.userId as User;
 
             data.listaDeNumeros.forEach( async (number: string) => {
                 const numero = number.replace(/\+/g, '');
@@ -196,7 +197,10 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
                         template: template,
                         operator: user,
                         whatsappNumber: Wnumber,
-                    });
+                    })
+                    .then(() => {
+                        socket.emit("toast-success", `Template enviado para ${Wnumber.NOME} com sucesso!`)
+                    })
                 } else {
                     socket.emit("toast-error", `Falha ao enviar template para ${number}`);
                 };
