@@ -22,22 +22,21 @@ customerRoutes.delete("/customers/:userId",
     controllers.customers.softDelete
 );
 
-customerRoutes.put("/api/customers/:userId/recover",
+customerRoutes.put("/customers/:userId/recover",
     middlewares.customers.ensureParamCustomerIdExists,
     controllers.customers.recover
 );
 
-customerRoutes.patch("/api/customers/:userId", 
+customerRoutes.patch("/customers/:userId", 
     middlewares.customers.ensureParamCustomerIdExists,
     controllers.customers.update
 );
 
-customerRoutes.get("/api/customers/lastid", 
+customerRoutes.get("/customers/lastid", 
     controllers.customers.getLastId
 );
 
-customerRoutes.get("/api/customers/findByOperator/:userId",
-    middlewares.auth.ensureTokenIsValid,
-    middlewares.customers.ensureParamCustomerIdExists,
+customerRoutes.get("/customers/findByOperator/:userId",
+    middlewares.users.ensureParamUserIdExists,
     controllers.customers.getByOperatorId
 );

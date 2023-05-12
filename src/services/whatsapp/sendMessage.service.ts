@@ -4,10 +4,17 @@ import { OficialWhatsappMessage } from "../../interfaces/messages.interfaces";
 import { RunningAttendance } from "../../interfaces/attendances.interfaces";
 import { runningAttendances } from "../../WebSocket/WhatsappClient";
 import services from "..";
-import { writeFile } from "fs";
-import { ReqError } from "../../errors";
 
-export async function sendWhatsappMessageService(to: string, type: MessageType, text: string, fileId?: string, caption?: string) {
+interface Props {
+    to: string;
+    type: MessageType;
+    text: string;
+    fileId?: string;
+    caption?: string;
+    fromBot?: boolean;
+}
+
+export async function sendWhatsappMessageService({ to, type, text, fileId, caption, fromBot }: Props) {
     const body: Partial<OficialWhatsappMessage & { recipient_type: string, messaging_product: string, to: string}> = {
         recipient_type: "individual",
         messaging_product: "whatsapp",
@@ -42,11 +49,11 @@ export async function sendWhatsappMessageService(to: string, type: MessageType, 
                 [type]: {
                     id: fileId,
                     body: text
-                }}, ra.CODIGO_ATENDIMENTO, ra.CODIGO_OPERADOR, null, true);
+                }}, ra.CODIGO_ATENDIMENTO, ra.CODIGO_OPERADOR, null, true, true);
                 
             newMessage && runningAttendances.update(ra.CODIGO_ATENDIMENTO, { MENSAGENS: [...ra.MENSAGENS, newMessage] }); 
         };
     }).catch(err => {
-        throw new ReqError(err.request);
+        console.log(err.request)
     })
 };

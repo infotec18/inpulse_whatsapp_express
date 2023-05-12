@@ -9,7 +9,7 @@ export function ensureTokenIsValid (req: Request, res: Response, next: NextFunct
     if(!token) throw new AppError("Missing authorization token.", 400);
 
     Jwt.verify(token, process.env.JWT__SECRET_KEY!, async(error, decoded: any) => {
-        if (error) console.error(error)
+        if (error) return
         if (decoded && decoded.CODIGO) { 
             const user = await services.users.getOneById(Number(decoded.CODIGO));
 

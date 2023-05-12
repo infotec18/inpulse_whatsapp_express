@@ -227,9 +227,19 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
                 const x = getMessage.ARQUIVO.TIPO.split("/")[0];
                 const mediaType = x === "image" ? x : x === "video" ? x : x === "audio" ? x : "document"; 
                 const mediaId = await media.getMediaId()
-                mediaId && sendWhatsappMessageService(whatsappNumber, mediaType, "", mediaId, getMessage.TEXTO_MENSAGEM);
+                mediaId && sendWhatsappMessageService({
+                    to: whatsappNumber,
+                    type: mediaType,
+                    text: "",
+                    fileId: mediaId,
+                    caption: getMessage.TEXTO_MENSAGEM
+                });
             } else {
-                sendWhatsappMessageService(whatsappNumber, "text", getMessage.TEXTO_MENSAGEM);
+                sendWhatsappMessageService({
+                    to: whatsappNumber,
+                    type: "text",
+                    text: getMessage.TEXTO_MENSAGEM
+                });
             };
         });
     

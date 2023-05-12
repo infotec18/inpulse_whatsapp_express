@@ -9,15 +9,10 @@ export async function registrationBot(RR: RunningRegistration, msg: string): Pro
 
     console.log(new Date().toLocaleString(), ": Mensagem de ", RR.WPP_NUMERO, "caiu para o bot...");
 
-    if(msg === "voltar etapa") {
-        RR.ETAPA--;
-        return { registration: RR, reply: `Voltando a etapa ${RR.ETAPA}` };
-    };
-
-    if(msg === "reiniciar") {
+    if(msg.toLowerCase() === "reiniciar") {
         RR.ETAPA = 2;
         RR.DADOS = { };
-        return await registrationBot(RR, "cadastrar");
+        return await registrationBot(RR, "CADASTRAR");
     };
 
     if(RR.ETAPA === 1 && RR.ETAPA_COUNT === 0) {
@@ -51,7 +46,7 @@ Responda "cadastrar" para prosseguir.
         return { registration: RR, reply };
 
     } else if(RR.ETAPA === 3 && validate.result === "valid") {
-        const substr = validate.value === "CPF" ? "o seu NOME" : "a RAZÃO SOCIAL da sua empresa";
+        const substr = "a RAZÃO SOCIAL da sua empresa";
 
         reply = `Seu ${validate.value} é válido. para prosseguir com o cadastro, digite ${substr}:`;
         RR.DADOS.CPF_CNPJ = msg.replace(/\D/g, "");
@@ -72,7 +67,7 @@ Responda "cadastrar" para prosseguir.
     if(RR.ETAPA === 4) {
         RR.DADOS.RAZAO = msg;
 
-        const substr = RR.DADOS.PESSOA === "FIS" ? "NOME" : "RAZÃO SOCIAl";
+        const substr = "RAZÃO SOCIAl";
 
         reply = `Verifique se os dados estão corretos:
 - CPF/CNPJ: ${RR.DADOS.CPF_CNPJ}
@@ -88,19 +83,7 @@ Digite "sim" para continuar ou "reiniciar" para recomeçar.
         return { registration: RR, reply };
     };
 
-    if(RR.ETAPA === 5 && msg.toUpperCase() === "SIM" && RR.DADOS.PESSOA === "FIS") {
-        const newCustomer = await services.customers.directCreate(RR.DADOS);
-        const newNumber = { CODIGO_CLIENTE: newCustomer.CODIGO, NOME: RR.DADOS.RAZAO!, NUMERO: RR.WPP_NUMERO };
-        await services.wnumbers.create(newNumber);
-
-        RR.CONCLUIDO = true;
-
-        reply = "Que legal, você foi cadastrado com sucesso! Envie qualquer mensagem, se quiser começar um novo atendimento.";
-
-        console.log(new Date().toLocaleString(), ": Bot respondeu: ", reply);
-
-        return { registration: RR, reply };
-    } else if(RR.ETAPA === 5 && msg.toUpperCase() === "SIM" && RR.DADOS.PESSOA === "JUR") {
+    if(RR.ETAPA === 5 && msg.toUpperCase() === "SIM") {
         const newCustomer = await services.customers.directCreate(RR.DADOS);
 
         RR.CADASTRO_CLIENTE = newCustomer;
@@ -111,6 +94,7 @@ Digite "sim" para continuar ou "reiniciar" para recomeçar.
         console.log(new Date().toLocaleString(), ": Bot respondeu: ", reply);
 
         return { registration: RR, reply };
+        
     } else if(RR.ETAPA === 5) {
 
         reply = `Não entendi, por favor digite "sim" ou "reiniciar"`;
