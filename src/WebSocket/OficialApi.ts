@@ -182,38 +182,61 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
         
         socket.on("send-mass-template", async (data: any) => {
 
+            const session = Sessions.value.find(s => s.sessions.includes(socket.id))
+
             const template = data.template as OficialWhatsappMessageTemplate;
+            const user = session && await services.users.getOneById(session.userId);
 
             data.listaDeNumeros.forEach( async (number: string) => {
-                const numero = number.replace(/\+/g, ''); 
-
-                const body = {
-                    "messaging_product": "whatsapp",
-                    "recipient_type": "individual",
-                    "to": numero,
-                    "type": "template",
-                    "template": {
-                      "name": template.name,
-                      "language": {
-                        "code": template.language
-                      }
-                    }
+                const numero = number.replace(/\+/g, '');
+                const Wnumber = await services.wnumbers.find(numero);
+                
+                if(user && Wnumber) {
+                    await sendWhatsappTemplateService({
+                        template: template,
+                        operator: user,
+                        whatsappNumber: Wnumber,
+                    });
+                } else {
+                    socket.emit("toast-error", `Falha ao enviar template para ${number}`);
                 };
-            
-                axios.post(
-                    `https://graph.facebook.com/v16.0/${process.env.WHATSAPP_NUMBER_ID}/messages`,
-                    body,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`
-                        }
-                    }
-                )
-                .catch(err => console.log(new Date().toLocaleString(), ": Erro ao enviar template para: ", numero))
-
             });   
         });
 
+        socket.on("send-template", async (data: any) => {
+            const session = Sessions.value.find(s => s.sessions.includes(socket.id))
+            const template = data.template as OficialWhatsappMessageTemplate;
+            const user = session && await services.users.getOneById(session.userId);
+            const attendance = data.attendance as RunningAttendance;
+            const Wnumber = await services.wnumbers.getById(attendance.CODIGO_NUMERO);
+                
+            if(user && Wnumber) {
+                const messageId = await sendWhatsappTemplateService({
+                    template: template,
+                    operator: user,
+                    whatsappNumber: Wnumber,
+                });
+
+                if(messageId) {
+                    const message: OficialWhatsappMessage = {
+                        from: "me",
+                        id: messageId,
+                        timestamp: `${Date.now()}`,
+                        type: "text",
+                        text: {
+                            body: `Template "${data.template.name}" enviado com sucesso!`
+                        }
+                    };
+
+                    const msg = await services.messages.createOficial(message, attendance.CODIGO_ATENDIMENTO, user.CODIGO, null, true, false);
+                    msg && runningAttendances.insertNewMessage(attendance.CODIGO_ATENDIMENTO, msg)
+                };
+
+            } else {
+                socket.emit("toast-error", "falha ao enviar template...");
+            };
+        });   
+        
         socket.on("send-ready-message", async (data: any) => {
             const getMessage = await services.readyMessages.getOneById(data.messageId);
             const whatsappNumber = data.listaDeNumeros[0].replace(/\+/g, '');

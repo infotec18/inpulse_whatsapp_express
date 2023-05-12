@@ -9,6 +9,7 @@ userRoutes.post("/users/",
 );
 
 userRoutes.get("/users/",
+    middlewares.auth.ensureTokenIsValid,
     controllers.users.getAll
 );
 
