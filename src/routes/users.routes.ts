@@ -1,6 +1,7 @@
 import { Router } from "express";
 import controllers from "../controllers";
 import middlewares from "../middlewares";
+import { fastEnsureTokenIsValid } from "../middlewares/auth/fastEnsureTokenIsValid.middleware";
 
 export const userRoutes = Router();
 
@@ -18,7 +19,7 @@ userRoutes.post("/users/login",
 );
 
 userRoutes.get("/users/status",
-    middlewares.auth.ensureTokenIsValid,
+    fastEnsureTokenIsValid,
     controllers.users.getOneById
 );
 

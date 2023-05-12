@@ -14,39 +14,29 @@ export async function getSchedulesByUserIdService(userId: number): Promise<Array
         .andWhere(`attendance.CODIGO_OPERADOR = ${userId}`)
         .getMany();
 
+    const arrayWithAllData: Array<ScheduleInformation> = [];
 
-    const findAllData: Promise<Array<ScheduleInformation>> = new Promise((resolve) => {
-        const arrayWithAllData: Array<ScheduleInformation> = [];
+    for (let a of scheduledAttendances) {
+        const client = await services.customers.getOneById(a.CODIGO_CLIENTE);
+        const employee = await services.wnumbers.getById(a.CODIGO_NUMERO);
+        const avatar = process.env.OFICIAL_WHATSAPP === "false" ? (employee && await WhatsappWeb.getProfilePicUrl(`${employee.NUMERO}@c.us`)) : null;
 
-        scheduledAttendances.forEach(async (a) => {
-            const client = await services.customers.getOneById(a.CODIGO_CLIENTE);
-            const employee = await services.wnumbers.getById(a.CODIGO_NUMERO);
-            const avatar = process.env.OFICIAL_WHATSAPP === "false" ? (employee && await WhatsappWeb.getProfilePicUrl(`${employee.NUMERO}@c.us`)) : null;
+        if (client && employee) {
+            arrayWithAllData.push({
+                AVATAR: avatar || "",
+                NOME: employee.NOME,
+                EMPRESA: client.RAZAO,
+                CPF_CNPJ: client.CPF_CNPJ,
+                PESSOA: client.PESSOA,
+                CODIGO_ATENDIMENTO: a.CODIGO,
+                URGENCIA_OPERADOR: a.URGENCIA_OPERADOR,
+                URGENCIA_AGENDAMENTO: a.URGENCIA_AGENDAMENTO,
+                URGENCIA_SUPERVISOR: a.URGENCIA_SUPERVISOR,
+                DATA_FIM_ULTIMO_ATENDIMENTO: a.DATA_FIM,
+                DATA_AGENDAMENTO: a.DATA_AGENDAMENTO!,
+            });
+        };
+    };
 
-            if (client && employee) {
-                arrayWithAllData.push({
-                    AVATAR: avatar || "",
-                    NOME: employee.NOME,
-                    EMPRESA: client.RAZAO,
-                    CPF_CNPJ: client.CPF_CNPJ,
-                    PESSOA: client.PESSOA,
-                    CODIGO_ATENDIMENTO: a.CODIGO,
-                    URGENCIA_OPERADOR: a.URGENCIA_OPERADOR,
-                    URGENCIA_AGENDAMENTO: a.URGENCIA_AGENDAMENTO,
-                    URGENCIA_SUPERVISOR: a.URGENCIA_SUPERVISOR,
-                    DATA_FIM_ULTIMO_ATENDIMENTO: a.DATA_FIM,
-                    DATA_AGENDAMENTO: a.DATA_AGENDAMENTO!,
-                });
-            };
-
-            if (scheduledAttendances.length === arrayWithAllData.length) {
-                arrayWithAllData.sort((a, b) => new Date(a.DATA_AGENDAMENTO).getTime() - new Date(b.DATA_AGENDAMENTO).getTime());
-                resolve(arrayWithAllData);
-            };
-        });
-    });
-
-    const response = await findAllData;
-
-    return response;
+    return arrayWithAllData;
 };
