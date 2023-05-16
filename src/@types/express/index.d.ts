@@ -10,7 +10,7 @@ declare global {
         interface Request {
             user: {
                 CODIGO: number,
-                isAdmin: boolean
+                isAdmin: boolean,
             },
             customer: {
                 CODIGO: number

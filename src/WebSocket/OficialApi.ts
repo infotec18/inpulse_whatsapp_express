@@ -1,13 +1,10 @@
 import WebSocket from "./WebSocket";
 import services from "../services";
 import { Sessions } from "./Sessions";
-import { Attendance } from "../entities/attendance.entity";
-import { FinishAttendanceProps, OperatorUrgency, RunningAttendance, ScheduleUrgency, SupervisorUrgency, Urgency } from "../interfaces/attendances.interfaces";
-import { OficialWhatsappMessage, OficialWhatsappMessageTemplate, SendMessageData, WhatsappMessage } from "../interfaces/messages.interfaces";
+import { FinishAttendanceProps, RunningAttendance, Urgency } from "../interfaces/attendances.interfaces";
+import { OficialWhatsappMessage, OficialWhatsappMessageTemplate, SendMessageData } from "../interfaces/messages.interfaces";
 import { Socket } from "socket.io";
 import path from "path";
-import { surveyBot } from "../bots/surveyBot";
-import { getSpecificAttendance } from "../services/attendances/getSpecificAttendance.service";
 import FormData from "form-data"
 import axios from "axios";
 import { saveAndConvertAudioServiceOficial } from "../services/files/saveAndConvertAudioOficial.service";
@@ -17,6 +14,7 @@ import { OficialMessageMedia } from "../classes/OficialMessageMedia.class";
 import { createReadStream } from "fs";
 import { sendWhatsappMessageService } from "../services/whatsapp/sendMessage.service";
 import { sendWhatsappTemplateService } from "../services/whatsapp/sendTemplate.service";
+import { User } from "../entities/user.entity";
 
 export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
     if(process.env.OFICIAL_WHATSAPP === "true") {
@@ -185,38 +183,64 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
         
         socket.on("send-mass-template", async (data: any) => {
 
+            const session = Sessions.value.find(s => s.sessions.includes(socket.id))
+
             const template = data.template as OficialWhatsappMessageTemplate;
+            const user = data.userId as User;
 
             data.listaDeNumeros.forEach( async (number: string) => {
-                const numero = number.replace(/\+/g, ''); 
-
-                const body = {
-                    "messaging_product": "whatsapp",
-                    "recipient_type": "individual",
-                    "to": numero,
-                    "type": "template",
-                    "template": {
-                      "name": template.name,
-                      "language": {
-                        "code": template.language
-                      }
-                    }
+                const numero = number.replace(/\+/g, '');
+                const Wnumber = await services.wnumbers.find(numero);
+                
+                if(user && Wnumber) {
+                    await sendWhatsappTemplateService({
+                        template: template,
+                        operator: user,
+                        whatsappNumber: Wnumber,
+                    })
+                    .then(() => {
+                        socket.emit("toast-success", `Template enviado para ${Wnumber.NOME} com sucesso!`)
+                    })
+                } else {
+                    socket.emit("toast-error", `Falha ao enviar template para ${number}`);
                 };
-            
-                axios.post(
-                    `https://graph.facebook.com/v16.0/${process.env.WHATSAPP_NUMBER_ID}/messages`,
-                    body,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`
-                        }
-                    }
-                )
-                .catch(err => console.log(new Date().toLocaleString(), ": Erro ao enviar template para: ", numero))
-
             });   
         });
 
+        socket.on("send-template", async (data: any) => {
+            const session = Sessions.value.find(s => s.sessions.includes(socket.id))
+            const template = data.template as OficialWhatsappMessageTemplate;
+            const user = session && await services.users.getOneById(session.userId);
+            const attendance = data.attendance as RunningAttendance;
+            const Wnumber = await services.wnumbers.getById(attendance.CODIGO_NUMERO);
+                
+            if(user && Wnumber) {
+                const messageId = await sendWhatsappTemplateService({
+                    template: template,
+                    operator: user,
+                    whatsappNumber: Wnumber,
+                });
+
+                if(messageId) {
+                    const message: OficialWhatsappMessage = {
+                        from: "me",
+                        id: messageId,
+                        timestamp: `${Date.now()}`,
+                        type: "text",
+                        text: {
+                            body: `Template "${data.template.name}" enviado com sucesso!`
+                        }
+                    };
+
+                    const msg = await services.messages.createOficial(message, attendance.CODIGO_ATENDIMENTO, user.CODIGO, null, true, false);
+                    msg && runningAttendances.insertNewMessage(attendance.CODIGO_ATENDIMENTO, msg)
+                };
+
+            } else {
+                socket.emit("toast-error", "falha ao enviar template...");
+            };
+        });   
+        
         socket.on("send-ready-message", async (data: any) => {
             const getMessage = await services.readyMessages.getOneById(data.messageId);
             const whatsappNumber = data.listaDeNumeros[0].replace(/\+/g, '');
@@ -227,15 +251,25 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
                 const x = getMessage.ARQUIVO.TIPO.split("/")[0];
                 const mediaType = x === "image" ? x : x === "video" ? x : x === "audio" ? x : "document"; 
                 const mediaId = await media.getMediaId()
-                mediaId && sendWhatsappMessageService(whatsappNumber, mediaType, "", mediaId, getMessage.TEXTO_MENSAGEM);
+                mediaId && sendWhatsappMessageService({
+                    to: whatsappNumber,
+                    type: mediaType,
+                    text: "",
+                    fileId: mediaId,
+                    caption: getMessage.TEXTO_MENSAGEM
+                });
             } else {
-                sendWhatsappMessageService(whatsappNumber, "text", getMessage.TEXTO_MENSAGEM);
+                sendWhatsappMessageService({
+                    to: whatsappNumber,
+                    type: "text",
+                    text: getMessage.TEXTO_MENSAGEM
+                });
             };
         });
     
         socket.on("finish-attendance", async(data: FinishAttendanceProps) => {
             const survey = await services.attendances.finish(data.CODIGO_ATENDIMENTO, data.CODIGO_RESULTADO, data.DATA_AGENDAMENTO);
-            if(survey) {
+            /* if(survey) {
                 //const { registration, reply } = await surveyBot(survey, "");
                 try {
                     const attendance = await getSpecificAttendance(data.CODIGO_ATENDIMENTO);
@@ -245,7 +279,7 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
                 } catch (err) {
                     console.log(new Date().toLocaleString(), ": error on survey: ", err);
                 };
-            }
+            } */
         });
     
         socket.on("start-attendance", async(data: { cliente: number, numero: number, wpp: string, pfp: string, template: OficialWhatsappMessageTemplate }) => {
@@ -255,7 +289,7 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
             const client = await services.customers.getOneById(data.cliente);
             const number = await services.wnumbers.getById(data.numero);
 
-            const isClientBeingAttended = number && runningAttendances.find({ CODIGO_NUMERO: number.CODIGO });
+            const isClientBeingAttended = client && runningAttendances.find({ CODIGO_CLIENTE: client.CODIGO });
             
             if(isClientBeingAttended) {
                 socket.emit("toast", "Este contato já está sendo atendido por outro operador...");

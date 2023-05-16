@@ -35,7 +35,7 @@ export function errorHandler(error: Error, req: Request, res: Response, _: NextF
     if (error instanceof ReqError) {
         const date = new Date().toUTCString();
         const filePath = path.join(__dirname, `../../../localFiles/errors`, `${date}_error.txt`);
-        writeFile('log.txt', JSON.stringify(error.req) , (err) => {
+        writeFile(filePath, JSON.stringify(error.req) , (err) => {
         });
     }
     console.error(error);

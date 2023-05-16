@@ -3,18 +3,18 @@ import controllers from "../controllers";
 
 export const readyMessageFileRoutes = Router();
 
-readyMessageFileRoutes.get("/api/readymessage/:id",
+readyMessageFileRoutes.get("/readymessage/:id",
     controllers.readyMessageFile.getOneById
 );
 
-readyMessageFileRoutes.get("/api/readymessage/download/:id",
+readyMessageFileRoutes.get("/readymessage/download/:id",
     controllers.readyMessageFile.download
 )
 
-readyMessageFileRoutes.post("/api/readymessage/insert",
+readyMessageFileRoutes.post("/readymessage/insert",
     controllers.readyMessageFile.insert
 );
 
-readyMessageFileRoutes.delete("/api/readymessage/delete/:codigo",
+readyMessageFileRoutes.delete("/readymessage/delete/:codigo",
     controllers.readyMessageFile.erease
 )

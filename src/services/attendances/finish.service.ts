@@ -23,16 +23,20 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
     const ATENDIMENTO: Attendance | null = await TABELA_ATENDIMENTOS.findOneBy({ CODIGO: COD_ATENDIMENTO });
     const RESULTADO: Result | null = await TABELA_RESULTADOS.findOneBy({ CODIGO: COD_RESULTADO });
 
-    if (ATENDIMENTO && RESULTADO) {
-        console.log("FOI AQUI", RESULTADO.NOME);
-        console.log("DATA", DATA_AGENDAMENTO)
 
+
+
+    if (ATENDIMENTO && RESULTADO) {
         const CONTATO: Wnumber | null = await services.wnumbers.getById(ATENDIMENTO?.CODIGO_NUMERO);
         const OPERADOR: User | null = await TABELA_OPERADORES.findOneBy({ CODIGO: ATENDIMENTO.CODIGO_OPERADOR });
         const DEVE_FIDELIZAR = RESULTADO.FIDELIZARCOTACAO === "SIM" && ATENDIMENTO.CODIGO_OPERADOR_ANTERIOR <= 0 && !!DATA_AGENDAMENTO;
 
+        ATENDIMENTO.CONCLUIDO = 1;
+        ATENDIMENTO.DATA_FIM = new Date();
+        ATENDIMENTO.DATA_AGENDAMENTO = null;
+        await TABELA_ATENDIMENTOS.save(ATENDIMENTO);
+        
         if(RESULTADO.WHATS_ACAO === "AGENDAR" && !!DATA_AGENDAMENTO) {
-
             services.attendances.create({
                 CODIGO_CLIENTE: ATENDIMENTO.CODIGO_CLIENTE,
                 CODIGO_NUMERO: ATENDIMENTO.CODIGO_NUMERO,
@@ -50,7 +54,8 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
         };
 
         if (CONTATO && OPERADOR) {
-            const CC: ClientCampaign | null = await TABELA_CC.findOneBy({
+
+/*             const CC: ClientCampaign | null = await TABELA_CC.findOneBy({
                 CLIENTE: ATENDIMENTO.CODIGO_CLIENTE,
                 CONCLUIDO: 'NAO',
                 OPERADOR: ATENDIMENTO.CODIGO_OPERADOR
@@ -103,9 +108,8 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
                         CC_CODIGO: CC.CODIGO
                     });
                 };
-            };
+            }; */
 
-            
         };
     };
 

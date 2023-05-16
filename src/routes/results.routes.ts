@@ -3,6 +3,6 @@ import controllers from "../controllers";
 
 export const resultsRoutes = Router();
 
-resultsRoutes.get("/api/results/",
+resultsRoutes.get("/results/",
     controllers.results.getAllFromWhatsapp
 );

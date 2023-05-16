@@ -9,7 +9,6 @@ export async function insertUserAvatarService(userId: number, data: string): Pro
     const avatarsRepository: Repository<Avatar> = AppDataSource.getRepository(Avatar);
     const alreadyExists: Avatar | null = await avatarsRepository.findOneBy({ CODIGO_OPERADOR: userId });
 
-    
     const base64String = data.split(",")[1];
     const ext = data.split(";")[0].split("/")[1];
 
@@ -24,10 +23,12 @@ export async function insertUserAvatarService(userId: number, data: string): Pro
     });
 
     if(alreadyExists) {
-        unlink(path.join(__dirname, `../../../localFiles/avatars`, alreadyExists.ARQUIVO), (err) => {
-            console.log(new Date().toLocaleString(), ": ", err);
-        });
-
+        if(alreadyExists.ARQUIVO) {
+            unlink(path.join(__dirname, `../../../localFiles/avatars`, alreadyExists.ARQUIVO), (err) => {
+                console.log(new Date().toLocaleString(), ": ", err);
+            });
+        }
+        
         const insertedAvatar: Avatar | null = await avatarsRepository.save({
             CODIGO: alreadyExists.CODIGO,
             CODIGO_OPERADOR: userId,

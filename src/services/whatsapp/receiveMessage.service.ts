@@ -9,7 +9,6 @@ export async function receiveWhatsappMessageService(data: any) {
     if (!data.entry[0]?.changes[0]?.value?.messages[0]) return;
     const number = data.entry[0].changes[0].value.messages[0].from;
     const message = data.entry[0].changes[0].value.messages[0] as OficialWhatsappMessage;
-    console.log(message);
     const registrating = runningRegistrations.find({ WPP_NUMERO: number });
     const survey = runningSurveys.find(number);
     const attending = runningAttendances.find({ WPP_NUMERO: number });

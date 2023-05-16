@@ -4,38 +4,39 @@ import middlewares from "../middlewares";
 
 export const customerRoutes = Router()
 
-customerRoutes.post("/api/customers/",
+customerRoutes.post("/customers/",
     controllers.customers.create
 );
 
-customerRoutes.get("/api/customers/",
+customerRoutes.get("/customers/",
     controllers.customers.getAllCus
 );
 
-customerRoutes.get("/api/customers/:userId",
+customerRoutes.get("/customers/:userId",
     middlewares.customers.ensureParamCustomerIdExists,
     controllers.customers.getOneById
 );
 
-customerRoutes.delete("/api/customers/:userId",
+customerRoutes.delete("/customers/:userId",
     middlewares.customers.ensureParamCustomerIdExists,
     controllers.customers.softDelete
 );
 
-customerRoutes.put("/api/customers/:userId/recover",
+customerRoutes.put("/customers/:userId/recover",
     middlewares.customers.ensureParamCustomerIdExists,
     controllers.customers.recover
 );
 
-customerRoutes.patch("/api/customers/:userId", 
+customerRoutes.patch("/customers/:userId", 
     middlewares.customers.ensureParamCustomerIdExists,
     controllers.customers.update
 );
 
-customerRoutes.get("/api/customers/lastid", 
+customerRoutes.get("/customers/lastid", 
     controllers.customers.getLastId
 );
 
-customerRoutes.get("/api/customers/findByOperator/:operatorId",
+customerRoutes.get("/customers/findByOperator/:userId",
+    middlewares.users.ensureParamUserIdExists,
     controllers.customers.getByOperatorId
 );

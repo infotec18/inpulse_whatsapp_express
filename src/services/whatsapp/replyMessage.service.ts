@@ -18,8 +18,6 @@ export async function replyWhatsappMessageService(message: OficialWhatsappMessag
                 'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}`,
                 'Content-Type': 'application/json'
             }
-        }).then(res => {
-            console.log(res.data)
         })
         .catch(err => {
             console.log(err.response.data)
