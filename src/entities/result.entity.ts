@@ -22,6 +22,9 @@ export class Result {
     @Column({ type: 'int', nullable: true, default: 5 })
     QTDE_FIDELIZARCOTACAO: number;
 
+    @Column({ type: 'varchar', length: 100, nullable: true, default: "" })
+    NOME_ACAO: string;
+
     @Column({ type: 'varchar', length: 50, nullable: true, default: null })
     WHATS_ACAO: string;
 

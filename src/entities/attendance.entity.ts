@@ -28,6 +28,9 @@ export class Attendance {
     @Column({ type: 'int', nullable: false })
     CODIGO_NUMERO: number;
 
+    @Column({ type: 'int', nullable: true, default: null })
+    CODIGO_CC: number | null;
+
     @Column({ type: 'tinyint', nullable: true, default: 0 })
     CONCLUIDO: number | null;
 

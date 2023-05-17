@@ -10,6 +10,7 @@ export interface RunningAttendance {
     CODIGO_OPERADOR_ANTERIOR: number;
     CODIGO_CLIENTE: number;
     CODIGO_NUMERO: number;
+    CODIGO_CC: number | null;
     WPP_NUMERO: string;
     MENSAGENS: RetrieveMessage[];
     AVATAR?: string;

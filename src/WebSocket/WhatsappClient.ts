@@ -62,6 +62,7 @@ export async function getRunningAttendances () {
                 CODIGO_NUMERO: WPP.CODIGO,
                 CODIGO_OPERADOR: a.CODIGO_OPERADOR,
                 CODIGO_OPERADOR_ANTERIOR: a.CODIGO_OPERADOR_ANTERIOR,
+                CODIGO_CC: a.CODIGO_CC,
                 CPF_CNPJ: client.CPF_CNPJ,
                 DATA_INICIO: a.DATA_INICIO,
                 MENSAGENS: findMessages,
