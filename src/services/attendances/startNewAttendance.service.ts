@@ -33,7 +33,7 @@ export async function startNewAttendanceService(props: Props) {
             CODIGO_OPERADOR: props.operator.userId,
             CODIGO_CLIENTE: props.client.CODIGO,
             CODIGO_NUMERO: props.number.CODIGO,
-            CODIGO_CC: null,
+            CODIGO_CC: findCC ? findCC.CODIGO : null,
             CONCLUIDO: 0,
             DATA_INICIO: new Date(),
             DATA_FIM: null,

@@ -188,7 +188,7 @@ export const oficialApiFlow = WebSocket.on('connection', (socket: Socket) => {
             const template = data.template as OficialWhatsappMessageTemplate;
             const user = data.userId as User;
 
-            data.listaDeNumeros.forEach( async (number: string) => {
+            data.listaDeNumeros.forEach(async (number: string) => {
                 const numero = number.replace(/\+/g, '');
                 const Wnumber = await services.wnumbers.find(numero);
                 

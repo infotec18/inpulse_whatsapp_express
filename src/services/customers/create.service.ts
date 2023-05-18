@@ -82,11 +82,23 @@ export async function createCustomerService(req: Request): Promise<Customer> {
             TIPO: "PROSPE"
         });
     
+        const newDate = new Date();
+
+        const NOVO_CLIENTE_AGENDAMENTO = await whatsappParametros.findOneBy({
+            NOME: "AGENDAMENTO_NOVO_CLIENTE_DIAS"
+        });
+
+        if(NOVO_CLIENTE_AGENDAMENTO) {
+            newDate.setDate(newDate.getDate() + Number(NOVO_CLIENTE_AGENDAMENTO));
+        } else {
+            newDate.setDate(newDate.getDate() + 3);
+        };
+
         await CCRepository.save({
             CAMPANHA: CAMPANHA?.CODIGO || 4,
             CLIENTE: newCustomer.CODIGO,
             CONCLUIDO: "NAO",
-            DT_AGENDAMENTO: new Date().setDate(new Date().getDate() + 3),
+            DT_AGENDAMENTO: newDate,
             OPERADOR: 0,
             FONE1: NUMERO_WITHOUT_MINUS
         });

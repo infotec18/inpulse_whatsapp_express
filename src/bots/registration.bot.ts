@@ -65,6 +65,7 @@ Responda "cadastrar" para prosseguir.
     };
 
     if(RR.ETAPA === 4) {
+        console.log("etapa 4")
         RR.DADOS.RAZAO = msg;
 
         const substr = "RAZÃO SOCIAl";
@@ -80,11 +81,13 @@ Digite "sim" para continuar ou "reiniciar" para recomeçar.
         console.log(new Date().toLocaleString(), ": Bot respondeu: ", reply);
 
         RR.ETAPA++;
+
+
         return { registration: RR, reply };
     };
 
-    if(RR.ETAPA === 5 && msg.toUpperCase() === "SIM") {
-        const newCustomer = await services.customers.directCreate(RR.DADOS);
+    if(RR.ETAPA === 5 && msg.toUpperCase() == "SIM") {
+        const newCustomer = await services.customers.directCreate(RR.DADOS, RR.WPP_NUMERO);
 
         RR.CADASTRO_CLIENTE = newCustomer;
         RR.ETAPA++;

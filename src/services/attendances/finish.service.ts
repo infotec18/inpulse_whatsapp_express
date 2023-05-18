@@ -34,7 +34,7 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
         // Define atendimento do Whatsapp como concluído e insere data fim;
         ATENDIMENTO.CONCLUIDO = 1;
         ATENDIMENTO.DATA_FIM = new Date();
-        TABELA_ATENDIMENTOS.save(ATENDIMENTO);
+        await TABELA_ATENDIMENTOS.save(ATENDIMENTO);
 
         // Define data de agendamento do atendimento;
         let DATA_AGENDAMENTO_CC;   
@@ -100,13 +100,16 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
         const ACOES_AUTOMATICO = Object.keys(AGENDAMENTO_AUTOMATICO);
 
         if(RESULTADO.NOME_ACAO === "INFORMA DATA E HORA" && !!DATA_AGENDAMENTO) {
+            console.log("DATA INFORMADA: ", DATA_AGENDAMENTO)
             DATA_AGENDAMENTO_CC = DATA_AGENDAMENTO
         } else if(ACOES_AUTOMATICO.some(v => v === RESULTADO.NOME_ACAO)) {
             DATA_AGENDAMENTO_CC = AGENDAMENTO_AUTOMATICO[RESULTADO.NOME_ACAO as keyof typeof AGENDAMENTO_AUTOMATICO]();
+            console.log("DATA ACAO: ", DATA_AGENDAMENTO_CC)
         } else {
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             DATA_AGENDAMENTO_CC = tomorrow;
+            console.log("DATA AMANHA: ", tomorrow);
         };
 
         // Altera registro CC
@@ -115,8 +118,8 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
         CC.DT_RESULTADO = new Date();
         CC.RESULTADO = RESULTADO.CODIGO;
         CC.FIDELIZA = DEVE_FIDELIZAR ? 'S' : 'N';
-        TABELA_CC.save(CC);
-        
+        await TABELA_CC.save(CC);
+
         // Cria novo registro CC
         const NOVO_CC = await TABELA_CC.save({
             CAMPANHA: CC.CAMPANHA,
@@ -130,7 +133,7 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
         });
 
         // Cria novo agendamento no Whatsapp
-        NOVO_CC && TABELA_ATENDIMENTOS.save({
+        NOVO_CC && await TABELA_ATENDIMENTOS.save({
             ATIVO_RECEP: "ATIVO",
             CODIGO_CLIENTE: ATENDIMENTO.CODIGO_CLIENTE,
             CODIGO_NUMERO: ATENDIMENTO.CODIGO_NUMERO,
@@ -144,7 +147,7 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
         });
 
         // Insere registro em tabela histórico
-        CONTATO && OPERADOR && CAMPANHA && ATENDIMENTO.CODIGO_CC && TABELA_HISTORICO.save({
+        const hist = CONTATO && OPERADOR && CAMPANHA && ATENDIMENTO.CODIGO_CC && await TABELA_HISTORICO.save({
             CAMPANHA: CAMPANHA.NOME,
             ATIVO_RECEP: ATENDIMENTO.ATIVO_RECEP,
             CC_CODIGO: ATENDIMENTO.CODIGO_CC,
@@ -159,7 +162,7 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
 
         // Insere registro em fidelizações, caso deva fidelizar;
         if(DEVE_FIDELIZAR) {
-            TABELA_FIDELIZACOES.save({
+            const fid = await TABELA_FIDELIZACOES.save({
                 cc_codigo: CC.CODIGO,
                 cliente: CC.CLIENTE,
                 dt_criacao: CC.DATA_HORA_FIM,
@@ -167,6 +170,7 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
                 qtde_fidelizar: RESULTADO.QTDE_FIDELIZARCOTACAO,
                 cod_origem: 0
             });
+
         };
     };
 

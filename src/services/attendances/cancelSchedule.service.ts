@@ -12,6 +12,7 @@ export async function cancelAttendanceScheduleService(CODIGO_ATENDIMENTO: number
 
     findAttendance.DATA_AGENDAMENTO = null;
     findAttendance.DATA_FIM = new Date();
+    findAttendance.CONCLUIDO = 1;
     
     await attendanceRepository.save(findAttendance);
 

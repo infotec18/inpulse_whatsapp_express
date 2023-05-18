@@ -15,7 +15,7 @@ export async function getLastCustomerIdService(): Promise<number> {
 
     const lastCustomer: Customer | undefined = allCustomers[0];
 
-    if (!lastCustomer) throw new AppError("No user found in the database.", 404);
+    if (!lastCustomer) return 1
 
     return lastCustomer.CODIGO;
 };
