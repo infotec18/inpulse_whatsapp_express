@@ -8,21 +8,21 @@ export class Fidelizacao {
   @PrimaryGeneratedColumn()
   codigo: number;
 
-  @Column()
+  @Column({ type: 'int' })
   cliente: number;
 
-  @Column()
+  @Column({ type: 'int'})
   cc_codigo: number;
 
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true, default: 0 })
   cod_origem: number | null;
 
-  @Column()
+  @Column({ type: 'int'})
   qtde_fidelizar: number;
 
-  @Column({ nullable: true })
+  @Column({ type: 'datetime', nullable: true })
   dt_criacao: Date | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   operador_criacao: number | null;
 }

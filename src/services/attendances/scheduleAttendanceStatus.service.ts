@@ -35,6 +35,8 @@ export async function updateAttendanceStatus(): Promise<void> {
                 CODIGO_NUMERO: attendance.CODIGO_NUMERO,
                 CODIGO_OPERADOR: attendance.CODIGO_OPERADOR,
                 CODIGO_OPERADOR_ANTERIOR: attendance.CODIGO_OPERADOR_ANTERIOR,
+                CODIGO_CC: attendance.CODIGO_CC,
+                EXPIRADO: false,
                 DATA_INICIO: new Date(),
                 MENSAGENS: [],
                 WPP_NUMERO: number.NUMERO,

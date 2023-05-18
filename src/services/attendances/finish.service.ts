@@ -34,6 +34,7 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
         // Define atendimento do Whatsapp como concluído e insere data fim;
         ATENDIMENTO.CONCLUIDO = 1;
         ATENDIMENTO.DATA_FIM = new Date();
+        TABELA_ATENDIMENTOS.save(ATENDIMENTO);
 
         // Define data de agendamento do atendimento;
         let DATA_AGENDAMENTO_CC;   

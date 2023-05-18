@@ -13,6 +13,7 @@ export interface RunningAttendance {
     CODIGO_CC: number | null;
     WPP_NUMERO: string;
     MENSAGENS: RetrieveMessage[];
+    EXPIRADO: boolean;
     AVATAR?: string;
     DATA_INICIO: Date;
     URGENCIA_OPERADOR: OperatorUrgency;

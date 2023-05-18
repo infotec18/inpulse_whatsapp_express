@@ -56,6 +56,13 @@ export async function getRunningAttendances () {
                 };
             };
 
+            const startDate = a.DATA_INICIO;
+            const maxDate = new Date(startDate);
+            maxDate.setDate(maxDate.getDate() + 3);
+            const nowDate = new Date();
+    
+            const expired = nowDate >= maxDate;
+
             runningAttendances.create({
                 CODIGO_ATENDIMENTO: a.CODIGO,
                 CODIGO_CLIENTE: client.CODIGO,
@@ -66,6 +73,7 @@ export async function getRunningAttendances () {
                 CPF_CNPJ: client.CPF_CNPJ,
                 DATA_INICIO: a.DATA_INICIO,
                 MENSAGENS: findMessages,
+                EXPIRADO: expired,
                 NOME: WPP.NOME,
                 RAZAO: client.RAZAO,
                 URGENCIA_AGENDAMENTO: a.URGENCIA_AGENDAMENTO,

@@ -67,6 +67,7 @@ export async function startNewAttendanceService(props: Props) {
             URGENCIA_OPERADOR: "NORMAL",
             URGENCIA_AGENDAMENTO: null,
             URGENCIA_SUPERVISOR: null,
+            EXPIRADO: false,
             NOME: props.number.NOME,
             RAZAO: props.client.RAZAO,
             WPP_NUMERO: props.number.NUMERO,

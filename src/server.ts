@@ -9,6 +9,7 @@ import WebSocket from "./WebSocket/WebSocket";
 import WhatsappWeb, { getRunningAttendances } from "./WebSocket/WhatsappClient";
 import https from "https";
 import path from "path";
+import { findExpiredAttendancesJob } from "./job/findExpiredAttendances.job";
 
 const PORT: number = Number(process.env.PORT) || 8000;
 const SOCKET_PORT: number = Number(process.env.SOCKET_PORT) || 5000;
@@ -59,6 +60,7 @@ async function initialize() {
 
     getRunningAttendances();
     cronJob;
+    findExpiredAttendancesJob;
 };
 
 initialize();
