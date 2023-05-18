@@ -100,16 +100,13 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
         const ACOES_AUTOMATICO = Object.keys(AGENDAMENTO_AUTOMATICO);
 
         if(RESULTADO.NOME_ACAO === "INFORMA DATA E HORA" && !!DATA_AGENDAMENTO) {
-            console.log("DATA INFORMADA: ", DATA_AGENDAMENTO)
             DATA_AGENDAMENTO_CC = DATA_AGENDAMENTO
         } else if(ACOES_AUTOMATICO.some(v => v === RESULTADO.NOME_ACAO)) {
             DATA_AGENDAMENTO_CC = AGENDAMENTO_AUTOMATICO[RESULTADO.NOME_ACAO as keyof typeof AGENDAMENTO_AUTOMATICO]();
-            console.log("DATA ACAO: ", DATA_AGENDAMENTO_CC)
         } else {
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             DATA_AGENDAMENTO_CC = tomorrow;
-            console.log("DATA AMANHA: ", tomorrow);
         };
 
         // Altera registro CC
@@ -155,7 +152,7 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
             OBSERVACAO: `Whats ${CONTATO?.NUMERO}`,
             DATAHORA_INICIO: CC.DATA_HORA_LIG || new Date(Date.now()),
             DATAHORA_FIM: CC.DATA_HORA_FIM || new Date(Date.now() - 5000),
-            OPERADOR: OPERADOR.NOME,
+            OPERADOR: OPERADOR.LOGIN,
             RESULTADO: RESULTADO.CODIGO,
             TELEFONE: CONTATO.NUMERO,
         });
