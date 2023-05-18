@@ -16,6 +16,9 @@ export class Result {
     @Column({ type: 'enum', enum: ['SIM', 'NAO'], nullable: true, default: 'NAO' })
     UTILIZAR_AGENDA: 'SIM' | 'NAO';
 
+    @Column({ type: 'enum', enum: ['SIM', 'NAO'], default: 'NAO' })
+    ECONTATO: 'SIM' | 'NAO';
+
     @Column({ type: 'enum', enum: ['SIM', 'NAO'], nullable: true, default: 'NAO' })
     FIDELIZARCOTACAO: 'SIM' | 'NAO';
 
