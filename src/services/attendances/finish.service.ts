@@ -158,7 +158,7 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
         });
 
         // Insere registro em fidelizações, caso deva fidelizar;
-        if(DEVE_FIDELIZAR) {
+        if(DEVE_FIDELIZAR && RESULTADO.ECONTATO === "SIM") {
             const fidelizacoes = await TABELA_FIDELIZACOES.find({
                 order: {
                     codigo: 'DESC'
@@ -173,7 +173,7 @@ export async function finishAttendanceService(COD_ATENDIMENTO: number, COD_RESUL
                 cliente: CC.CLIENTE,
                 dt_criacao: CC.DATA_HORA_FIM,
                 operador_criacao: CC.OPERADOR_LIGACAO,
-                qtde_fidelizar: fidelizacoes[0] ? (RESULTADO.ECONTATO === "SIM" ? fidelizacoes[0].qtde_fidelizar - 1 : fidelizacoes[0].qtde_fidelizar) : RESULTADO.QTDE_FIDELIZARCOTACAO,
+                qtde_fidelizar: fidelizacoes[0] ? fidelizacoes[0].qtde_fidelizar - 1 : RESULTADO.QTDE_FIDELIZARCOTACAO,
                 cod_origem: fidelizacoes[0] ? (fidelizacoes[0].cod_origem === 0 ? fidelizacoes[0].codigo : fidelizacoes[0].cod_origem) : 0
             });
         };
