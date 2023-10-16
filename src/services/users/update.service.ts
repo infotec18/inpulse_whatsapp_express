@@ -2,11 +2,13 @@ import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
 import { User } from "../../entities/user.entity";
 
-export async function updateUserService(user: User, newData: Partial<User>): Promise<User> {
+export async function updateUserService(tempo: number) {
 
-    const usersRepository: Repository<User> = AppDataSource.getRepository(User);
+    const usersRepository= AppDataSource.getRepository(User);
+    const tempo_disponivel = await usersRepository.query(
+        "UPDATE `motivos_pausa SET `TEMPO_MAX_SEG` = ? WHERE `DESCRICAO` = 'disponível'",[tempo]
+      );
 
-    const updatedUser = await usersRepository.save({ ...user, ...newData });
-
-    return updatedUser;
+    return tempo_disponivel;
 };
+

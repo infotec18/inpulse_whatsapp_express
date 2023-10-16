@@ -6,17 +6,9 @@ export async function getAllCustomersService(limite: number, pagina: number, sea
     const customersRepository: Repository<Customer> = AppDataSource.getRepository(Customer);
 
     const customersQuery = await customersRepository
-        .createQueryBuilder('clientes')
-        .leftJoinAndSelect('clientes.TELEFONES', 'wn')
-        .orderBy('clientes.CODIGO', 'ASC')
-        .skip((pagina - 1) * limite)
-        .take(limite)
+        .createQueryBuilder('v_operadores_status')
         
-    if(search){
-        customersQuery.where('clientes.RAZAO LIKE :search', {search: `%${search}%`})
-    }
+    const [dados] = await customersQuery.getManyAndCount();
 
-    const [dados, total] = await customersQuery.getManyAndCount();
-
-    return { dados, total };
+    return { dados};
 };

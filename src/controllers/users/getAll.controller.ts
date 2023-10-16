@@ -3,15 +3,12 @@ import services from "../../services";
 
 export const getAllUsersController = async (req: Request, res: Response) => {
 
-    if(!req.user.isAdmin) return res.status(401).json({ message: "No authorization" })
+    // if(!req.user.isAdmin) return res.status(401).json({ message: "No authorization" })
 
-    const limite = Number(req.query.limite) || 10;
-    const pagina = Number(req.query.pagina) || 1;
-    const search = req.query.search?.toString() || undefined;
+    const startDate = req.query.startDate ? new Date(req.query.startDate as string) : new Date(Date.now() - (1000 * 60 * 60 * 24 * 1));
+    const endDate = req.query.endDate ? new Date(req.query.endDate as string) : new Date(Date.now() + (1000 * 60 * 60 * 24 * 1))
 
-    const { dados, total } = await services.users.getAll(limite, pagina, search);
-
-    const totalPaginas = Math.ceil(total / limite);
-
-    return res.status(201).json({ dados, total, totalPaginas });
+    const { dados } = await services.users.getAll(startDate, endDate);
+  
+    return res.status(201).json({ dados });
 };

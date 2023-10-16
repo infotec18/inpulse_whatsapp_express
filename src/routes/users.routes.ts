@@ -10,7 +10,6 @@ userRoutes.post("/users/",
 );
 
 userRoutes.get("/users/",
-    middlewares.auth.ensureTokenIsValid,
     controllers.users.getAll
 );
 
@@ -29,16 +28,14 @@ userRoutes.delete("/users/:userId",
 );
 
 userRoutes.put("/users/:userId/recover",
-    middlewares.users.ensureParamUserIdExists,
     controllers.users.recover
 );
 
-userRoutes.patch("/users/:userId", 
-    middlewares.users.ensureParamUserIdExists,
+userRoutes.patch("/users/", 
     controllers.users.update
 );
 
-userRoutes.get("/users/lastid",
+userRoutes.get("/users/StatusAndVendas",
     controllers.users.getLastId
 );
 

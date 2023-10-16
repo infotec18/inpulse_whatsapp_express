@@ -1,6 +1,6 @@
 import { createUserService } from "./create.service";
 import { getAllUsersService } from "./getAll.service";
-import { getLastUserIdService } from "./getLastId.service";
+import { getLastUserIdService } from "./getGraphicAndTime.service";
 import { getOneUserByIdService } from "./getOneById.service";
 import { loginUserService } from "./login.service";
 import { recoverUserService } from "./recover.service";
