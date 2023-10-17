@@ -8,6 +8,9 @@ export async function getLastUserIdService(startDate: Date, endDate: Date) {
 
     const historicoRepository = AppDataSource.getRepository(User);
 
+    const startDF = converterDataParaDiaMesAno(startDate);
+    const endDF = converterDataParaDiaMesAno(endDate);
+
     const motivos_pausa = await historicoRepository.query("SELECT * FROM motivos_pausa");
     
     const sql = `
@@ -20,31 +23,22 @@ export async function getLastUserIdService(startDate: Date, endDate: Date) {
     ORDER BY COUNT(cc.CODIGO) DESC
   `;
   
-  const vendasPorEstado = await historicoRepository.query(sql, [MysqlDate(startDate), MysqlDate(endDate)]);
+  const vendasPorEstado = await historicoRepository.query(sql, [startDF, endDF]);
   
   if (vendasPorEstado !== null && vendasPorEstado.length > 0) {
     VendasPorEstado = vendasPorEstado;
   }
 
+  console.log("vendas por estado",vendasPorEstado)
     return { vendasPorEstado: vendasPorEstado, motivos_pausa: motivos_pausa};
 };
-function MysqlDate(date: number | Date) {
-    const newDate = new Date(date);
-
-    const YYYY = newDate.getFullYear();
-    const month = newDate.getMonth() + 1;
-    const day = newDate.getDate();
-    const hour = newDate.getHours();
-    const minutes = newDate.getMinutes();
-    const seconds = newDate.getSeconds();
-
-    const MM = month >= 10 ? month : `0${month}`;
-    const DD = day >= 10 ? day : `0${day}`;
-    const HH = hour >= 10 ? hour : `0${hour}`;
-    const mm = minutes >= 10 ? minutes : `0${minutes}`;
-    const ss = seconds >= 10 ? seconds : `0${seconds}`;
-
-    const mysqlDateString = `${YYYY}-${MM}-${DD} ${HH}:${mm}:${ss}`;
-
-    return mysqlDateString;
-};
+function converterDataParaDiaMesAno(dataComHoras:any) {
+    const data = new Date(dataComHoras);
+    const dia = data.getDate();
+    const mes = data.getMonth() + 1; 
+    const ano = data.getFullYear();
+  
+    const dataFormatada = `${ano}-${mes < 10 ? '0' : ''}${mes}-${dia < 10 ? '0' : ''}${dia}`;
+  
+    return dataFormatada;
+  }

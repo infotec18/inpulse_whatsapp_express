@@ -32,19 +32,18 @@ export async function getAllUsersService(startDate: Date, endDate: Date) {
     const startDF = converterDataParaDiaMesAno(startDate);
     const endDF = converterDataParaDiaMesAno(endDate);
 
-    console.log(endDF,startDF)
     for (const operador of dados) {
         let codigo_operador = operador.OPERADOR
         if(codigo_operador !== 10 && codigo_operador !== 11 && codigo_operador!== 1){
             const historico_status = await historicoRepository.query(
                 "SELECT * FROM operadores_status_log WHERE OPERADOR = ? AND DATA BETWEEN ? AND ?",
-                [codigo_operador, startDate, endDate]
+                [codigo_operador, startDF, endDF]
               );
               
             const [produtividade] = await historicoRepository.query(getProdutividadeSQL(codigo_operador, startDate, endDate))
     
             let [CLIENTE] = await historicoRepository.query("SELECT CLIENTE FROM campanhas_clientes WHERE campanhas_clientes.OPERADOR = ? ORDER BY CODIGO DESC LIMIT 1; ", [codigo_operador]);
-            console.log("CODIGO_CLIENTE",historico_status)
+
             const operadorComHistoricoStatus: OperadorComHistoricoStatus = {
                 ...operador,
                 historico_status: historico_status,
