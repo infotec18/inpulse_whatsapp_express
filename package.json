@@ -53,9 +53,8 @@
     "typescript": "^5.0.2"
   },
   "scripts": {
+    "start": "tsc && node dist/server.js",
     "dev": "ts-node-dev --cls --rs --ignore-watch node_modules src/server.ts",
-    "typeorm": "typeorm-ts-node-commonjs",
-    "migration-generate": "typeorm-ts-node-commonjs migration:generate ./src/migrations/mig -d ./src/data-source.ts",
-    "migration-run": "typeorm-ts-node-commonjs migration:run -d ./src/data-source.ts"
+    "typeorm": "typeorm-ts-node-commonjs"
   }
 }

@@ -3,4 +3,3 @@ node_modules
 /localFiles/avatars/*
 /localFiles/messages/*
 /localFiles/readyMessages/*
-/dist/*
