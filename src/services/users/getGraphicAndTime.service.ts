@@ -33,7 +33,7 @@ export async function getLastUserIdService( startDate: Date, endDate: Date) {
 }
   const motivos_pausa = await historicoRepository.query("SELECT * FROM motivos_pausa");
 
-  const vendasPorEstado = await getVendasPorEstado("2023-09-17", "2023-09-27", historicoRepository);
+  const vendasPorEstado = await getVendasPorEstado(startDF, endDF, historicoRepository);
 
 console.log(vendasPorEstado,)
   return { vendasPorEstado, operadores, motivos_pausa, };
