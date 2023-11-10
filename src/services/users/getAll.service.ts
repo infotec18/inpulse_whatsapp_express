@@ -1,30 +1,29 @@
-import { findOperator } from './../customers/index';
-import { getAll } from './index';
-import { Request, Response } from "express";
 import { Repository } from "typeorm";
 import { AppDataSource } from "../../data-source";
 import { VOperadoresStatus } from "../../entities/voperadpres.entity";
 import { OperadorStatusLog } from '../../entities/operadoresStatusLog.entity';
-import { ClientCampaign } from '../../entities/clientCampaign.entity';
+
+const MAGIC_NUMBERS = [10, 11, 1];
+
+interface OperadorComHistoricoStatus {
+    OPERADOR: number;
+    NOME: string;
+    STATUS_ATUAL: string;
+    TEMPO: number;
+    HISTORICO_STATUS: OperadorStatusLog[];
+    CODIGO_CLIENTE: number;
+    PRODUTIVIDADE: number;
+    LIGACOES: number;
+    CONTATOS: number;
+    APROVEITAMENTO: number;
+    PEDIDOS: number;
+    VALOR_PROPOSTA: number;
+    VALOR_VENDA: number;
+}
 
 export async function getAllUsersService(startDate: Date, endDate: Date) {
-    interface OperadorComHistoricoStatus {
-        OPERADOR: number;
-        NOME: string;
-        STATUS_ATUAL: string;
-        TEMPO: number;
-        historico_status: OperadorStatusLog[];
-        CODIGO_CLIENTE: number;
-        PRODUTIVIDADE: number;
-        LIGACOES: number;
-        CONTATOS: number;
-        APROVEITAMENTO: number;
-        PEDIDOS: number;
-    }
-
     const usersRepository = AppDataSource.getRepository(VOperadoresStatus);
     const historicoRepository = AppDataSource.getRepository(OperadorStatusLog);
-    const codigoClienteRepository = AppDataSource.getRepository(ClientCampaign);
 
     const [dados] = await usersRepository.findAndCount();
     const operadoresComHistoricoStatus: OperadorComHistoricoStatus[] = [];
@@ -33,37 +32,70 @@ export async function getAllUsersService(startDate: Date, endDate: Date) {
     const endDF = converterDataParaDiaMesAno(endDate);
 
     for (const operador of dados) {
-        let codigo_operador = operador.OPERADOR
-        if(codigo_operador !== 10 && codigo_operador !== 11 && codigo_operador!== 1){
-            const historico_status = await historicoRepository.query(
-                "SELECT * FROM operadores_status_log WHERE OPERADOR = ? AND DATA BETWEEN ? AND ?",
-                [codigo_operador, startDF, endDF]
-              );
-              
-            const [produtividade] = await historicoRepository.query(getProdutividadeSQL(codigo_operador, startDate, endDate))
-    
-            let [CLIENTE] = await historicoRepository.query("SELECT CLIENTE FROM campanhas_clientes WHERE campanhas_clientes.OPERADOR = ? ORDER BY CODIGO DESC LIMIT 1; ", [codigo_operador]);
+        let codigo_operador = operador.OPERADOR;
+
+        if (!MAGIC_NUMBERS.includes(codigo_operador)) {
+            const HISTORICO_STATUS = await getHistoricoStatus(codigo_operador, startDF, endDF, historicoRepository);
+            const [produtividade] = await historicoRepository.query(getProdutividadeSQL(codigo_operador, startDate, endDate));
+            const [CLIENTE] = await getLastClient(codigo_operador, historicoRepository);
+            const VALOR_VENDA = await getValorVenda(codigo_operador, startDF, endDF, historicoRepository);
+            const VALOR_PROPOSTA = await getValorProposta(codigo_operador, startDF, endDF, historicoRepository);
 
             const operadorComHistoricoStatus: OperadorComHistoricoStatus = {
                 ...operador,
-                historico_status: historico_status,
+                HISTORICO_STATUS,
                 CODIGO_CLIENTE: CLIENTE.CLIENTE,
                 APROVEITAMENTO: produtividade.APROVEITAMENTO,
                 CONTATOS: produtividade.CONTATOS,
                 LIGACOES: produtividade.DISCADAS,
                 PEDIDOS: produtividade.PEDIDOS,
                 PRODUTIVIDADE: produtividade.PRODUTIVIDADE,
+                VALOR_PROPOSTA,
+                VALOR_VENDA,
             };
-    
-    
-    
+
             operadoresComHistoricoStatus.push(operadorComHistoricoStatus);
         }
-     
     }
 
-    return { dados: operadoresComHistoricoStatus }
-};
+    return { dados: operadoresComHistoricoStatus };
+}
+
+async function getHistoricoStatus(codigo_operador: number, startDF: string, endDF: string, historicoRepository: Repository<OperadorStatusLog>) {
+    return await historicoRepository.query(
+        "SELECT * FROM operadores_status_log WHERE OPERADOR = ? AND DATA BETWEEN ? AND ?",
+        [codigo_operador, startDF, endDF]
+    );
+}
+
+async function getLastClient(codigo_operador: number, historicoRepository: Repository<OperadorStatusLog>) {
+    return await historicoRepository.query("SELECT CLIENTE FROM campanhas_clientes WHERE campanhas_clientes.OPERADOR = ? ORDER BY CODIGO DESC LIMIT 1; ", [codigo_operador]);
+}
+
+async function getValorVenda(codigo_operador: number, startDF: string, endDF: string, historicoRepository: Repository<OperadorStatusLog>) {
+    const valorQuery = `
+        SELECT SUM(cc.VALOR) as VALOR
+        FROM compras cc
+        WHERE cc.OPERADOR = ? AND cc.DATA BETWEEN ? AND ?
+    `;
+
+    const valorResult = await historicoRepository.query(valorQuery, [codigo_operador, startDF, endDF]);
+
+    return (valorResult !== null && valorResult.length > 0) ? parseFloat(valorResult[0].VALOR) : 0;
+}
+
+async function getValorProposta(codigo_operador: number, startDF: string, endDF: string, historicoRepository: Repository<OperadorStatusLog>) {
+    const propostaQuery = `
+        SELECT p.VALOR
+        FROM campanhas_clientes a
+        INNER JOIN propostas p ON p.LIGACAO = a.CODIGO
+        WHERE a.OPERADOR = ? AND a.DT_RESULTADO BETWEEN ? AND ?
+    `;
+
+    const valorPropostaResult = await historicoRepository.query(propostaQuery, [codigo_operador, startDF, endDF]);
+
+    return (valorPropostaResult !== null && valorPropostaResult.length > 0) ? parseFloat(valorPropostaResult[0].VALOR) : 0;
+}
 
 function MysqlDate(date: number | Date) {
     const newDate = new Date(date);
