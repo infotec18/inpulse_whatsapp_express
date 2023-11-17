@@ -14,6 +14,7 @@ export async function getLastUserIdService( startDate: Date, endDate: Date) {
   const [dados] = await usersRepository.findAndCount();
   const startDF = converterDataParaDiaMesAno(startDate);
   const endDF = converterDataParaDiaMesAno(endDate);
+
   let operadores: any[] = [];
   let operadorL;
   for (const operador of dados) {
@@ -21,22 +22,22 @@ export async function getLastUserIdService( startDate: Date, endDate: Date) {
     if (!MAGIC_NUMBERS.includes(codigo_operador)) {
       const VALOR_VENDA = await getValorVenda(codigo_operador, startDF, endDF, historicRepository);
       const VALOR_PROPOSTA  = await getValorProposta(codigo_operador, startDF, endDF, historicRepository);
+
       operadorL = {
         NOME: operador.NOME,
         VALOR_PROPOSTA,
         VALOR_VENDA,
       }
     }
-    console.log(operadorL)
-    if(operadorL !== null)
+    if(operadorL)
     operadores.push(operadorL)
 }
   const motivos_pausa = await historicoRepository.query("SELECT * FROM motivos_pausa");
+  const VALOR_PROPOSTA_TOTAL  = await getValorVendaTotal( historicRepository);
 
   const vendasPorEstado = await getVendasPorEstado(startDF, endDF, historicoRepository);
-
-console.log(vendasPorEstado,)
-  return { vendasPorEstado, operadores, motivos_pausa, };
+console.log("VALOR_PROPOSTA_TOTAL",VALOR_PROPOSTA_TOTAL)
+  return { vendasPorEstado, operadores, motivos_pausa,VALOR_PROPOSTA_TOTAL };
 }
 
 async function getVendasPorEstado(startDF: string, endDF: string, historicoRepository: Repository<User>) {
@@ -65,7 +66,7 @@ function converterDataParaDiaMesAno(dataComHoras: any) {
 }
 async function getValorVenda(codigo_operador: number, startDF: string, endDF: string, historicoRepository: Repository<OperadorStatusLog>) {
     const valorQuery = `
-        SELECT SUM(cc.VALOR) as VALOR
+        SELECT SUM(CAST(REPLACE(cc.VALOR, ',', '') AS DECIMAL(10, 2))) AS VALOR
         FROM compras cc
         WHERE cc.OPERADOR = ? AND cc.DATA BETWEEN ? AND ?
     `;
@@ -74,6 +75,51 @@ async function getValorVenda(codigo_operador: number, startDF: string, endDF: st
 
     return (valorResult !== null && valorResult.length > 0) ? parseFloat(valorResult[0].VALOR) : 0;
 }
+async function getValorVendaTotal(historicoRepository: Repository<OperadorStatusLog>) {
+  const valorQuery = `
+      SELECT
+        CASE 
+        WHEN MONTH(cc.DATA) = 1 THEN 'Jan'
+        WHEN MONTH(cc.DATA) = 2 THEN 'Fev'
+        WHEN MONTH(cc.DATA) = 3 THEN 'Mar'
+        WHEN MONTH(cc.DATA) = 4 THEN 'Abr'
+        WHEN MONTH(cc.DATA) = 5 THEN 'Mai'
+        WHEN MONTH(cc.DATA) = 6 THEN 'Jun'
+        WHEN MONTH(cc.DATA) = 7 THEN 'Jul'
+        WHEN MONTH(cc.DATA) = 8 THEN 'Ago'
+        WHEN MONTH(cc.DATA) = 9 THEN 'Set'
+        WHEN MONTH(cc.DATA) = 10 THEN 'Out'
+        WHEN MONTH(cc.DATA) = 11 THEN 'Nov'
+        WHEN MONTH(cc.DATA) = 12 THEN 'Dez'
+          END AS Mes,
+        SUM(CAST(REPLACE(cc.VALOR, ',', '') AS DECIMAL(10, 2))) AS VendaTotal
+      FROM
+        compras cc
+      WHERE
+        YEAR(cc.DATA) = YEAR(CURDATE()) AND
+        MONTH(cc.DATA) <= MONTH(CURDATE())
+      GROUP BY
+        Mes
+        ORDER BY
+        CASE 
+            WHEN MONTH(cc.DATA) = 1 THEN 1
+            WHEN MONTH(cc.DATA) = 2 THEN 2
+            WHEN MONTH(cc.DATA) = 3 THEN 3
+            WHEN MONTH(cc.DATA) = 4 THEN 4
+            WHEN MONTH(cc.DATA) = 5 THEN 5
+            WHEN MONTH(cc.DATA) = 6 THEN 6
+            WHEN MONTH(cc.DATA) = 7 THEN 7
+            WHEN MONTH(cc.DATA) = 8 THEN 8
+            WHEN MONTH(cc.DATA) = 9 THEN 9
+            WHEN MONTH(cc.DATA) = 10 THEN 10
+            WHEN MONTH(cc.DATA) = 11 THEN 11
+            WHEN MONTH(cc.DATA) = 12 THEN 12
+        END DESC;
+  `;
+
+  return await historicoRepository.query(valorQuery);
+}
+
 
 async function getValorProposta(codigo_operador: number, startDF: string, endDF: string, historicoRepository: Repository<OperadorStatusLog>) {
     const propostaQuery = `
