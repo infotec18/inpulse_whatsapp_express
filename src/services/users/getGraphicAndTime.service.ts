@@ -22,16 +22,17 @@ export async function getLastUserIdService( startDate: Date, endDate: Date) {
     if (!MAGIC_NUMBERS.includes(codigo_operador)) {
       const VALOR_VENDA = await getValorVenda(codigo_operador, startDF, endDF, historicRepository);
       const VALOR_PROPOSTA  = await getValorProposta(codigo_operador, startDF, endDF, historicRepository);
-
+      if(!VALOR_VENDA) continue
       operadorL = {
         NOME: operador.NOME,
         VALOR_PROPOSTA,
         VALOR_VENDA,
       }
+      if(operadorL)
+      operadores.push(operadorL)
     }
-    if(operadorL)
-    operadores.push(operadorL)
 }
+
   const motivos_pausa = await historicoRepository.query("SELECT * FROM motivos_pausa");
   const VALOR_PROPOSTA_TOTAL  = await getValorVendaTotal( historicRepository);
 
@@ -43,13 +44,12 @@ async function getVendasPorEstado(startDF: string, endDF: string, historicoRepos
   const sql = `
     SELECT cli.ESTADO, SUM(cc.VALOR) as VALOR
     FROM compras cc
-    JOIN clientes cli on cli.CODIGO = cc.CLIENTE AND cli.ESTADO <> ''
-    WHERE cc.OPERADOR > 0 AND cc.DATA BETWEEN ? AND ?
+    JOIN clientes cli on cli.CODIGO = cc.CLIENTE
+    WHERE cc.OPERADOR IS NULL AND cc.DATA BETWEEN ? AND ? 
     GROUP BY cli.ESTADO
     HAVING SUM(cc.VALOR) > 0
     ORDER BY COUNT(cc.CODIGO) DESC
   `;
-
   return historicoRepository.query(sql, [startDF, endDF]);
 }
 
@@ -72,7 +72,6 @@ async function getValorVenda(codigo_operador: number, startDF: string, endDF: st
 
     const valorResult = await historicoRepository.query(valorQuery, [codigo_operador, startDF, endDF]);
 
-    console.log("valorResult",valorResult)
     return (valorResult !== null && valorResult.length > 0) ? parseFloat(valorResult[0].VALOR) : 0;
 }
 async function getValorVendaTotal(historicoRepository: Repository<OperadorStatusLog>) {
@@ -97,7 +96,8 @@ async function getValorVendaTotal(historicoRepository: Repository<OperadorStatus
         compras cc
       WHERE
         YEAR(cc.DATA) = YEAR(CURDATE()) AND
-        MONTH(cc.DATA) <= MONTH(CURDATE())
+        MONTH(cc.DATA) <= MONTH(CURDATE()) AND
+        cc.OPERADOR IS NULL
       GROUP BY
         Mes
         ORDER BY
