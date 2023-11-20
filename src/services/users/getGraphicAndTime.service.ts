@@ -36,7 +36,6 @@ export async function getLastUserIdService( startDate: Date, endDate: Date) {
   const VALOR_PROPOSTA_TOTAL  = await getValorVendaTotal( historicRepository);
 
   const vendasPorEstado = await getVendasPorEstado(startDF, endDF, historicoRepository);
-console.log("VALOR_PROPOSTA_TOTAL",VALOR_PROPOSTA_TOTAL)
   return { vendasPorEstado, operadores, motivos_pausa,VALOR_PROPOSTA_TOTAL };
 }
 
@@ -73,6 +72,7 @@ async function getValorVenda(codigo_operador: number, startDF: string, endDF: st
 
     const valorResult = await historicoRepository.query(valorQuery, [codigo_operador, startDF, endDF]);
 
+    console.log("valorResult",valorResult)
     return (valorResult !== null && valorResult.length > 0) ? parseFloat(valorResult[0].VALOR) : 0;
 }
 async function getValorVendaTotal(historicoRepository: Repository<OperadorStatusLog>) {
