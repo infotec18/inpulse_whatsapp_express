@@ -1,17 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLastId = exports.update = exports.recover = exports.login = exports.getOneById = exports.getAll = exports.create = void 0;
-const create_service_1 = require("./create.service");
+exports.getLastId = exports.update = exports.getAll = void 0;
 const getAll_service_1 = require("./getAll.service");
 const getGraphicAndTime_service_1 = require("./getGraphicAndTime.service");
-const getOneById_service_1 = require("./getOneById.service");
-const login_service_1 = require("./login.service");
-const recover_service_1 = require("./recover.service");
 const update_service_1 = require("./update.service");
-exports.create = create_service_1.createUserService;
 exports.getAll = getAll_service_1.getAllUsersService;
-exports.getOneById = getOneById_service_1.getOneUserByIdService;
-exports.login = login_service_1.loginUserService;
-exports.recover = recover_service_1.recoverUserService;
 exports.update = update_service_1.updateUserService;
 exports.getLastId = getGraphicAndTime_service_1.getLastUserIdService;
