@@ -15,7 +15,7 @@ const user_entity_1 = require("../../entities/user.entity");
 function updateUserService(tempo) {
     return __awaiter(this, void 0, void 0, function* () {
         const usersRepository = data_source_1.AppDataSource.getRepository(user_entity_1.User);
-        const tempo_disponivel = yield usersRepository.query("UPDATE `motivos_pausa SET `TEMPO_MAX_SEG` = ? WHERE `DESCRICAO` = 'disponível'", [tempo]);
+        const tempo_disponivel = yield usersRepository.query("UPDATE motivos_pausa SET TEMPO_MAX_SEG = ? WHERE DESCRICAO = 'disponível'", [tempo]);
         return tempo_disponivel;
     });
 }

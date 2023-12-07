@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateUserController = void 0;
 const services_1 = __importDefault(require("../../services"));
 const updateUserController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const updated = yield services_1.default.users.update(Number(req.query.startDate));
+    const updated = yield services_1.default.users.update(Number(req.body.params.tempo));
     return res.status(200).json(updated);
 });
 exports.updateUserController = updateUserController;

@@ -24,9 +24,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const users = __importStar(require("./users"));
-const files = __importStar(require("./files"));
 const customers = __importStar(require("./customers"));
 const services = {
-    users, customers, files
+    users, customers
 };
 exports.default = services;

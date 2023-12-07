@@ -7,7 +7,7 @@ async function initialize() {
     
     await AppDataSource.initialize()
     console.log(new Date().toLocaleString(), ': Database connected.');
-
+    console.log(`http://localhost:${PORT}`)
     app.listen(PORT)
 };
 

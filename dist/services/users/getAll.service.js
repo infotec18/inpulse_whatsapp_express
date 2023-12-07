@@ -13,23 +13,25 @@ exports.getAllUsersService = void 0;
 const data_source_1 = require("../../data-source");
 const voperadpres_entity_1 = require("../../entities/voperadpres.entity");
 const operadoresStatusLog_entity_1 = require("../../entities/operadoresStatusLog.entity");
-const clientCampaign_entity_1 = require("../../entities/clientCampaign.entity");
+const MAGIC_NUMBERS = [10, 11, 1];
 function getAllUsersService(startDate, endDate) {
     return __awaiter(this, void 0, void 0, function* () {
         const usersRepository = data_source_1.AppDataSource.getRepository(voperadpres_entity_1.VOperadoresStatus);
         const historicoRepository = data_source_1.AppDataSource.getRepository(operadoresStatusLog_entity_1.OperadorStatusLog);
-        const codigoClienteRepository = data_source_1.AppDataSource.getRepository(clientCampaign_entity_1.ClientCampaign);
         const [dados] = yield usersRepository.findAndCount();
         const operadoresComHistoricoStatus = [];
         const startDF = converterDataParaDiaMesAno(startDate);
         const endDF = converterDataParaDiaMesAno(endDate);
         for (const operador of dados) {
             let codigo_operador = operador.OPERADOR;
-            if (codigo_operador !== 10 && codigo_operador !== 11 && codigo_operador !== 1) {
-                const historico_status = yield historicoRepository.query("SELECT * FROM operadores_status_log WHERE OPERADOR = ? AND DATA BETWEEN ? AND ?", [codigo_operador, startDF, endDF]);
+            if (!MAGIC_NUMBERS.includes(codigo_operador)) {
+                const HISTORICO_STATUS = yield getHistoricoStatus(codigo_operador, startDF, endDF, historicoRepository);
                 const [produtividade] = yield historicoRepository.query(getProdutividadeSQL(codigo_operador, startDate, endDate));
-                let [CLIENTE] = yield historicoRepository.query("SELECT CLIENTE FROM campanhas_clientes WHERE campanhas_clientes.OPERADOR = ? ORDER BY CODIGO DESC LIMIT 1; ", [codigo_operador]);
-                const operadorComHistoricoStatus = Object.assign(Object.assign({}, operador), { historico_status: historico_status, CODIGO_CLIENTE: CLIENTE.CLIENTE, APROVEITAMENTO: produtividade.APROVEITAMENTO, CONTATOS: produtividade.CONTATOS, LIGACOES: produtividade.DISCADAS, PEDIDOS: produtividade.PEDIDOS, PRODUTIVIDADE: produtividade.PRODUTIVIDADE });
+                const [CLIENTE] = yield getLastClient(codigo_operador, historicoRepository);
+                const VALOR_VENDA = yield getValorVenda(codigo_operador, startDF, endDF, historicoRepository);
+                const VALOR_PROPOSTA = yield getValorProposta(codigo_operador, startDF, endDF, historicoRepository);
+                const operadorComHistoricoStatus = Object.assign(Object.assign({}, operador), { HISTORICO_STATUS, CODIGO_CLIENTE: CLIENTE.CLIENTE, APROVEITAMENTO: produtividade.APROVEITAMENTO, CONTATOS: produtividade.CONTATOS, LIGACOES: produtividade.DISCADAS, PEDIDOS: produtividade.PEDIDOS, PRODUTIVIDADE: produtividade.PRODUTIVIDADE, VALOR_PROPOSTA,
+                    VALOR_VENDA });
                 operadoresComHistoricoStatus.push(operadorComHistoricoStatus);
             }
         }
@@ -37,7 +39,39 @@ function getAllUsersService(startDate, endDate) {
     });
 }
 exports.getAllUsersService = getAllUsersService;
-;
+function getHistoricoStatus(codigo_operador, startDF, endDF, historicoRepository) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield historicoRepository.query("SELECT * FROM operadores_status_log WHERE OPERADOR = ? AND DATA BETWEEN ? AND ?", [codigo_operador, startDF, endDF]);
+    });
+}
+function getLastClient(codigo_operador, historicoRepository) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield historicoRepository.query("SELECT CLIENTE FROM campanhas_clientes WHERE campanhas_clientes.OPERADOR = ? ORDER BY CODIGO DESC LIMIT 1; ", [codigo_operador]);
+    });
+}
+function getValorVenda(codigo_operador, startDF, endDF, historicoRepository) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const valorQuery = `
+        SELECT SUM(cc.VALOR) as VALOR
+        FROM compras cc
+        WHERE cc.OPERADOR = ? AND cc.DATA BETWEEN ? AND ?
+    `;
+        const valorResult = yield historicoRepository.query(valorQuery, [codigo_operador, startDF, endDF]);
+        return (valorResult !== null && valorResult.length > 0) ? parseFloat(valorResult[0].VALOR) : 0;
+    });
+}
+function getValorProposta(codigo_operador, startDF, endDF, historicoRepository) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const propostaQuery = `
+        SELECT p.VALOR
+        FROM campanhas_clientes a
+        INNER JOIN propostas p ON p.LIGACAO = a.CODIGO
+        WHERE a.OPERADOR = ? AND a.DT_RESULTADO BETWEEN ? AND ?
+    `;
+        const valorPropostaResult = yield historicoRepository.query(propostaQuery, [codigo_operador, startDF, endDF]);
+        return (valorPropostaResult !== null && valorPropostaResult.length > 0) ? parseFloat(valorPropostaResult[0].VALOR) : 0;
+    });
+}
 function MysqlDate(date) {
     const newDate = new Date(date);
     const YYYY = newDate.getFullYear();

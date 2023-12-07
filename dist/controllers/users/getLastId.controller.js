@@ -15,9 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getLastUserIdController = void 0;
 const services_1 = __importDefault(require("../../services"));
 const getLastUserIdController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const startDate = req.query.startDate ? new Date(req.query.startDate) : new Date(Date.now() - (1000 * 60 * 60 * 24 * 1));
-    const endDate = req.query.endDate ? new Date(req.query.endDate) : new Date(Date.now() + (1000 * 60 * 60 * 24 * 1));
-    const { vendasPorEstado, motivos_pausa } = yield services_1.default.users.getLastId(startDate, endDate);
-    return res.status(200).json({ vendasPorEstado, motivos_pausa });
+    const dataAtual = new Date();
+    const numeroDoDia = dataAtual.getDate();
+    const startDate = req.query.startDate ? new Date(req.query.startDate) : new Date(Date.now() - (1000 * 60 * 60 * 24 * (numeroDoDia - 1)));
+    const endDate = req.query.endDate ? new Date(req.query.endDate) : new Date(Date.now());
+    const { vendasPorEstado, operadores, motivos_pausa, VALOR_PROPOSTA_TOTAL } = yield services_1.default.users.getLastId(startDate, endDate);
+    return res.status(200).json({ vendasPorEstado, operadores, motivos_pausa, VALOR_PROPOSTA_TOTAL });
 });
 exports.getLastUserIdController = getLastUserIdController;

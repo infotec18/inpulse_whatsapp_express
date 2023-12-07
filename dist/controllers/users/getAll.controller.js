@@ -17,7 +17,7 @@ const services_1 = __importDefault(require("../../services"));
 const getAllUsersController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // if(!req.user.isAdmin) return res.status(401).json({ message: "No authorization" })
     const startDate = req.query.startDate ? new Date(req.query.startDate) : new Date(Date.now() - (1000 * 60 * 60 * 24 * 1));
-    const endDate = req.query.endDate ? new Date(req.query.endDate) : new Date(Date.now() + (1000 * 60 * 60 * 24 * 1));
+    const endDate = req.query.endDate ? new Date(req.query.endDate) : new Date(Date.now());
     const { dados } = yield services_1.default.users.getAll(startDate, endDate);
     return res.status(201).json({ dados });
 });

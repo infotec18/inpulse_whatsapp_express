@@ -62,7 +62,6 @@ export async function getAllUsersService(startDate: Date, endDate: Date) {
 }
 
 async function getHistoricoStatus(codigo_operador: number, startDF: string, endDF: string, historicoRepository: Repository<OperadorStatusLog>) {
-    console.log("startDF - endDF :",startDF,endDF)
     return await historicoRepository.query(
         "SELECT * FROM operadores_status_log WHERE OPERADOR = ? AND DATA BETWEEN ? AND ?",
         [codigo_operador, startDF, endDF]

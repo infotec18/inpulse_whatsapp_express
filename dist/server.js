@@ -19,6 +19,7 @@ function initialize() {
     return __awaiter(this, void 0, void 0, function* () {
         yield data_source_1.AppDataSource.initialize();
         console.log(new Date().toLocaleString(), ': Database connected.');
+        console.log(`http://localhost:${PORT}`);
         app_1.default.listen(PORT);
     });
 }

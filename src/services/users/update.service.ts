@@ -6,7 +6,7 @@ export async function updateUserService(tempo: number) {
 
     const usersRepository= AppDataSource.getRepository(User);
     const tempo_disponivel = await usersRepository.query(
-        "UPDATE `motivos_pausa SET `TEMPO_MAX_SEG` = ? WHERE `DESCRICAO` = 'disponível'",[tempo]
+        "UPDATE motivos_pausa SET TEMPO_MAX_SEG = ? WHERE DESCRICAO = 'disponível'",[tempo]
       );
 
     return tempo_disponivel;
