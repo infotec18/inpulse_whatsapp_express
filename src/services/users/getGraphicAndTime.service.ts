@@ -45,7 +45,7 @@ async function getVendasPorEstado(startDF: string, endDF: string, historicoRepos
     SELECT cli.ESTADO, SUM(cc.VALOR) as VALOR
     FROM compras cc
     JOIN clientes cli on cli.CODIGO = cc.CLIENTE
-    WHERE cc.OPERADOR IS NULL AND cc.DATA BETWEEN ? AND ? 
+    WHERE cc.OPERADOR > 0 AND cc.DATA BETWEEN ? AND ?
     GROUP BY cli.ESTADO
     HAVING SUM(cc.VALOR) > 0
     ORDER BY COUNT(cc.CODIGO) DESC
@@ -97,7 +97,7 @@ async function getValorVendaTotal(historicoRepository: Repository<OperadorStatus
       WHERE
         YEAR(cc.DATA) = YEAR(CURDATE()) AND
         MONTH(cc.DATA) <= MONTH(CURDATE()) AND
-        cc.OPERADOR IS NULL
+        cc.OPERADOR > 0
       GROUP BY
         Mes
         ORDER BY
