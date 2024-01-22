@@ -120,7 +120,6 @@ async function getValorVendaTotal(historicoRepository: Repository<OperadorStatus
   return await historicoRepository.query(valorQuery);
 }
 
-
 async function getValorProposta(codigo_operador: number, startDF: string, endDF: string, historicoRepository: Repository<OperadorStatusLog>) {
     const propostaQuery = `
         SELECT p.VALOR
