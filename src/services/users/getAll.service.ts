@@ -13,6 +13,9 @@ interface OperadorComHistoricoStatus {
     CODIGO_CLIENTE: number;
     VALOR_PROPOSTA: number;
     VALOR_VENDA: number;
+    PEDIDOS: number,
+    CONTATOS: number,
+    DISCADAS: number
 }
 
 export async function getAllUsersService(startDate: Date, endDate: Date) {
@@ -29,31 +32,47 @@ export async function getAllUsersService(startDate: Date, endDate: Date) {
         let codigo_operador = operador.OPERADOR;
 
         if (!MAGIC_NUMBERS.includes(codigo_operador)) {
+            const [PedidoDiscadasContatos]  = await getPedidoDiscadasContatos(codigo_operador, startDF, endDF, historicoRepository);
             const [CLIENTE] = await getLastClient(codigo_operador, historicoRepository);
-            const VALOR_VENDA = await getValorVenda(codigo_operador, startDF, endDF, historicoRepository);
+            const [VALOR_VENDA] = await getValorVenda(codigo_operador, startDF, endDF, historicoRepository);
             const VALOR_PROPOSTA = await getValorProposta(codigo_operador, startDF, endDF, historicoRepository);
 
             const operadorComHistoricoStatus: OperadorComHistoricoStatus = {
                 ...operador,
                 CODIGO_CLIENTE: CLIENTE.CLIENTE,
                 VALOR_PROPOSTA,
-                VALOR_VENDA,
+                VALOR_VENDA:VALOR_VENDA.VALOR,
+                PEDIDOS : PedidoDiscadasContatos.PEDIDOS,
+                CONTATOS : PedidoDiscadasContatos.CONTATOS,
+                DISCADAS : PedidoDiscadasContatos.DISCADAS
             };
 
             operadoresComHistoricoStatus.push(operadorComHistoricoStatus);
         }
     }
-
+console.table(operadoresComHistoricoStatus)
     return { dados: operadoresComHistoricoStatus };
 }
 
-async function getHistoricoStatus(codigo_operador: number, startDF: string, endDF: string, historicoRepository: Repository<OperadorStatusLog>) {
-    return await historicoRepository.query(
-        "SELECT * FROM operadores_status_log WHERE OPERADOR = ? AND DATA BETWEEN ? AND ?",
-        [codigo_operador, startDF, endDF]
-    );
-}
 
+async function getPedidoDiscadasContatos(codigo_operador: number, startDF: string, endDF: string, historicoRepository: Repository<OperadorStatusLog>) {
+    const pedidoDiscadasContatosQuery = `
+    SELECT
+      COUNT(DISTINCT CC.CODIGO) AS DISCADAS,
+      COALESCE(CAST(SUM(IF(RES.ECONTATO='SIM',1,0)) AS CHAR), 0) AS CONTATOS,
+      COALESCE(CAST(SUM(IF(RES.EPEDIDO='SIM',1,0)) AS CHAR), 0) AS PEDIDOS
+    FROM
+        CAMPANHAS_CLIENTES CC
+    LEFT JOIN RESULTADOS RES ON RES.CODIGO = CC.RESULTADO
+    WHERE
+        CC.OPERADOR_LIGACAO = ? AND
+        DATE(CC.data_hora_lig) BETWEEN ? AND ?;
+  `;
+  
+  const pedidoDiscadasContatosQueryResult = await historicoRepository.query(pedidoDiscadasContatosQuery, [codigo_operador, startDF, endDF]);
+  
+  return pedidoDiscadasContatosQueryResult;
+  }
 async function getLastClient(codigo_operador: number, historicoRepository: Repository<OperadorStatusLog>) {
     return await historicoRepository.query("SELECT CLIENTE FROM campanhas_clientes WHERE campanhas_clientes.OPERADOR = ? ORDER BY CODIGO DESC LIMIT 1; ", [codigo_operador]);
 }
@@ -67,7 +86,7 @@ async function getValorVenda(codigo_operador: number, startDF: string, endDF: st
 
     const valorResult = await historicoRepository.query(valorQuery, [codigo_operador, startDF, endDF]);
 
-    return (valorResult !== null && valorResult.length > 0) ? parseFloat(valorResult[0].VALOR) : 0;
+    return valorResult;
 }
 
 async function getValorProposta(codigo_operador: number, startDF: string, endDF: string, historicoRepository: Repository<OperadorStatusLog>) {
