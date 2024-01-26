@@ -32,10 +32,18 @@ export async function getAllUsersService(startDate: Date, endDate: Date) {
         let codigo_operador = operador.OPERADOR;
 
         if (!MAGIC_NUMBERS.includes(codigo_operador)) {
-            const [PedidoDiscadasContatos]  = await getPedidoDiscadasContatos(codigo_operador, startDF, endDF, historicoRepository);
-            const [CLIENTE] = await getLastClient(codigo_operador, historicoRepository);
-            const [VALOR_VENDA] = await getValorVenda(codigo_operador, startDF, endDF, historicoRepository);
-            const VALOR_PROPOSTA = await getValorProposta(codigo_operador, startDF, endDF, historicoRepository);
+            const [
+                PedidoDiscadasContatos,
+                CLIENTE,
+                VALOR_VENDA,
+                VALOR_PROPOSTA
+            ] = await Promise.all([
+                getPedidoDiscadasContatos(codigo_operador, startDF, endDF, historicoRepository),
+                getLastClient(codigo_operador, historicoRepository),
+                getValorVenda(codigo_operador, startDF, endDF, historicoRepository),
+                getValorProposta(codigo_operador, startDF, endDF, historicoRepository)
+            ]);
+        
 
             const operadorComHistoricoStatus: OperadorComHistoricoStatus = {
                 ...operador,
