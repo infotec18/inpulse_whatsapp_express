@@ -32,18 +32,10 @@ export async function getAllUsersService(startDate: Date, endDate: Date) {
         let codigo_operador = operador.OPERADOR;
 
         if (!MAGIC_NUMBERS.includes(codigo_operador)) {
-            const [
-                PedidoDiscadasContatos,
-                CLIENTE,
-                VALOR_VENDA,
-                VALOR_PROPOSTA
-            ] = await Promise.all([
-                getPedidoDiscadasContatos(codigo_operador, startDF, endDF, historicoRepository),
-                getLastClient(codigo_operador, historicoRepository),
-                getValorVenda(codigo_operador, startDF, endDF, historicoRepository),
-                getValorProposta(codigo_operador, startDF, endDF, historicoRepository)
-            ]);
-        
+            const [PedidoDiscadasContatos]  = await getPedidoDiscadasContatos(codigo_operador, startDate, endDate, historicoRepository);
+            const [CLIENTE] = await getLastClient(codigo_operador, historicoRepository);
+            const [VALOR_VENDA] = await getValorVenda(codigo_operador, startDF, endDF, historicoRepository);
+            const VALOR_PROPOSTA = await getValorProposta(codigo_operador, startDF, endDF, historicoRepository);
 
             const operadorComHistoricoStatus: OperadorComHistoricoStatus = {
                 ...operador,
@@ -62,7 +54,7 @@ export async function getAllUsersService(startDate: Date, endDate: Date) {
 }
 
 
-async function getPedidoDiscadasContatos(codigo_operador: number, startDF: string, endDF: string, historicoRepository: Repository<OperadorStatusLog>) {
+async function getPedidoDiscadasContatos(codigo_operador: number, startDate: Date, endDate: Date, historicoRepository: Repository<OperadorStatusLog>) {
     const pedidoDiscadasContatosQuery = `
     SELECT
       COUNT(DISTINCT CC.CODIGO) AS DISCADAS,
@@ -76,7 +68,7 @@ async function getPedidoDiscadasContatos(codigo_operador: number, startDF: strin
         DATE(CC.data_hora_lig) BETWEEN ? AND ?;
   `;
   
-  const pedidoDiscadasContatosQueryResult = await historicoRepository.query(pedidoDiscadasContatosQuery, [codigo_operador, startDF, endDF]);
+  const pedidoDiscadasContatosQueryResult = await historicoRepository.query(pedidoDiscadasContatosQuery, [codigo_operador, MysqlDate(startDate), MysqlDate(endDate)]);
   
   return pedidoDiscadasContatosQueryResult;
   }
