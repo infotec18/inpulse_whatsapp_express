@@ -50,7 +50,6 @@ export async function getAllUsersService(startDate: Date, endDate: Date) {
             operadoresComHistoricoStatus.push(operadorComHistoricoStatus);
         }
     }
-console.table(operadoresComHistoricoStatus)
     return { dados: operadoresComHistoricoStatus };
 }
 
