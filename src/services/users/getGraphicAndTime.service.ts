@@ -4,7 +4,7 @@ import { User } from "../../entities/user.entity";
 import { OperadorStatusLog } from '../../entities/operadoresStatusLog.entity';
 import { VOperadoresStatus } from "../../entities/voperadpres.entity";
 
-const MAGIC_NUMBERS = [10, 11, 1];
+const MAGIC_NUMBERS = [12, 11, 1];
 
 export async function getLastUserIdService( startDate: Date, endDate: Date) {
   const historicoRepository = AppDataSource.getRepository(User);

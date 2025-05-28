@@ -3,132 +3,163 @@ import { AppDataSource } from "../../data-source";
 import { VOperadoresStatus } from "../../entities/voperadpres.entity";
 import { OperadorStatusLog } from '../../entities/operadoresStatusLog.entity';
 
-const MAGIC_NUMBERS = [10, 11, 1];
+const MAGIC_NUMBERS = [12, 11, 1];
 
 interface OperadorComHistoricoStatus {
-    OPERADOR: number;
-    NOME: string;
-    STATUS_ATUAL: string;
-    TEMPO: number;
-    CODIGO_CLIENTE: number;
-    VALOR_PROPOSTA: number;
-    VALOR_VENDA: number;
-    PEDIDOS: number,
-    CONTATOS: number,
-    DISCADAS: number
+  OPERADOR: number;
+  NOME: string;
+  STATUS_ATUAL: string;
+  TEMPO: number;
+  CODIGO_CLIENTE: number;
+  VALOR_PROPOSTA: number;
+  VALOR_VENDA: number;
+  PEDIDOS: number;
+  CONTATOS: number;
+  DISCADAS: number;
 }
 
 export async function getAllUsersService(startDate: Date, endDate: Date) {
-    const usersRepository = AppDataSource.getRepository(VOperadoresStatus);
-    const historicoRepository = AppDataSource.getRepository(OperadorStatusLog);
+  const usersRepository = AppDataSource.getRepository(VOperadoresStatus);
+  const historicoRepository = AppDataSource.getRepository(OperadorStatusLog);
 
-    const [dados] = await usersRepository.findAndCount();
-    const operadoresComHistoricoStatus: OperadorComHistoricoStatus[] = [];
+  // Pega todos os operadores filtrando os magic numbers
+  const [dados] = await usersRepository.findAndCount();
+  const operadoresFiltrados = dados.filter(op => !MAGIC_NUMBERS.includes(op.OPERADOR));
+  const operadoresCodigos = operadoresFiltrados.map(op => op.OPERADOR);
 
-    const startDF = converterDataParaDiaMesAno(startDate);
-    const endDF = converterDataParaDiaMesAno(endDate);
+  const startDF = converterDataParaDiaMesAno(startDate);
+  const endDF = converterDataParaDiaMesAno(endDate);
 
-    for (const operador of dados) {
-        let codigo_operador = operador.OPERADOR;
+  // Executa todas as queries em paralelo
+  const [
+    discadasContatosPedidos,
+    ultimosClientes,
+    valoresVenda,
+    valoresProposta
+  ] = await Promise.all([
+    getPedidoDiscadasContatosBatch(operadoresCodigos, startDate, endDate, historicoRepository),
+    getLastClientBatch(operadoresCodigos, historicoRepository),
+    getValorVendaBatch(operadoresCodigos, startDF, endDF, historicoRepository),
+    getValorPropostaBatch(operadoresCodigos, startDF, endDF, historicoRepository),
+  ]);
 
-        if (!MAGIC_NUMBERS.includes(codigo_operador)) {
-            const [PedidoDiscadasContatos]  = await getPedidoDiscadasContatos(codigo_operador, startDate, endDate, historicoRepository);
-            const [CLIENTE] = await getLastClient(codigo_operador, historicoRepository);
-            const [VALOR_VENDA] = await getValorVenda(codigo_operador, startDF, endDF, historicoRepository);
-            const VALOR_PROPOSTA = await getValorProposta(codigo_operador, startDF, endDF, historicoRepository);
+  // Monta o resultado final, usando Maps para lookup rápido
+  const operadoresComHistoricoStatus: OperadorComHistoricoStatus[] = operadoresFiltrados.map(op => {
+    const codigo = op.OPERADOR;
+    return {
+      ...op,
+      CODIGO_CLIENTE: ultimosClientes.get(codigo) || 0,
+      VALOR_PROPOSTA: valoresProposta.get(codigo) || 0,
+      VALOR_VENDA: valoresVenda.get(codigo) || 0,
+      PEDIDOS: discadasContatosPedidos.get(codigo)?.PEDIDOS || 0,
+      CONTATOS: discadasContatosPedidos.get(codigo)?.CONTATOS || 0,
+      DISCADAS: discadasContatosPedidos.get(codigo)?.DISCADAS || 0,
+    };
+  });
 
-            const operadorComHistoricoStatus: OperadorComHistoricoStatus = {
-                ...operador,
-                CODIGO_CLIENTE: CLIENTE.CLIENTE,
-                VALOR_PROPOSTA,
-                VALOR_VENDA:VALOR_VENDA.VALOR,
-                PEDIDOS : PedidoDiscadasContatos.PEDIDOS,
-                CONTATOS : PedidoDiscadasContatos.CONTATOS,
-                DISCADAS : PedidoDiscadasContatos.DISCADAS
-            };
-
-            operadoresComHistoricoStatus.push(operadorComHistoricoStatus);
-        }
-    }
-    return { dados: operadoresComHistoricoStatus };
+  return { dados: operadoresComHistoricoStatus };
 }
 
+// === Funções Batch com Map para lookup rápido === //
 
-async function getPedidoDiscadasContatos(codigo_operador: number, startDate: Date, endDate: Date, historicoRepository: Repository<OperadorStatusLog>) {
-    const pedidoDiscadasContatosQuery = `
+async function getPedidoDiscadasContatosBatch(
+  codigos: number[],
+  startDate: Date,
+  endDate: Date,
+  repo: Repository<OperadorStatusLog>
+): Promise<Map<number, { PEDIDOS: number; CONTATOS: number; DISCADAS: number }>> {
+  if (codigos.length === 0) return new Map();
+
+  const query = `
     SELECT
+      CC.OPERADOR_LIGACAO AS OPERADOR,
       COUNT(DISTINCT CC.CODIGO) AS DISCADAS,
-      COALESCE(CAST(SUM(IF(RES.ECONTATO='SIM',1,0)) AS CHAR), 0) AS CONTATOS,
-      COALESCE(CAST(SUM(IF(RES.EPEDIDO='SIM',1,0)) AS CHAR), 0) AS PEDIDOS
-    FROM
-        CAMPANHAS_CLIENTES CC
+      SUM(IF(RES.ECONTATO='SIM',1,0)) AS CONTATOS,
+      SUM(IF(RES.EPEDIDO='SIM',1,0)) AS PEDIDOS
+    FROM CAMPANHAS_CLIENTES CC
     LEFT JOIN RESULTADOS RES ON RES.CODIGO = CC.RESULTADO
-    WHERE
-        CC.OPERADOR_LIGACAO = ? AND
-        DATE(CC.data_hora_lig) BETWEEN ? AND ?;
-  `;
-  
-  const pedidoDiscadasContatosQueryResult = await historicoRepository.query(pedidoDiscadasContatosQuery, [codigo_operador, MysqlDate(startDate), MysqlDate(endDate)]);
-  
-  return pedidoDiscadasContatosQueryResult;
-  }
-async function getLastClient(codigo_operador: number, historicoRepository: Repository<OperadorStatusLog>) {
-    return await historicoRepository.query("SELECT CLIENTE FROM campanhas_clientes WHERE campanhas_clientes.OPERADOR = ? ORDER BY CODIGO DESC LIMIT 1; ", [codigo_operador]);
+    WHERE CC.OPERADOR_LIGACAO IN (${codigos.join(',')})
+      AND DATE(CC.data_hora_lig) BETWEEN ? AND ?
+    GROUP BY CC.OPERADOR_LIGACAO`;
+
+  const result = await repo.query(query, [MysqlDate(startDate), MysqlDate(endDate)]);
+  return new Map(result.map((r: any) => [r.OPERADOR, {
+    PEDIDOS: Number(r.PEDIDOS) || 0,
+    CONTATOS: Number(r.CONTATOS) || 0,
+    DISCADAS: Number(r.DISCADAS) || 0,
+  }]));
 }
 
-async function getValorVenda(codigo_operador: number, startDF: string, endDF: string, historicoRepository: Repository<OperadorStatusLog>) {
-    const valorQuery = `
-        SELECT SUM(cc.VALOR) as VALOR
-        FROM compras cc
-        WHERE cc.OPERADOR = ? AND cc.DATA BETWEEN ? AND ?
-    `;
+async function getLastClientBatch(
+  codigos: number[],
+  repo: Repository<OperadorStatusLog>
+): Promise<Map<number, number>> {
+  if (codigos.length === 0) return new Map();
 
-    const valorResult = await historicoRepository.query(valorQuery, [codigo_operador, startDF, endDF]);
+  const query = `
+    SELECT cc.OPERADOR, cc.CLIENTE
+    FROM campanhas_clientes cc
+    INNER JOIN (
+      SELECT OPERADOR, MAX(CODIGO) AS MAX_CODIGO
+      FROM campanhas_clientes
+      WHERE OPERADOR IN (${codigos.join(',')})
+      GROUP BY OPERADOR
+    ) ult ON cc.OPERADOR = ult.OPERADOR AND cc.CODIGO = ult.MAX_CODIGO`;
 
-    return valorResult;
+  const result = await repo.query(query);
+  return new Map(result.map((r: any) => [r.OPERADOR, Number(r.CLIENTE) || 0]));
 }
 
-async function getValorProposta(codigo_operador: number, startDF: string, endDF: string, historicoRepository: Repository<OperadorStatusLog>) {
-    const propostaQuery = `
-        SELECT p.VALOR
-        FROM campanhas_clientes a
-        INNER JOIN propostas p ON p.LIGACAO = a.CODIGO
-        WHERE a.OPERADOR = ? AND a.DT_RESULTADO BETWEEN ? AND ?
-    `;
+async function getValorVendaBatch(
+  codigos: number[],
+  start: string,
+  end: string,
+  repo: Repository<OperadorStatusLog>
+): Promise<Map<number, number>> {
+  if (codigos.length === 0) return new Map();
 
-    const valorPropostaResult = await historicoRepository.query(propostaQuery, [codigo_operador, startDF, endDF]);
+  const query = `
+    SELECT OPERADOR, SUM(VALOR) as VALOR
+    FROM compras
+    WHERE OPERADOR IN (${codigos.join(',')})
+      AND DATA BETWEEN ? AND ?
+    GROUP BY OPERADOR`;
 
-    return (valorPropostaResult !== null && valorPropostaResult.length > 0) ? parseFloat(valorPropostaResult[0].VALOR) : 0;
+  const result = await repo.query(query, [start, end]);
+  return new Map(result.map((r: any) => [r.OPERADOR, parseFloat(r.VALOR) || 0]));
 }
 
-function MysqlDate(date: number | Date) {
-    const newDate = new Date(date);
+async function getValorPropostaBatch(
+  codigos: number[],
+  start: string,
+  end: string,
+  repo: Repository<OperadorStatusLog>
+): Promise<Map<number, number>> {
+  if (codigos.length === 0) return new Map();
 
-    const YYYY = newDate.getFullYear();
-    const month = newDate.getMonth() + 1;
-    const day = newDate.getDate();
-    const hour = newDate.getHours();
-    const minutes = newDate.getMinutes();
-    const seconds = newDate.getSeconds();
+  const query = `
+    SELECT a.OPERADOR, SUM(p.VALOR) as VALOR
+    FROM campanhas_clientes a
+    INNER JOIN propostas p ON p.LIGACAO = a.CODIGO
+    WHERE a.OPERADOR IN (${codigos.join(',')})
+      AND a.DT_RESULTADO BETWEEN ? AND ?
+    GROUP BY a.OPERADOR`;
 
-    const MM = month >= 10 ? month : `0${month}`;
-    const DD = day >= 10 ? day : `0${day}`;
-    const HH = hour >= 10 ? hour : `0${hour}`;
-    const mm = minutes >= 10 ? minutes : `0${minutes}`;
-    const ss = seconds >= 10 ? seconds : `0${seconds}`;
+  const result = await repo.query(query, [start, end]);
+  return new Map(result.map((r: any) => [r.OPERADOR, parseFloat(r.VALOR) || 0]));
+}
 
-    const mysqlDateString = `${YYYY}-${MM}-${DD} ${HH}:${mm}:${ss}`;
+// === Utils === //
 
-    return mysqlDateString;
-};
-function converterDataParaDiaMesAno(dataComHoras:any) {
-    const data = new Date(dataComHoras);
-    const dia = data.getDate();
-    const mes = data.getMonth() + 1; 
-    const ano = data.getFullYear();
-  
-    const dataFormatada = `${ano}-${mes < 10 ? '0' : ''}${mes}-${dia < 10 ? '0' : ''}${dia}`;
-  
-    return dataFormatada;
-  }
-  
+function MysqlDate(date: number | Date): string {
+  const newDate = new Date(date);
+  return newDate.toISOString().slice(0, 19).replace('T', ' ');
+}
+
+function converterDataParaDiaMesAno(data: Date): string {
+  const d = new Date(data);
+  const dia = d.getDate();
+  const mes = d.getMonth() + 1;
+  const ano = d.getFullYear();
+  return `${ano}-${mes < 10 ? '0' + mes : mes}-${dia < 10 ? '0' + dia : dia}`;
+}

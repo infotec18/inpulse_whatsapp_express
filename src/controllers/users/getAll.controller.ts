@@ -17,5 +17,5 @@ export const getAllUsersController = async (req: Request, res: Response) => {
 
     const { dados } = await services.users.getAll(startDate, endDate);
   
-    return res.status(201).json({ dados });
+    return res.status(200).json({ dados });
 };
